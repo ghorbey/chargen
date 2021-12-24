@@ -1,6 +1,9 @@
 {
   "name": "chargen",
   "version": "1.0.0",
+  "author": {
+    "name": "Stéphane Paquay"
+  },
   "scripts": {
     "client": "cd client && yarn start",
     "server": "nodemon server.js",
