@@ -1,75 +1,33 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
-import logo from './logo.svg';
+import Container from 'react-bootstrap/Container';
 
-import './App.css';
+import { CharacterListPage, CharacterPage, HomePage, PreferencesPage, UserListPage, UserPage } from './pages';
+import { Header } from './components';
 
-class App extends Component {
-  state = {
-    response: '',
-    post: '',
-    responseToPost: '',
-  };
+import './scss/App.scss';
 
-  componentDidMount() {
-    this.callApi()
-      .then(res => this.setState({ response: res.express }))
-      .catch(err => console.log(err));
-  }
-
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
-
-    return body;
-  };
-
-  handleSubmit = async e => {
-    e.preventDefault();
-    const response = await fetch('/api/world', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.post }),
-    });
-    const body = await response.text();
-
-    this.setState({ responseToPost: body });
-  };
-
+class App extends React.Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-        <p>{this.state.response}</p>
-        <form onSubmit={this.handleSubmit}>
-          <p>
-            <strong>Post to Server:</strong>
-          </p>
-          <input
-            type="text"
-            value={this.state.post}
-            onChange={e => this.setState({ post: e.target.value })}
-          />
-          <button type="submit">Submit</button>
-        </form>
-        <p>{this.state.responseToPost}</p>
-      </div>
+      <Container fluid>
+        <h1>Les Principautés Frontalière - Le jeu de rôle grandeur nature</h1>
+        <Router>
+          <div>
+            <Header />
+            <hr />
+            <Routes>
+              <Route exact path='/' element={<HomePage />} />
+              <Route path='/character-list' element={<CharacterListPage />} />
+              <Route path='/character' element={<CharacterPage />} />
+              <Route path='/user-list' element={<UserListPage />} />
+              <Route path='/user' element={<UserPage />} />
+              <Route path='/preferences' element={<PreferencesPage />} />
+            </Routes>
+          </div>
+        </Router>
+      </Container>
     );
   }
 }
