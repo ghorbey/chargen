@@ -1,18 +1,10 @@
 const { Pool } = require("pg");
+const env = process.env.NODE_ENV || 'development';
 
-const credentials = {
-    user: "kufhjuotoojmev",
-    host: "localhost",
-    database: "d743i8seb04k2b",
-    password: "ea95488de9cb28657b7cda1bf417d9e8d1b73302b84d5575ae44e66281bcfb06",
-    port: 5432
-};
+const isProduction = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";
+const connectionString = `postgresql://${process.env.PG_USER}:${process.env.PG_PASSWORD}@${process.env.PG_HOST}:${process.env.PG_PORT}/${process.env.PG_DATABASE}`;
 
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
-    credentials.host = "ec2-52-31-201-170.eu-west-1.compute.amazonaws.com";
-}
-
-const pool = new Pool(credentials);
+const pool = new Pool({ connectionString: isProduction ? process.env.DATABASE_URL : connectionString, ssl: { rejectUnauthorized: false } });
 
 pool.on('error', err => {
     console.error('Unexpected error on idle client', err)
