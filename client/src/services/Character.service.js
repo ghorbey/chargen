@@ -8,7 +8,7 @@ const CharacterService = {
         return RequestService.get(callUrl);
     },
     getOne: (id) => {
-        const callUrl = `${url}/get/${id}`;
+        const callUrl = `${url}/${id}`;
         return RequestService.get(callUrl);
     },
     addOne: (element) => {
