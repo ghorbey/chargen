@@ -5,8 +5,8 @@ class Character extends React.Component {
         const character = this.props;
         return (
             <div>
-                <div>{character.userId}</div>
-                <div>{character.characterName}</div>
+                <div>{character.userid}</div>
+                <div>{character.name}</div>
             </div>
         );
     }

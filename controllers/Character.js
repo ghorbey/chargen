@@ -1,36 +1,39 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const database = require('../common/database');
 
 const url = '/api/character';
 
 element_get_all = (req, res) => {
-    const fakeData = [
-        { id: '1', userId: 1, characterName: 'Totof' },
-        { id: '2', userId: 2, characterName: 'Titeuf' }
-    ];
-    res.send(fakeData);
+    const query = `SELECT * FROM characters ORDER BY id`;
+    database.executeQuery(query)
+        .then(result => {
+            res.send(result.rows)
+        });
 };
 
 element_get_one = (req, res) => {
-    const fakeData = { id: '1', userId: 1, characterName: 'Totof' };
-    res.send(fakeData);
+    const query = `SELECT * FROM characters WHERE id = $id`;
+    database.executeQuery(query)
+        .then(result => res.send(result.rows));
 };
 
 element_add = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} add ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} add ${elementList.length}`;
     res.send(response);
 };
 
 element_update = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} update ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
     res.send(response);
 };
 
 element_delete = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} delete ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} delete ${elementList.length}`;
     res.send(response);
 };
 

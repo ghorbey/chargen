@@ -1,5 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const DatabaseService = require('../common/database');
 
 const url = '/api/user';
 
@@ -18,19 +20,19 @@ element_get_one = (req, res) => {
 
 element_add = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} add ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} add ${elementList.length}`;
     res.send(response);
 };
 
 element_update = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} update ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
     res.send(response);
 };
 
 element_delete = (req, res) => {
     const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} delete ${req.params.length}`;
+    const response = `NOT IMPLEMENTED: ${url} delete ${elementList.length}`;
     res.send(response);
 };
 
