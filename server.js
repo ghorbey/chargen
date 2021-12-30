@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const characterController = require('./controllers/character');
-const userController = require('./controllers/user');
+const characterController = require('./controllers/Character');
+const userController = require('./controllers/User');
 
 const app = express();
 const port = process.env.PORT || 5000;
