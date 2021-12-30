@@ -1,13 +1,8 @@
 import React from 'react';
 
-//import CharacterService from '../services/Character.service';
+import CharacterService from '../services/Character.service';
 import { CharacterList } from '../components';
 import './CharacterListPage.scss';
-
-const fakeData = [
-    { id: '1', userId: 1, characterName: 'Totof' },
-    { id: '2', userId: 2, characterName: 'Titeuf' }
-];
 
 class CharacterListPage extends React.Component {
     state = {
@@ -20,12 +15,12 @@ class CharacterListPage extends React.Component {
 
     refresh() {
         // Fake data
-        this.setState({ characters: fakeData });
-        // CharacterService
-        //     .getAll()
-        //     .then(response => {
-        //         this.setState(characters = response.data);
-        //     });
+        //this.setState({ characters: fakeData });
+        CharacterService
+            .getAll()
+            .then(response => {
+                this.setState({ characters: response.data });
+            });
     }
 
     render() {

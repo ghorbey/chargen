@@ -9,8 +9,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // API calls
-app.get('/api/hello', (req, res) => {
-  res.send({ express: 'Hello From Express' });
+app.get('/api/character/getAll', (req, res) => {
+  const fakeData = [
+    { id: '1', userId: 1, characterName: 'Totof' },
+    { id: '2', userId: 2, characterName: 'Titeuf' }
+  ];
+  res.send(fakeData);
 });
 
 app.post('/api/world', (req, res) => {
