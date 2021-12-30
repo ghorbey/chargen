@@ -1,6 +1,6 @@
 const { Pool } = require("pg");
 
-let credentials = {
+const credentials = {
     user: "kufhjuotoojmev",
     host: "localhost",
     database: "d743i8seb04k2b",
