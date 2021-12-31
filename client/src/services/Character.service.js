@@ -5,9 +5,7 @@ const url = '/api/character';
 const CharacterService = {
     getAll: () => {
         const callUrl = `${url}/getAll`;
-        const res = RequestService.get(callUrl);
-        console.log(res);
-        return res;
+        return RequestService.get(callUrl);
     },
     getOne: (id) => {
         const callUrl = `${url}/${id}`;

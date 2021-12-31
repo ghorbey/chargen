@@ -1,8 +1,12 @@
-import { RequestService } from '.';
+import RequestService from './Request.service';
 
 const url = '/api/user';
 
 const UserService = {
+    login: (credentials) => {
+        const callUrl = `${url}/login`;
+        return RequestService.post(callUrl, credentials);
+    },
     getAll: () => {
         const callUrl = `${url}/getAll`;
         return RequestService.get(callUrl);

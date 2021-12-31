@@ -20,9 +20,9 @@ element_get_one = (req, res) => {
 };
 
 element_add = (req, res) => {
-    const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} add ${elementList.length}`;
-    res.send(response);
+    const query = `INSERT INTO characters VALUES ()`;
+    database.executeQuery(query)
+        .then(result => res.send(result.rows));
 };
 
 element_update = (req, res) => {
@@ -32,9 +32,9 @@ element_update = (req, res) => {
 };
 
 element_delete = (req, res) => {
-    const elementList = req.params;
-    const response = `NOT IMPLEMENTED: ${url} delete ${elementList.length}`;
-    res.send(response);
+    const query = `DELETE FROM characters WHERE id = $id`;
+    database.executeQuery(query)
+        .then(result => res.send(result.rows));
 };
 
 router.get(`${url}/getAll`, element_get_all);
