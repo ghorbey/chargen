@@ -1,5 +1,22 @@
 CREATE TABLE characters (
-    id int,
-    userId int,
-    name varchar
+    id SERIAL,
+    user_id int,
+    character_name varchar,
+    is_pj boolean,
+    character_number int,
+    fate_points int,
+    country_id int,
+    race_id int,
+    religion_id int,
+    vocation_id int,
+    current_xp int,
+    total_xp int,
+    public_legend text,
+    background text,
+    PRIMARY KEY(id),
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id),
+    CONSTRAINT fk_country FOREIGN KEY(country_id) REFERENCES countries(id),
+    CONSTRAINT fk_race FOREIGN KEY(race_id) REFERENCES races(id),
+    CONSTRAINT fk_religion FOREIGN KEY(religion_id) REFERENCES religions(id),
+    CONSTRAINT fk_vocation FOREIGN KEY(vocation_id) REFERENCES vocations(id)
 );
