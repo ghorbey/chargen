@@ -8,5 +8,6 @@ import Activity from './Activity';
 import ActivityList from './ActivityList';
 import News from './News';
 import NewsList from './NewsList';
+import Navigation from './Navigation';
 
-export { Character, CharacterList, Header, Login, User, UserList, Activity, ActivityList, News, NewsList };
+export { Character, CharacterList, Header, Login, User, UserList, Activity, ActivityList, News, NewsList, Navigation };

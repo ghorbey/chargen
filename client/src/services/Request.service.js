@@ -1,18 +1,34 @@
 import axios from 'axios';
+import TokenService from './Token.service';
 
 if (process.env.NODE_ENV !== 'production') {
     axios.defaults.baseURL = "http://localhost:5000";
 }
 
 const RequestService = {
-    get: (url) => {
-        return axios.get(url)
+    get: async (url, requireAuth) => {
+        const token = TokenService.get();
+        const config = {};
+        if (requireAuth) {
+            config.headers = {
+                'Authorization': `Basic ${token}`
+            }
+        }
+        return axios
+            .get(url, config)
             .then(response => response.data)
             .catch(error => console.error(error));
     },
-
-    post: (url, body) => {
-        return axios.post(url, body)
+    post: async (url, body, requireAuth) => {
+        const token = TokenService.get();
+        const config = {};
+        if (requireAuth) {
+            config.headers = {
+                'Authorization': `Basic ${token}`
+            }
+        }
+        return axios
+            .post(url, body, config)
             .then(response => response.data)
             .catch(error => console.error(error));
     }

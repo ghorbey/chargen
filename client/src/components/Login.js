@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import sha256 from 'crypto-js/sha256';
 import UserService from '../services/User.service';
-
 import './Login.scss';
-
-const MD5 = require("crypto-js/md5");
 
 async function loginUser(credentials) {
     return UserService.login(credentials);
@@ -17,11 +15,10 @@ export default function Login({ setToken }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const { token } = await loginUser({ email, password: MD5(password).toString() });
+        const { token, message } = await loginUser({ email, password: sha256(password).toString() });
+        setErrorMessage(message);
         if (token) {
             setToken(token);
-        } else {
-            setErrorMessage(`Login et/ou mot de passe invalide!`);
         }
     }
 

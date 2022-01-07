@@ -2,7 +2,7 @@ CREATE TABLE characters (
     id SERIAL,
     user_id int,
     character_name varchar,
-    is_pj boolean,
+    character_type varchar,
     character_number int,
     fate_points int,
     country_id int,
