@@ -1,5 +1,4 @@
 const express = require('express');
-const sha256 = require('crypto-js/sha256');
 const jwt = require('jsonwebtoken');
 const database = require('../common/database');
 const auth = require('./auth.controller');
@@ -7,11 +6,12 @@ const auth = require('./auth.controller');
 const router = express.Router();
 const url = '/api/user';
 
-generateToken = (id, password) => {
+generateToken = (id, email, is_admin) => {
     const token = jwt.sign(
         {
             userId: id,
-            userEmail: password,
+            userEmail: email,
+            isAdmin: is_admin
         },
         'RANDOM-TOKEN',
         { expiresIn: '24h' }
@@ -26,23 +26,24 @@ login = (request, response) => {
         response.send({ token: null, message: `Veuillez fournir un nom d'utilisateur et un mot de passe` });
         return;
     }
-    const query = `SELECT id, user_password FROM users WHERE email = $1`;
+    const query = `SELECT id, user_password, is_admin FROM users WHERE email = $1`;
     const values = [request.body.email];
     database
         .executeQuery(query, values)
         .then(result => {
+            let data = {};
             if (result && result.rowCount === 1) {
-                // User login successful
-                const { user_password, id } = result.rows[0];
+                const { user_password, id, is_admin } = result.rows[0];
                 if (user_password !== password) {
-                    response.send({ token: null, message: 'Mot de passe invalide!' });
+                    data = { token: null, message: 'Mot de passe invalide!' };
                 } else {
-                    const token = generateToken(id, user_password);
-                    response.send({ token, message: '' });
+                    const token = generateToken(id, email, is_admin);
+                    data = { token, message: '', isAdmin: false };
                 }
             } else {
-                response.send({ token: null, message: `L'utilisateur ${email} n'existe pas!` });
+                data = { token: null, message: `L'utilisateur ${email} n'existe pas!` };
             }
+            response.send(data);
         });
 };
 

@@ -5,7 +5,12 @@ import UserService from '../services/User.service';
 import './Login.scss';
 
 async function loginUser(credentials) {
-    return UserService.login(credentials);
+    return UserService
+        .login(credentials)
+        .then(response => {
+
+            return response;
+        });
 }
 
 export default function Login({ setToken }) {
@@ -16,6 +21,7 @@ export default function Login({ setToken }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const { token, message } = await loginUser({ email, password: sha256(password).toString() });
+
         setErrorMessage(message);
         if (token) {
             setToken(token);

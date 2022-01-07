@@ -2,12 +2,23 @@ import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
 import { CharacterListPage, CharacterPage, HomePage, PreferencesPage, UserListPage, UserPage } from '../pages';
+import useToken from '../common/useToken';
+import { Login } from '../components';
 
 export default function Navigation(props) {
     const pages = props.pages;
+    const { token, setToken } = useToken();
 
-    return (
-        <>
+    if (!token) {
+        return (
+            <Router>
+                <Routes>
+                    <Route path='/' element={<Login setToken={setToken} />} />
+                </Routes>
+            </Router>
+        );
+    } else {
+        return (
             <Router>
                 <AppBar position="sticky">
                     <Container maxWidth="xl">
@@ -23,7 +34,7 @@ export default function Navigation(props) {
                     </Container>
                 </AppBar>
                 <Routes>
-                    <Route exact path='/' element={<HomePage />} />
+                    <Route path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
                     <Route path='/character' element={<CharacterPage />} />
                     <Route path='/user-list' element={<UserListPage />} />
@@ -31,7 +42,6 @@ export default function Navigation(props) {
                     <Route path='/preferences' element={<PreferencesPage />} />
                 </Routes>
             </Router>
-
-        </>
-    );
+        );
+    }
 }
