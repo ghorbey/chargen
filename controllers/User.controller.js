@@ -22,9 +22,7 @@ generateToken = (id, password) => {
 login = (request, response) => {
     // Validate input
     const { email, password } = request.body;
-    console.log(request.body);
     if (!email || !password) {
-        console.log(`Input data not valid!`);
         response.send({ token: null, message: `Veuillez fournir un nom d'utilisateur et un mot de passe` });
         return;
     }
@@ -39,7 +37,6 @@ login = (request, response) => {
                 if (user_password !== password) {
                     response.send({ token: null, message: 'Mot de passe invalide!' });
                 } else {
-                    console.log('Login successful');
                     const token = generateToken(id, user_password);
                     response.send({ token, message: '' });
                 }
