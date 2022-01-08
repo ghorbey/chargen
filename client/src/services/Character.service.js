@@ -11,26 +11,20 @@ const CharacterService = {
         const callUrl = `${url}/${id}`;
         return RequestService.get(callUrl, true);
     },
-    addOne: (element) => {
-        return this.addMany(url, [element]);
-    },
-    addMany: (elementList) => {
+    add: (elementList) => {
         const callUrl = `${url}/add`;
-        return RequestService.post(callUrl, elementList, true);
+        const data = { characterList: elementList };
+        return RequestService.post(callUrl, data, true);
     },
-    updateOne: (element) => {
-        return this.updateMany(url, [element]);
-    },
-    updateMany: (elementList) => {
+    update: (elementList) => {
         const callUrl = `${url}/update`;
-        return RequestService.post(callUrl, elementList, true);
+        const data = { characterList: elementList };
+        return RequestService.post(callUrl, data, true);
     },
-    deleteOne: (id) => {
-        return this.deleteMany(url, [id]);
-    },
-    deleteMany: (idList) => {
+    delete: (idList) => {
         const callUrl = `${url}/delete`;
-        return RequestService.post(callUrl, idList, true);
+        const data = { characterList: idList };
+        return RequestService.post(callUrl, data, true);
     }
 };
 

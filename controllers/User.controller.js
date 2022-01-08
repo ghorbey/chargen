@@ -28,7 +28,7 @@ login = (request, response) => {
         return;
     }
     const query = `SELECT id, user_password, is_admin, user_firstname, user_lastname FROM users WHERE email = $1`;
-    const values = [request.body.email];
+    const values = [email];
     database
         .executeQuery(query, values)
         .then(result => {

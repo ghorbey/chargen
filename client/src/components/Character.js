@@ -1,34 +1,35 @@
 import React from 'react';
-import { Select, MenuItem } from '@mui/material';
+import { Button, Alert, Container } from '@mui/material';
 
 export default function Character(props) {
-    const character = props;
-    const isEdit = false;
-    if (isEdit) {
+    const { character, isEdit, save, cancel, edit, create } = props;
+    console.log(character);
+    const handleSave = (event) => {
+        save(character);
+    };
+
+    if (!character?.user_id) {
         return (
-            <div>
-                <label>
-                    <p>Personnage :</p>
-                    <input type="text" value="{character.character_name}" />
-                </label>
-                <label>
-                    <Select value="{character.character_type}">
-                        <MenuItem value="pj">PJ</MenuItem>
-                        <MenuItem value="pnj">PNJ</MenuItem>
-                    </Select>
-                </label>
-                <label>
-                    <p>ID :</p>
-                    <input type="text" value="{character.user_id}" />
-                </label>
-            </div>
+            <Button color="primary" variant="outlined" onClick={create}>
+                Create new character
+            </Button>
+        );
+    } else if (isEdit) {
+        return (
+            <>
+                <Container>
+                    <Alert severity="info">Edit {character.character_name}</Alert>
+                    <Button color="primary" variant="outlined" onClick={cancel}>Cancel</Button>
+                    <Button color="primary" variant="outlined" onClick={handleSave}>Save</Button>
+                </Container>
+            </>
         );
     } else {
         return (
-            <div>
-                <div>{character.user_id}</div>
-                <div>{character.character_name}</div>
-            </div>
+            <>
+                <Alert severity="info">View {character.character_name}</Alert>
+                <Button color="primary" variant="outlined" onClick={edit}>Edit</Button>
+            </>
         );
     }
-};
+}

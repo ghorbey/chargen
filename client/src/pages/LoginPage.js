@@ -1,42 +1,22 @@
 import React, { useState } from 'react';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import {
-    createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Alert, Grid, Box,/*, FormControlLabel, Checkbox */
-} from '@mui/material';
+import { createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import sha256 from 'crypto-js/sha256';
+import { Error } from '../components';
 import UserService from '../services/User.service';
 import './LoginPage.scss';
 
-async function loginUser(credentials) {
-    return UserService
-        .login(credentials);
-}
-
-function Error(props) {
-    if (props.errorMessage) {
-        return (
-            <Grid container>
-                <Grid item>
-                    <Alert severity="error">
-                        {props.errorMessage}
-                    </Alert>
-                </Grid>
-            </Grid>
-        );
-    } else {
-        return '';
-    }
-}
-
-export default function LoginPage({ setToken }) {
+export default function LoginPage(props) {
+    const { setToken } = props;
     const [errorMessage, setErrorMessage] = useState('');
     const theme = createTheme();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        loginUser({ email: data.get('email'), password: sha256(data.get('password')).toString() })
+        UserService
+            .login({ email: data.get('email'), password: sha256(data.get('password')).toString() })
             .then(response => {
                 const { token, message } = response;
                 setErrorMessage(message);
@@ -44,7 +24,6 @@ export default function LoginPage({ setToken }) {
                     setToken(token);
                 }
             });
-
     };
 
     return (
@@ -86,7 +65,7 @@ export default function LoginPage({ setToken }) {
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                             Connexion
                         </Button>
-                        {Error({ errorMessage })}
+                        <Error errorMessage={errorMessage} />
                     </Box>
                 </Box>
             </Container>

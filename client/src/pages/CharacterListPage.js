@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Container from '@mui/material/Container';
+import { createTheme, Container, ThemeProvider, CssBaseline } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { CharacterList } from '../components';
 import './CharacterListPage.scss';
 
 export default function CharacterListPage() {
     const [characters, setCharacters] = useState([]);
+    const theme = createTheme();
 
     useEffect(() => {
         CharacterService
@@ -16,8 +17,9 @@ export default function CharacterListPage() {
     }, [])
 
     return (
-        <>
-            <Container>
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="xs">
+                <CssBaseline />
                 <h2>Liste des personnages (Admin)</h2>
                 <CharacterList characters={characters} />
                 <ul>
@@ -27,6 +29,6 @@ export default function CharacterListPage() {
                     <li>Afficher le lien avec un utilisateur</li>
                 </ul>
             </Container>
-        </>
+        </ThemeProvider>
     );
 }
