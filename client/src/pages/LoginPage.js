@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Link, Grid, Box/*, FormControlLabel, Checkbox */ } from '@mui/material';
+import {
+    createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Alert, Grid, Box,/*, FormControlLabel, Checkbox */
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import sha256 from 'crypto-js/sha256';
 import UserService from '../services/User.service';
@@ -9,6 +11,22 @@ import './LoginPage.scss';
 async function loginUser(credentials) {
     return UserService
         .login(credentials);
+}
+
+function Error(props) {
+    if (props.errorMessage) {
+        return (
+            <Grid container>
+                <Grid item>
+                    <Alert severity="error">
+                        {props.errorMessage}
+                    </Alert>
+                </Grid>
+            </Grid>
+        );
+    } else {
+        return '';
+    }
 }
 
 export default function LoginPage({ setToken }) {
@@ -38,7 +56,7 @@ export default function LoginPage({ setToken }) {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Connexion
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         <TextField
@@ -68,13 +86,7 @@ export default function LoginPage({ setToken }) {
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                             Connexion
                         </Button>
-                        <Grid container>
-                            <Grid item>
-                                <Link href="#" variant="body2">
-                                    {errorMessage}
-                                </Link>
-                            </Grid>
-                        </Grid>
+                        {Error({ errorMessage })}
                     </Box>
                 </Box>
             </Container>

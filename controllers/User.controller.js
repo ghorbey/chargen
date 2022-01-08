@@ -39,7 +39,7 @@ login = (request, response) => {
                     data = { token: null, message: 'Mot de passe invalide!' };
                 } else {
                     const token = generateToken(id, email, is_admin, user_firstname, user_lastname);
-                    data = { token, message: '', isAdmin: false };
+                    data = { token, message: '' };
                 }
             } else {
                 data = { token: null, message: `L'utilisateur ${email} n'existe pas!` };

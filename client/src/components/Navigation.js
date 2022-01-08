@@ -2,17 +2,40 @@ import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
 import { CharacterListPage, CharacterPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
-import { useToken } from '../common';
+import { useToken, getCurrentUser } from '../common';
 
 export default function Navigation(props) {
-    const pages = props.pages;
+    const { isAdmin, userId } = getCurrentUser();
     const { token, setToken } = useToken();
+
+    let pages = [
+        { key: '1', name: 'Accueil', path: '/', access: ['everyone'] },
+        { key: '2', name: 'Liste des personnages', path: '/character-list', access: ['admin'] },
+        { key: '3', name: 'Votre personnage', path: `/character/${userId}`, access: ['pj'] },
+        { key: '4', name: 'Votre personnage (PNJ)', path: `/character/${userId}`, access: ['admin'] },
+        { key: '5', name: 'Liste des utilisateurs', path: '/user-list', access: ['admin'] },
+        { key: '6', name: 'Votre profil', path: `/user/${userId}`, access: ['everyone'] },
+        { key: '7', name: 'Vos préférences', path: `/preferences/${userId}`, access: ['everyone'] },
+        { key: '8', name: 'Déconnexion', path: `/logout`, access: ['everyone'] }
+    ];
+
+    // Filter pages based on user type
+    pages = pages.filter(page => {
+        if (page.access.includes('everyone')) {
+            return true;
+        } else if (page.access.includes('admin') && isAdmin) {
+            return true;
+        } else if (page.access.includes('pj') && !isAdmin) {
+            return true;
+        }
+        return false;
+    });
 
     if (!token) {
         return (
             <Router>
                 <Routes>
-                    <Route path='/' element={<LoginPage setToken={setToken} />} />
+                    <Route exact path='*' element={<LoginPage setToken={setToken} />} />
                 </Routes>
             </Router>
         );
@@ -33,12 +56,13 @@ export default function Navigation(props) {
                     </Container>
                 </AppBar>
                 <Routes>
-                    <Route path='/' element={<HomePage />} />
+                    <Route exact path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
                     <Route path='/character/:userId' element={<CharacterPage />} />
                     <Route path='/user-list' element={<UserListPage />} />
                     <Route path='/user/:userId' element={<UserPage />} />
                     <Route path='/preferences/:userId' element={<PreferencesPage />} />
+                    <Route path='/logout' element={<HomePage />} />
                 </Routes>
             </Router>
         );
