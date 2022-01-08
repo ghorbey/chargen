@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const http = require('http');
+const terminate = require('./common/terminate');
 const characterController = require('./controllers/Character.controller');
 const userController = require('./controllers/User.controller');
 const preferencesController = require('./controllers/Preferences.controller');
@@ -18,6 +20,8 @@ app.use(characterController);
 app.use(userController);
 app.use(preferencesController);
 
+const server = http.createServer(app);
+
 if (process.env.NODE_ENV === 'production') {
   // Serve any static files
   app.use(express.static(path.join(__dirname, 'client/build')));
@@ -27,5 +31,15 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
 }
+
+const exitHandler = terminate(server, {
+  coredump: false,
+  timeout: 500
+});
+
+process.on('uncaughtException', exitHandler(1, 'Unexpected Error'));
+process.on('unhandledRejection', exitHandler(1, 'Unhandled Promise'));
+process.on('SIGTERM', exitHandler(0, 'SIGTERM'));
+process.on('SIGINT', exitHandler(0, 'SIGINT'));
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
