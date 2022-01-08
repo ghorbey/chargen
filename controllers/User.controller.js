@@ -6,11 +6,12 @@ const auth = require('./auth.controller');
 const router = express.Router();
 const url = '/api/user';
 
-generateToken = (id, email, is_admin) => {
+generateToken = (id, email, is_admin, user_firstname, user_lastname) => {
     const token = jwt.sign(
         {
             userId: id,
             userEmail: email,
+            userName: `${user_firstname} ${user_lastname}`,
             isAdmin: is_admin
         },
         'RANDOM-TOKEN',
@@ -26,18 +27,18 @@ login = (request, response) => {
         response.send({ token: null, message: `Veuillez fournir un nom d'utilisateur et un mot de passe` });
         return;
     }
-    const query = `SELECT id, user_password, is_admin FROM users WHERE email = $1`;
+    const query = `SELECT id, user_password, is_admin, user_firstname, user_lastname FROM users WHERE email = $1`;
     const values = [request.body.email];
     database
         .executeQuery(query, values)
         .then(result => {
             let data = {};
             if (result && result.rowCount === 1) {
-                const { user_password, id, is_admin } = result.rows[0];
+                const { user_password, id, is_admin, user_firstname, user_lastname } = result.rows[0];
                 if (user_password !== password) {
                     data = { token: null, message: 'Mot de passe invalide!' };
                 } else {
-                    const token = generateToken(id, email, is_admin);
+                    const token = generateToken(id, email, is_admin, user_firstname, user_lastname);
                     data = { token, message: '', isAdmin: false };
                 }
             } else {

@@ -1,9 +1,8 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
-import { CharacterListPage, CharacterPage, HomePage, PreferencesPage, UserListPage, UserPage } from '../pages';
-import useToken from '../common/useToken';
-import { Login } from '../components';
+import { CharacterListPage, CharacterPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
+import { useToken } from '../common';
 
 export default function Navigation(props) {
     const pages = props.pages;
@@ -13,7 +12,7 @@ export default function Navigation(props) {
         return (
             <Router>
                 <Routes>
-                    <Route path='/' element={<Login setToken={setToken} />} />
+                    <Route path='/' element={<LoginPage setToken={setToken} />} />
                 </Routes>
             </Router>
         );
@@ -36,10 +35,10 @@ export default function Navigation(props) {
                 <Routes>
                     <Route path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
-                    <Route path='/character' element={<CharacterPage />} />
+                    <Route path='/character/:userId' element={<CharacterPage />} />
                     <Route path='/user-list' element={<UserListPage />} />
-                    <Route path='/user' element={<UserPage />} />
-                    <Route path='/preferences' element={<PreferencesPage />} />
+                    <Route path='/user/:userId' element={<UserPage />} />
+                    <Route path='/preferences/:userId' element={<PreferencesPage />} />
                 </Routes>
             </Router>
         );

@@ -1,16 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Container } from '@mui/material';
+//import { useNavigate } from 'react-router-dom';
+import { /*Button, */Container } from '@mui/material';
 import { ActivityList, NewsList } from '../components';
 import './HomePage.scss';
 
 export default function HomePage() {
-    const navigate = useNavigate();
-
-    function logout() {
-        sessionStorage.removeItem('token');
-        navigate('/');
-    }
+    // const navigate = useNavigate();
+    // function logout() {
+    //     sessionStorage.removeItem('token');
+    //     navigate('/');
+    // }
 
     return (
         <>

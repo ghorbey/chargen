@@ -1,4 +1,4 @@
-function parseJwt(token) {
+export default function decodeToken(token) {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
@@ -6,13 +6,3 @@ function parseJwt(token) {
     }).join(''));
     return JSON.parse(jsonPayload);
 };
-
-export default function isAdmin() {
-    const tokenString = sessionStorage.getItem('token');
-    if (!tokenString) {
-        return false;
-    }
-    const userToken = JSON.parse(tokenString);
-    const decodedToken = parseJwt(userToken);
-    return decodedToken?.isAdmin;
-}

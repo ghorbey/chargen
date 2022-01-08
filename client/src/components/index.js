@@ -1,7 +1,6 @@
 import Character from './Character';
 import CharacterList from './CharacterList';
 import Header from './Header';
-import Login from './Login';
 import User from './User';
 import UserList from './UserList';
 import Activity from './Activity';
@@ -10,4 +9,4 @@ import News from './News';
 import NewsList from './NewsList';
 import Navigation from './Navigation';
 
-export { Character, CharacterList, Header, Login, User, UserList, Activity, ActivityList, News, NewsList, Navigation };
+export { Character, CharacterList, Header, User, UserList, Activity, ActivityList, News, NewsList, Navigation };
