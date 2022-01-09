@@ -1,6 +1,5 @@
 import React from 'react';
 import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
-import './UserListPage.scss';
 
 export default function UserListPage() {
     const theme = createTheme();

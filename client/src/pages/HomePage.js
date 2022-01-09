@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
 import { ActivityList, NewsList } from '../components';
-import './HomePage.scss';
 
 export default function HomePage() {
     const { pathname } = useLocation();

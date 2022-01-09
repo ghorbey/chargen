@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
-import { CharacterListPage, CharacterPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
+import { CharacterPage, CharacterListPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 
 export default function Navigation(props) {
@@ -11,12 +11,11 @@ export default function Navigation(props) {
     let pages = [
         { key: '1', name: 'Accueil', path: '/', access: ['everyone'] },
         { key: '2', name: 'Liste des personnages', path: '/character-list', access: ['admin'] },
-        { key: '3', name: 'Votre personnage', path: `/character/${userId}`, access: ['pj'] },
-        { key: '4', name: 'Votre personnage (PNJ)', path: `/character/${userId}`, access: ['admin'] },
-        { key: '5', name: 'Liste des utilisateurs', path: '/user-list', access: ['admin'] },
-        { key: '6', name: 'Votre profil', path: `/user/${userId}`, access: ['everyone'] },
-        { key: '7', name: 'Vos préférences', path: `/preferences/${userId}`, access: ['everyone'] },
-        { key: '8', name: 'Déconnexion', path: `/logout`, access: ['everyone'] }
+        { key: '3', name: 'Votre personnage', path: `/character/user/${userId}/view`, access: ['pj'] },
+        { key: '4', name: 'Liste des utilisateurs', path: '/user-list', access: ['admin'] },
+        { key: '5', name: 'Votre profil', path: `/user/${userId}`, access: ['everyone'] },
+        { key: '6', name: 'Vos préférences', path: `/preferences/${userId}`, access: ['everyone'] },
+        { key: '7', name: 'Déconnexion', path: `/logout`, access: ['everyone'] }
     ];
 
     // Filter pages based on user type
@@ -58,7 +57,8 @@ export default function Navigation(props) {
                 <Routes>
                     <Route exact path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
-                    <Route path='/character/:userId' element={<CharacterPage />} />
+                    <Route path='/character/:id/:action' element={<CharacterPage />} />
+                    <Route path='/character/user/:id/:action' element={<CharacterPage />} />
                     <Route path='/user-list' element={<UserListPage />} />
                     <Route path='/user/:userId' element={<UserPage />} />
                     <Route path='/preferences/:userId' element={<PreferencesPage />} />

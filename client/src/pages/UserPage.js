@@ -1,6 +1,5 @@
 import React from 'react';
 import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
-import './UserPage.scss';
 
 export default function UserPage() {
     const theme = createTheme();

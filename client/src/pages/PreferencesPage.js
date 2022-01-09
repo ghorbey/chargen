@@ -1,6 +1,5 @@
 import React from 'react';
 import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
-import './PreferencesPage.scss';
 
 export default function PreferencesPage() {
     const theme = createTheme();

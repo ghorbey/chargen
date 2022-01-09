@@ -1,33 +1,74 @@
-import React, { useEffect, useState } from 'react';
-import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
 import CharacterService from '../services/Character.service';
-import { CharacterList } from '../components';
-import './CharacterListPage.scss';
+import { checkAccess } from '../common';
+import { Error, Loading, CharacterList } from '../components';
+import { getCurrentUser } from '../common';
 
-export default function CharacterListPage() {
-    const [characters, setCharacters] = useState([]);
+export default function CharacterPage() {
+    let { userId } = useParams();
+    const navigate = useNavigate();
+    const { isAdmin } = getCurrentUser();
+    const [characterList, setCharacterList] = useState(undefined);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState();
+    const { authorized, currentUserId } = checkAccess(userId);
     const theme = createTheme();
 
+    if (!authorized) {
+        console.error('Trying to access unauthorized resource!');
+        userId = currentUserId;
+    }
+
+    const handleCreate = () => {
+        navigate(`/character/0/edit`);
+    };
+
+    const handleDelete = (id) => {
+        if (id) {
+            CharacterService
+                .delete([id])
+                .then(response => {
+                    const { isSuccessful, message } = response;
+                    if (isSuccessful) {
+                        setCharacterList(characterList ? characterList.filter(c => c.id !== id) : characterList);
+                    } else {
+                        setErrorMessage(message);
+                    }
+                });
+        }
+    };
+
     useEffect(() => {
-        CharacterService
-            .getAll()
-            .then(response => {
-                setCharacters(response.data);
-            });
-    }, [])
+        const loadData = () => {
+            if (!isLoading) {
+                setIsLoading(true);
+                CharacterService
+                    .getAll()
+                    .then(response => {
+                        if (response.characterList) {
+                            setCharacterList(response.characterList);
+                        }
+                    })
+                    .finally(() => setIsLoading(false));
+            }
+        };
+
+        if (!isLoading && !characterList) {
+            loadData();
+        }
+    }, [isLoading, characterList, setIsLoading, setCharacterList]);
 
     return (
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="lg">
                 <CssBaseline />
-                <Typography variant="h2">Liste des personnages (Admin)</Typography>
-                <CharacterList characters={characters} />
-                <ul>
-                    <li>Ajouter un personnage</li>
-                    <li>Supprimer un personnage</li>
-                    <li>Mettre à jour un personnage</li>
-                    <li>Afficher le lien avec un utilisateur</li>
-                </ul>
+                {isLoading
+                    ? <Loading />
+                    : <CharacterList characterList={characterList} create={handleCreate} deleteCharacter={handleDelete} isCreateAllowed={isAdmin} />
+                }
+                <Error errorMessage={errorMessage} />
             </Container>
         </ThemeProvider>
     );

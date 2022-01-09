@@ -1,38 +1,37 @@
 import React from 'react';
-import { Button, Alert, Container } from '@mui/material';
+import { Button, Alert } from '@mui/material';
 
 export default function Character(props) {
-    const { character, isEdit, save, cancel, edit, create, deleteCharacter } = props;
-    const handleSave = (event) => {
+    const { character, isEdit, save, cancel, edit } = props;
+
+    const handleSave = () => {
         save(character);
     };
-    const handleDelete = (event) => {
-        deleteCharacter(character?.id);
-    }
 
-    if (!character?.user_id) {
-        return (
-            <Button color="primary" variant="outlined" onClick={create}>
-                Create new character
-            </Button>
-        );
-    } else if (isEdit) {
-        return (
-            <>
-                <Container>
-                    <Alert severity="info">Edit {character.character_name}</Alert>
+    const handleEdit = () => {
+        edit(character);
+    };
+
+    if (character) {
+        if (isEdit) {
+            return (
+                <>
                     <Button color="primary" variant="outlined" onClick={cancel}>Cancel</Button>
                     <Button color="primary" variant="outlined" onClick={handleSave}>Save</Button>
-                </Container>
-            </>
-        );
+                    <Alert severity="info">Edit {character?.character_name}</Alert>
+                </>
+            );
+        } else {
+            return (
+                <>
+                    <Button color="primary" variant="outlined" onClick={handleEdit}>Edit</Button>
+                    <Alert severity="info">View {character?.character_name}</Alert>
+                </>
+            );
+        }
     } else {
         return (
-            <>
-                <Alert severity="info">View {character.character_name}</Alert>
-                <Button color="primary" variant="outlined" onClick={edit}>Edit</Button>
-                <Button color="primary" variant="outlined" onClick={handleDelete}>Delete</Button>
-            </>
+            <Alert severity="info">Aucun personnage disponible</Alert>
         );
     }
 }

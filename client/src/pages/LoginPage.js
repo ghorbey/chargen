@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Box } from '@mui/material';
 import PropTypes from 'prop-types';
+import { createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Box } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import sha256 from 'crypto-js/sha256';
 import { Error } from '../components';
 import UserService from '../services/User.service';
-import './LoginPage.scss';
 
 export default function LoginPage(props) {
     const { setToken } = props;

@@ -22,6 +22,17 @@ const database = {
                     })
                     .catch(error => console.warn(error));
             });
+    },
+    executeQueries: (queryList) => {
+        return pool.connect()
+            .then(client => {
+                return client.query(queryList)
+                    .then(response => {
+                        client.end();
+                        return response;
+                    })
+                    .catch(error => console.warn(error));
+            });
     }
 };
 
