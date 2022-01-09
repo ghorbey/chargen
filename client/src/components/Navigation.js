@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
-import { CharacterPage, CharacterListPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
+import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 
 export default function Navigation(props) {
@@ -11,7 +11,7 @@ export default function Navigation(props) {
     let pages = [
         { key: '1', name: 'Accueil', path: '/', access: ['everyone'] },
         { key: '2', name: 'Liste des personnages', path: '/character-list', access: ['admin'] },
-        { key: '3', name: 'Votre personnage', path: `/character/user/${userId}/view`, access: ['pj'] },
+        { key: '3', name: 'Votre personnage', path: `/character/user/view`, access: ['pj'] },
         { key: '4', name: 'Liste des utilisateurs', path: '/user-list', access: ['admin'] },
         { key: '5', name: 'Votre profil', path: `/user/${userId}`, access: ['everyone'] },
         { key: '6', name: 'Vos préférences', path: `/preferences/${userId}`, access: ['everyone'] },
@@ -58,7 +58,7 @@ export default function Navigation(props) {
                     <Route exact path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
                     <Route path='/character/:id/:action' element={<CharacterPage />} />
-                    <Route path='/character/user/:id/:action' element={<CharacterPage />} />
+                    <Route path='/character/user/:action' element={<CharacterUserPage />} />
                     <Route path='/user-list' element={<UserListPage />} />
                     <Route path='/user/:userId' element={<UserPage />} />
                     <Route path='/preferences/:userId' element={<PreferencesPage />} />

@@ -47,8 +47,10 @@ export default function CharacterPage() {
                 CharacterService
                     .getAll()
                     .then(response => {
-                        if (response.characterList) {
-                            setCharacterList(response.characterList);
+                        if (response.data) {
+                            setCharacterList(response.data);
+                        } else {
+                            setCharacterList([]);
                         }
                     })
                     .finally(() => setIsLoading(false));

@@ -6,62 +6,80 @@ const router = express.Router();
 const url = '/api/character';
 
 element_get_all = (request, response) => {
-    console.log(`retrieve all characters`);
-    const query = `SELECT * FROM characters ORDER BY character_name`;
-    database
-        .executeQuery(query)
-        .then(result => {
-            let data = {};
-            if (result?.rowCount >= 1) {
-                data = { characterList: result.rows, isSuccessful: true, message: '' };
-            } else {
-                data = { characterList: [], isSuccessful: true, message: 'Aucun personnage existant' };
-            }
-            response.send(data);
-        });
-};
-
-element_get = (request, response) => {
-    const { id } = request.params;
-    if (id > 0) {
-        console.log(`retrieve character ${id}`);
-        const values = [id];
-        const query = `SELECT * FROM characters WHERE id = $1`;
+    try {
+        console.log(`retrieve all characters`);
+        const query = `SELECT * FROM characters ORDER BY character_name`;
         database
-            .executeQuery(query, values)
+            .executeQuery(query)
             .then(result => {
                 let data = {};
-                if (result?.rowCount === 1) {
-                    data = { character: result.rows[0], isSuccessful: true, message: '' };
+                if (result?.rowCount >= 1) {
+                    data = { data: result.rows, isSuccessful: true, message: '' };
                 } else {
-                    data = { character: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
+                    data = { data: [], isSuccessful: true, message: 'Aucun personnage existant' };
                 }
                 response.send(data);
             });
-    } else {
-        response.send({ character: null, isSuccessful: false, message: 'Id de personnage invalide' });
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}`, data: [] });
+    }
+};
+
+element_get = (request, response) => {
+    try {
+        const { id } = request.params;
+        if (+id > 0) {
+            console.log(`retrieve character ${id}`);
+            const values = [id];
+            const query = `SELECT * FROM characters WHERE id = $1`;
+            database
+                .executeQuery(query, values)
+                .then(result => {
+                    let data = {};
+                    if (result?.rowCount === 1) {
+                        data = { data: result.rows[0], isSuccessful: true, message: '' };
+                    } else {
+                        data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
+                    }
+                    response.send(data);
+                });
+        } else {
+            response.send({ data: null, isSuccessful: false, message: 'Id de personnage invalide' });
+        }
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}`, data: [] });
     }
 };
 
 element_get_for_user = (request, response) => {
-    const { userId } = request.params;
-    if (userId > 0) {
-        console.log(`retrieve character for user ${userId}`);
-        const values = [userId];
-        const query = `SELECT * FROM characters WHERE user_id = $1 LIMIT 1`;
-        database
-            .executeQuery(query, values)
-            .then(result => {
-                let data = {};
-                if (result?.rowCount === 1) {
-                    data = { character: result.rows[0], isSuccessful: true, message: '' };
-                } else {
-                    data = { character: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
-                }
-                response.send(data);
-            });
-    } else {
-        response.send({ character: null, isSuccessful: false, message: 'Id de personnage invalide' });
+    try {
+        const { userId } = request.params;
+        if (+userId > 0) {
+            console.log(`retrieve character for user ${userId}`);
+            const values = [userId];
+            const query = `SELECT * FROM characters WHERE user_id = $1 LIMIT 1`;
+            database
+                .executeQuery(query, values)
+                .then(result => {
+                    let data = {};
+                    if (result?.rowCount === 1) {
+                        data = { data: result.rows[0], isSuccessful: true, message: '' };
+                    } else {
+                        data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
+                    }
+                    response.send(data);
+                });
+        } else {
+            response.send({ data: null, isSuccessful: false, message: 'Id de personnage invalide' });
+        }
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de récupérer le personnage du joueur : ${ex}`, data: [] });
     }
 };
 

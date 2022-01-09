@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
 
-export default function CharacterPage() {
-    let { id, action } = useParams();
-    const navigate = useNavigate();
+export default function CharacterUserPage() {
+    let { action } = useParams();
     const { userId } = getCurrentUser();
     const [currentCharacter, setCurrentCharacter] = useState(undefined);
     const [originalCharacter, setOriginalCharacter] = useState(undefined);
@@ -55,20 +54,13 @@ export default function CharacterPage() {
 
     useEffect(() => {
         const loadData = () => {
-            if (+id === 0) {
-                setCurrentCharacter({ user_id: +userId, character_name: 'Nom', character_type: 'pj', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '' });
-            } else if (!isLoading && id > 0) {
+            if (!isLoading && +userId > 0) {
                 setIsLoading(true);
                 CharacterService
-                    .get(id)
+                    .getForUser(userId)
                     .then(response => {
                         if (response.data) {
-                            if (response.data.user_id === userId) {
-                                setCurrentCharacter(response.data);
-                            } else {
-                                console.error('Trying to access unauthorized resource!');
-                                navigate('/');
-                            }
+                            setCurrentCharacter(response.data);
                         } else {
                             setCurrentCharacter({});
                         }
@@ -78,10 +70,10 @@ export default function CharacterPage() {
                 setCurrentCharacter({});
             }
         };
-        if (!isLoading && !currentCharacter && id >= 0) {
+        if (!isLoading && !currentCharacter && +userId > 0) {
             loadData();
         }
-    }, [isLoading, userId, id, currentCharacter, setIsLoading, setCurrentCharacter, navigate]);
+    }, [isLoading, userId, currentCharacter, setIsLoading, setCurrentCharacter]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -97,7 +89,6 @@ export default function CharacterPage() {
     );
 }
 
-CharacterPage.propTypes = {
-    id: PropTypes.number,
+CharacterUserPage.propTypes = {
     action: PropTypes.string
 }
