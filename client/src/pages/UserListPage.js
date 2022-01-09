@@ -1,12 +1,14 @@
 import React from 'react';
-import Container from '@mui/material/Container';
+import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
 import './UserListPage.scss';
 
 export default function UserListPage() {
+    const theme = createTheme();
     return (
-        <>
-            <Container>
-                <h2>Liste des utilisateurs (Admin)</h2>
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="lg">
+                <CssBaseline />
+                <Typography variant="h2">Liste des utilisateurs (Admin)</Typography>
                 <ul>
                     <li>Liste</li>
                     <li>Ajouter un utilisateur</li>
@@ -14,6 +16,6 @@ export default function UserListPage() {
                     <li>Mettre à jour un utilisateur</li>
                 </ul>
             </Container>
-        </>
+        </ThemeProvider>
     );
 }

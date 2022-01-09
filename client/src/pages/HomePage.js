@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { createTheme, Container, ThemeProvider, CssBaseline } from '@mui/material';
+import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
 import { ActivityList, NewsList } from '../components';
 import './HomePage.scss';
 
@@ -19,9 +19,9 @@ export default function HomePage() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="xs">
+            <Container component="main" maxWidth="lg">
                 <CssBaseline />
-                <h2>Page d'accueil</h2>
+                <Typography variant="h2">Page d'accueil</Typography>
                 <NewsList />
                 <ActivityList />
             </Container>

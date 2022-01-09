@@ -23,7 +23,7 @@ const CharacterService = {
     },
     delete: (idList) => {
         const callUrl = `${url}/delete`;
-        const data = { characterList: idList };
+        const data = { idList };
         return RequestService.post(callUrl, data, true);
     }
 };

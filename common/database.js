@@ -9,7 +9,7 @@ const database = {
                         client.end();
                         return response;
                     })
-                    .catch(error => console.log(error));
+                    .catch(error => console.warn(error));
             });
     },
     executeQuery: (query, values) => {
@@ -20,7 +20,7 @@ const database = {
                         client.end();
                         return response;
                     })
-                    .catch(error => console.log(error));
+                    .catch(error => console.warn(error));
             });
     }
 };

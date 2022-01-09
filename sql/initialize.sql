@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS countries;
 
 CREATE TABLE vocations (
     id SERIAL,
-    vocation_name int,
+    vocation_name varchar,
     PRIMARY KEY(id)
 );
 
@@ -30,9 +30,10 @@ CREATE TABLE users (
     PRIMARY KEY(id)
 );
 
-CREATE TABLE skills(
+CREATE TABLE skills (
     id SERIAL,
     skill_name varchar,
+    is_base boolean,
     PRIMARY KEY(id)
 );
 
@@ -139,9 +140,71 @@ CREATE TABLE characters_annexes (
 );
 
 INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('Stéphane', 'Paquay', '0495/77.90.18', 's.paquay@gmail.com', '5b1239604f38b2f55640c18c31690e517e16272a384f662b236722040a01d448', true);
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('Frédéric', 'Pire', '0484/24.41.20', 'wodin666@hotmail.com', '21a5cb47367e9cbfaea510818bff43d08da70befd3e54638be290d831b2bc5db', true); /*gnfred*/
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('test', 'test', '', 'test@test.com', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false); /*test*/
 
-/*gnfred*/
-INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('Frédéric', 'Pire', '0484/24.41.20', 'wodin666@hotmail.com', '21a5cb47367e9cbfaea510818bff43d08da70befd3e54638be290d831b2bc5db', true);
+INSERT INTO vocations (vocation_name) VALUES ('Guerrier');
+INSERT INTO vocations (vocation_name) VALUES ('Forestier');
+INSERT INTO vocations (vocation_name) VALUES ('Filou');
+INSERT INTO vocations (vocation_name) VALUES ('Lettré');
 
-/*test*/
-INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('test', 'test', '', 'test@test.com', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false);
+INSERT INTO religions (religion_name) VALUES ('Tous');
+INSERT INTO religions (religion_name) VALUES ('Sigmar');
+INSERT INTO religions (religion_name) VALUES ('Ulric');
+INSERT INTO religions (religion_name) VALUES ('Mórr');
+INSERT INTO religions (religion_name) VALUES ('Ranald');
+INSERT INTO religions (religion_name) VALUES ('Shallya');
+INSERT INTO religions (religion_name) VALUES ('Aucun');
+INSERT INTO religions (religion_name) VALUES ('Autre');
+
+INSERT INTO races (race_name) VALUES ('Humain');
+INSERT INTO races (race_name) VALUES ('Elfe');
+INSERT INTO races (race_name) VALUES ('Nain');
+INSERT INTO races (race_name) VALUES ('Autre');
+
+INSERT INTO countries (country_name) VALUES ('Principautés frontalières');
+INSERT INTO countries (country_name) VALUES ('Bretonie');
+
+INSERT INTO skills (skill_name, is_base) VALUES ('Armes de base', true); /* 1 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Fouille I', true); /* 2 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Armes à 1 main', false); /* 3 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Bouclier', false); /* 4 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Lire et écrire', false); /* 5 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Fouille II', false); /* 6 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Baratin', false); /* 7 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Estimation', false); /* 8 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Dissimulation', false); /* 9 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Crochetage', false); /* 10 */
+INSERT INTO skills (skill_name, is_base) VALUES ('Soins I', false); /* 11 */
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Milicien', 1);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (1, 3);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (1, 4);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Garde', 1);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (2, 3);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (2, 4);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Coureur des bois', 2);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (3, 6);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (3, 9);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Messager', 2);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (4, 3);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (4, 9);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Agitateur', 3);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (5, 7);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (5, 9);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Voleur', 3);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (6, 9);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (6, 10);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Antiquaire', 4);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (7, 5);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (7, 8);
+
+INSERT INTO careers (career_name, vocation_id) VALUES ('Chirurgien-barbier', 4);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (8, 5);
+INSERT INTO careers_skills (career_id, skill_id) VALUES (8, 11);

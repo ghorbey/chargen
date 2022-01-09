@@ -15,9 +15,9 @@ element_get_all = (request, response) => {
 };
 
 element_get_one = (request, response) => {
-    const userId = request.params.userId;
+    const { userId } = request.params;
     const values = [userId];
-    const query = `SELECT * FROM characters WHERE id = $1`;
+    const query = `SELECT * FROM characters WHERE user_id = $1`;
     database
         .executeQuery(query, values)
         .then(result => {
@@ -31,7 +31,6 @@ element_get_one = (request, response) => {
 };
 
 element_add = (request, response) => {
-    console.log(request.body);
     try {
         const { characterList } = request.body;
         const fields = 'user_id, character_name, character_type, character_number, fate_points, country_id, race_id, religion_id, vocation_id, current_xp, total_xp, public_legend, background';
@@ -46,46 +45,61 @@ element_add = (request, response) => {
                 ${character.race_id}, 
                 ${character.religion_id}, 
                 ${character.vocation_id}, 
-                ${character.current_xp}', 
+                ${character.current_xp}, 
                 ${character.total_xp}, 
                 '${character.public_legend}', 
                 '${character.background}')`;
-            // database
-            //     .executeQuery(query)
-            //     .then(result => {
-            //         let data = {};
-            //         if (result) {
-            //             data = { isSuccessful: true, message: '' };
-            //         } else {
-            //             data = { isSuccessful: false, message: 'Impossible de créer le personnage' };
-            //         }
-            //         response.send(data);
-            //     })
-            //     .catch(error => {
-            //         response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}` });
-            //     });
-            response.send({ isSuccessful: true, message: '' });
+            database
+                .executeQuery(query)
+                .then(result => {
+                    let data = {};
+                    if (result.rowCount === 1) {
+                        data = { isSuccessful: true, message: '' };
+                    } else {
+                        data = { isSuccessful: false, message: 'Impossible de créer le personnage' };
+                    }
+                    response.send(data);
+                })
+                .catch(error => {
+                    response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}` });
+                });
         });
-
     }
     catch (ex) {
-        console.log(ex);
+        console.error(ex);
         response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}` });
     }
-
-
 };
 
 element_update = (request, response) => {
-    const elementList = request.params;
-    const result = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
-    response.send(response);
+    try {
+        const elementList = request.params;
+        const result = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
+        response.send(response);
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de mettre à jour le personnage : ${ex}` });
+    }
 };
 
 element_delete = (request, response) => {
-    const query = `DELETE FROM characters WHERE id = $id`;
-    database.executeQuery(query)
-        .then(result => res.send(result.rows));
+    try {
+        const { idList } = request.body;
+        idList.forEach(id => {
+            const values = [id];
+            const query = `DELETE FROM characters WHERE id = $1`;
+            database.executeQuery(query, values)
+                .then(result => {
+                    let data = { isSuccessful: true, message: '' };
+                    response.send(data)
+                });
+        });
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de supprimer le personnage : ${ex}` });
+    }
 };
 
 router.get(`${url}/getAll`, auth, element_get_all);

@@ -43,7 +43,7 @@ export default function Navigation(props) {
         return (
             <Router>
                 <AppBar position="sticky">
-                    <Container maxWidth="xl">
+                    <Container component="main" maxWidth="lg">
                         <Toolbar disableGutters>
                             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                 {pages.map((page) => (

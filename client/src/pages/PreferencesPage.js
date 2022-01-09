@@ -1,17 +1,19 @@
 import React from 'react';
-import Container from '@mui/material/Container';
+import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
 import './PreferencesPage.scss';
 
 export default function PreferencesPage() {
+    const theme = createTheme();
     return (
-        <>
-            <Container>
-                <h2>Préférences</h2>
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="lg">
+                <CssBaseline />
+                <Typography variant="h2">Préférences</Typography>
                 <ul>
                     <li>thème?</li>
                     <li>Paramètres divers</li>
                 </ul>
             </Container>
-        </>
+        </ThemeProvider>
     );
 }
