@@ -10,47 +10,10 @@ export default function CharacterUserPage() {
     let { action } = useParams();
     const { userId } = getCurrentUser();
     const [currentCharacter, setCurrentCharacter] = useState(undefined);
-    const [originalCharacter, setOriginalCharacter] = useState(undefined);
-    const [isEdit, setIsEdit] = useState(action === 'edit');
+    const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState();
+    const [errorMessage] = useState();
     const theme = createTheme();
-
-    const handleSave = (savedCharacter) => {
-        if (savedCharacter.id) {
-            CharacterService
-                .update([savedCharacter])
-                .then(response => {
-                    const { isSuccessful, message } = response;
-                    if (isSuccessful) {
-                        setIsEdit(false);
-                    }
-                    setErrorMessage(message);
-                });
-        } else {
-            CharacterService
-                .add([savedCharacter])
-                .then(response => {
-                    const { isSuccessful, message } = response;
-                    if (isSuccessful) {
-                        setIsEdit(false);
-                    }
-                    setErrorMessage(message);
-                });
-        }
-    };
-
-    const handleCancel = () => {
-        setCurrentCharacter(originalCharacter);
-        setIsEdit(false);
-        setErrorMessage('');
-    };
-
-    const handleEdit = (character) => {
-        setOriginalCharacter(character);
-        setIsEdit(true);
-        setErrorMessage('');
-    };
 
     useEffect(() => {
         const loadData = () => {
@@ -81,7 +44,7 @@ export default function CharacterUserPage() {
                 <CssBaseline />
                 {isLoading
                     ? <Loading />
-                    : <Character character={currentCharacter} isEdit={isEdit} edit={handleEdit} save={handleSave} cancel={handleCancel} />
+                    : <Character character={currentCharacter} isEdit={isEdit} />
                 }
                 <Error errorMessage={errorMessage} />
             </Container>

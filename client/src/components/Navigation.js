@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
-import { Container, Toolbar, AppBar, Box, Button } from '@mui/material';
+import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography } from '@mui/material';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 
@@ -54,6 +54,13 @@ export default function Navigation(props) {
                         </Toolbar>
                     </Container>
                 </AppBar>
+                <Container>
+                    <br />
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">Breadcrumbs</Typography>
+                    </Breadcrumbs>
+                    <br />
+                </Container>
                 <Routes>
                     <Route exact path='/' element={<HomePage />} />
                     <Route path='/character-list' element={<CharacterListPage />} />
