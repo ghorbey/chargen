@@ -5,7 +5,7 @@ import CharacterService from '../services/Character.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
 
-export default function Character(props) {
+export const Character = React.forwardRef((props, ref) => {
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
@@ -99,6 +99,8 @@ export default function Character(props) {
                     <Grid item xl={12}>
                         <Error errorMessage={errorMessage} />
                     </Grid>
+                </Grid>
+                <Grid container spacing={2} ref={ref}>
                     <Grid item lg={6}>
                         <TextField
                             id="character_name"
@@ -234,4 +236,4 @@ export default function Character(props) {
             <Alert severity="info">Aucun personnage disponible</Alert>
         );
     }
-}
+});

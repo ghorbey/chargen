@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useReactToPrint } from 'react-to-print';
 import PropTypes from 'prop-types';
-import { createTheme, ThemeProvider, Container, CssBaseline, Alert } from '@mui/material';
+import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
@@ -24,6 +25,11 @@ export default function CharacterPage() {
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage] = useState();
     const theme = createTheme();
+
+    const componentRef = useRef();
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current
+    });
 
     useEffect(() => {
         const loadData = () => {
@@ -65,7 +71,17 @@ export default function CharacterPage() {
                     ? <Loading />
                     : isFound === false
                         ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
-                        : <Character character={character} isEdit={isEdit} />
+                        :
+                        <>
+                            <Grid container spacing={2}>
+                                <Grid item>
+                                    <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
+                                </Grid>
+                                <Grid item>
+                                    <Character ref={componentRef} character={character} isEdit={isEdit} />
+                                </Grid>
+                            </Grid>
+                        </>
                 }
                 <Error errorMessage={errorMessage} />
             </Container>

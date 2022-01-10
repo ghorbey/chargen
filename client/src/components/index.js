@@ -1,4 +1,4 @@
-import Character from './Character';
+import { Character } from './Character';
 import CharacterList from './CharacterList';
 import Error from './Error';
 import Header from './Header';
