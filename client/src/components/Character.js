@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import CharacterService from '../services/Character.service';
+import { Error } from '../components';
 import { getCurrentUser } from '../common';
 
 export default function Character(props) {
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
-    const [originalCharacter, setOriginalCharacter] = useState(props.character);
+    const [errorMessage, setErrorMessage] = useState();
     const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
@@ -32,40 +34,38 @@ export default function Character(props) {
     ];
 
     const handleSave = () => {
-        console.log('save');
-        console.log(character);
         setIsEdit(false);
-        // if (savedCharacter.id) {
-        //     CharacterService
-        //         .update([savedCharacter])
-        //         .then(response => {
-        //             const { isSuccessful, message } = response;
-        //             if (isSuccessful) {
-        //                 setIsEdit(false);
-        //             }
-        //             setErrorMessage(message);
-        //         });
-        // } else {
-        //     CharacterService
-        //         .add([savedCharacter])
-        //         .then(response => {
-        //             const { isSuccessful, message } = response;
-        //             if (isSuccessful) {
-        //                 setIsEdit(false);
-        //             }
-        //             setErrorMessage(message);
-        //         });
-        // }
+        if (character.id) {
+            CharacterService
+                .update([character])
+                .then(response => {
+                    const { isSuccessful, message } = response;
+                    if (isSuccessful) {
+                        setIsEdit(false);
+                    }
+                    setErrorMessage(message);
+                });
+        } else {
+            CharacterService
+                .add([character])
+                .then(response => {
+                    const { isSuccessful, message } = response;
+                    if (isSuccessful) {
+                        setIsEdit(false);
+                    }
+                    setErrorMessage(message);
+                });
+        }
     };
 
     const updateField = (field, value) => {
-        const copy = {...character};
+        const copy = { ...character };
         copy[field] = value;
         setCharacter(copy);
     }
 
     const handleCancel = () => {
-        setCharacter({...originalCharacter});
+        setCharacter(props.character);
         setIsEdit(false);
     };
 
@@ -78,23 +78,27 @@ export default function Character(props) {
     }
 
     const handleEdit = () => {
-        setOriginalCharacter({...character});
         setIsEdit(true);
     };
 
     if (character) {
         return (
             <>
-                {!isEdit
-                    ? <Button color="primary" variant="outlined" onClick={handleBack}>Retour</Button>
-                    : null
-                }
-                {isEdit
-                    ? <Button color="primary" variant="outlined" onClick={handleCancel}>Annuler</Button>
-                    : null
-                }
-                <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
                 <Grid container spacing={2}>
+                    <Grid item xl={12}>
+                        {!isEdit
+                            ? <Button color="primary" variant="outlined" onClick={handleBack} sx={{ mr: 2 }}>Retour</Button>
+                            : null
+                        }
+                        {isEdit
+                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2 }}>Annuler</Button>
+                            : null
+                        }
+                        <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
+                    </Grid>
+                    <Grid item xl={12}>
+                        <Error errorMessage={errorMessage} />
+                    </Grid>
                     <Grid item lg={6}>
                         <TextField
                             id="character_name"
@@ -106,7 +110,7 @@ export default function Character(props) {
                             disabled={!isEdit}
                             fullWidth
                             required
-                            defaultValue={character.character_name}
+                            value={character.character_name}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
@@ -121,7 +125,8 @@ export default function Character(props) {
                             fullWidth
                             required
                             select
-                            defaultValue={character.character_type}
+                            defaultValue={character_types[0]}
+                            value={character.character_type}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {character_types.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
@@ -134,10 +139,11 @@ export default function Character(props) {
                             label="Numéro"
                             name="character_number"
                             InputLabelProps={{ shrink: true }}
+                            type="string"
                             disabled={!isEdit}
                             fullWidth
                             required
-                            defaultValue={character.character_number}
+                            value={character.character_number}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
@@ -151,7 +157,7 @@ export default function Character(props) {
                             disabled={!isEdit}
                             fullWidth
                             required
-                            defaultValue={character.user_id}
+                            value={character.user_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
@@ -165,7 +171,7 @@ export default function Character(props) {
                             disabled={!isEdit}
                             fullWidth
                             required
-                            defaultValue={character.fate_points}
+                            value={character.fate_points}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
@@ -180,7 +186,7 @@ export default function Character(props) {
                             fullWidth
                             required
                             select
-                            defaultValue={character.country_id}
+                            value={character.country_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
@@ -197,7 +203,7 @@ export default function Character(props) {
                             fullWidth
                             required
                             select
-                            defaultValue={character.race_id}
+                            value={character.race_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
@@ -214,7 +220,7 @@ export default function Character(props) {
                             fullWidth
                             required
                             select
-                            defaultValue={character.religion_id}
+                            value={character.religion_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {religions.map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}

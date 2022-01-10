@@ -90,7 +90,7 @@ element_add = (request, response) => {
         let addedCharacterList = [];
         let queryList = [];
         characterList.forEach(character => {
-            console.log(`Save character ${character.character_name} for user ${character.user_id}`);
+            console.log(`Added character ${character.character_name} for user ${character.user_id}`);
             const query = `INSERT INTO characters (${fields}) VALUES (
                 ${character.user_id}, 
                 '${character.character_name}', 
@@ -112,7 +112,7 @@ element_add = (request, response) => {
             .then(results => {
                 let data = {};
                 if (results.rowCount === queryList.length) {
-                    data = { isSuccessful: true, message: '', data: addedCharacterList };
+                    data = { isSuccessful: true, message: '', data: characterList };
                 } else {
                     data = { isSuccessful: false, message: 'Erreur', data: [] };
                 }
@@ -130,13 +130,45 @@ element_add = (request, response) => {
 
 element_update = (request, response) => {
     try {
-        const elementList = request.params;
-        const result = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
-        response.send(response);
+        const { characterList } = request.body;
+        const fields = 'user_id, character_name, character_type, character_number, fate_points, country_id, race_id, religion_id, vocation_id, current_xp, total_xp, public_legend, background';
+        let queryList = [];
+        characterList.forEach(character => {
+            console.log(`Updated character ${character.id} for user ${character.user_id}`);
+            const query = `UPDATE characters SET 
+                ${character.user_id}, 
+                '${character.character_name}', 
+                '${character.character_type}', 
+                '${character.character_number}', 
+                ${character.fate_points}, 
+                ${character.country_id}, 
+                ${character.race_id}, 
+                ${character.religion_id}, 
+                ${character.vocation_id}, 
+                ${character.current_xp}, 
+                ${character.total_xp}, 
+                '${character.public_legend}', 
+                '${character.background}');`;
+            queryList.push(query);
+        });
+        database
+            .executeQueries(queryList.join(' '))
+            .then(results => {
+                let data = {};
+                if (results.rowCount === queryList.length) {
+                    data = { isSuccessful: true, message: '', data: characterList };
+                } else {
+                    data = { isSuccessful: false, message: 'Erreur', data: [] };
+                }
+                response.send(data);
+            })
+            .catch(error => {
+                response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}`, data: [] });
+            });
     }
     catch (ex) {
         console.error(ex);
-        response.send({ isSuccessful: false, message: `Impossible de mettre à jour le personnage : ${ex}` });
+        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}`, data: [] });
     }
 };
 

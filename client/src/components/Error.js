@@ -1,16 +1,12 @@
-import { Grid, Alert } from '@mui/material';
+import { Alert } from '@mui/material';
 
 export default function Error(props) {
     const { errorMessage } = props;
     if (errorMessage) {
         return (
-            <Grid container>
-                <Grid item>
-                    <Alert severity="error">
-                        {errorMessage}
-                    </Alert>
-                </Grid>
-            </Grid>
+            <Alert severity="error">
+                {errorMessage}
+            </Alert>
         );
     } else {
         return null;

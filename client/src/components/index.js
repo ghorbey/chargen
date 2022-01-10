@@ -1,6 +1,5 @@
 import Character from './Character';
 import CharacterList from './CharacterList';
-import CreateCharacterButton from './CreateCharacterButton';
 import Error from './Error';
 import Header from './Header';
 import Loading from './Loading';
@@ -12,4 +11,4 @@ import News from './News';
 import NewsList from './NewsList';
 import Navigation from './Navigation';
 
-export { Character, CharacterList, CreateCharacterButton, Error, Header, Loading, User, UserList, Activity, ActivityList, News, NewsList, Navigation };
+export { Character, CharacterList, Error, Header, Loading, User, UserList, Activity, ActivityList, News, NewsList, Navigation };

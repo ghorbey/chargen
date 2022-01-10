@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { checkAccess } from '../common';
@@ -8,7 +8,6 @@ import { getCurrentUser } from '../common';
 
 export default function CharacterPage() {
     let { userId } = useParams();
-    const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const [characterList, setCharacterList] = useState(undefined);
     const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +19,6 @@ export default function CharacterPage() {
         console.error('Trying to access unauthorized resource!');
         userId = currentUserId;
     }
-
-    const handleCreate = () => {
-        navigate(`/character/0/edit`);
-    };
 
     const handleDelete = (id) => {
         if (id) {
@@ -68,7 +63,7 @@ export default function CharacterPage() {
                 <CssBaseline />
                 {isLoading
                     ? <Loading />
-                    : <CharacterList characterList={characterList} create={handleCreate} deleteCharacter={handleDelete} isCreateAllowed={isAdmin} />
+                    : <CharacterList characterList={characterList} deleteCharacter={handleDelete} isCreateAllowed={isAdmin} />
                 }
                 <Error errorMessage={errorMessage} />
             </Container>
