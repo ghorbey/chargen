@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../common';
 
 export default function Character(props) {
-    const { character } = props;
     const [isEdit, setIsEdit] = useState(props.isEdit);
-    const [editedCharacter, setEditedCharacter] = useState(character);
+    const [character, setCharacter] = useState(props.character);
+    const [originalCharacter, setOriginalCharacter] = useState();
     const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
@@ -33,7 +33,7 @@ export default function Character(props) {
 
     const handleSave = () => {
         console.log('save');
-        console.log(editedCharacter);
+        console.log(character);
         setIsEdit(false);
         // if (savedCharacter.id) {
         //     CharacterService
@@ -58,9 +58,13 @@ export default function Character(props) {
         // }
     };
 
+    const updateField = (field, value) => {
+        character[field] = value;
+        setCharacter(character);
+    }
+
     const handleCancel = () => {
-        setEditedCharacter(character);
-        //editedCharacter = Object.assign({}, character);
+        setCharacter(Object.assign({}, originalCharacter));
         setIsEdit(false);
     };
 
@@ -73,19 +77,11 @@ export default function Character(props) {
     }
 
     const handleEdit = () => {
-        setEditedCharacter(character);
-        //editedCharacter = Object.assign({}, character);
+        setOriginalCharacter(Object.assign({}, character));
         setIsEdit(true);
     };
 
-    useEffect(() => {
-        if (character) {
-            //editedCharacter = Object.assign({}, character);
-            setEditedCharacter(character);
-        }
-    }, [character, setEditedCharacter]);
-
-    if (editedCharacter) {
+    if (character) {
         return (
             <>
                 {!isEdit
@@ -104,12 +100,13 @@ export default function Character(props) {
                             margin="normal"
                             label="Nom du personnage"
                             name="character_name"
+                            InputLabelProps={{ shrink: true }}
                             autoFocus
                             disabled={!isEdit}
                             fullWidth
                             required
-                            value={editedCharacter.character_name}
-                            onChange={(e) => editedCharacter.character_name = e.target.value}
+                            defaultValue={character.character_name}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
                     <Grid item lg={2}>
@@ -118,12 +115,13 @@ export default function Character(props) {
                             margin="normal"
                             label="Type"
                             name="character_type"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
                             select
-                            value={editedCharacter.character_type}
-                            onChange={(e) => editedCharacter.character_type = e.target.value}
+                            defaultValue={character.character_type}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {character_types.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
                         </TextField>
@@ -134,11 +132,12 @@ export default function Character(props) {
                             margin="normal"
                             label="Numéro"
                             name="character_number"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
-                            value={editedCharacter.character_number}
-                            onChange={(e) => editedCharacter.character_number = e.target.value}
+                            defaultValue={character.character_number}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
                     <Grid item lg={10}>
@@ -147,11 +146,12 @@ export default function Character(props) {
                             margin="normal"
                             label="Joueur"
                             name="user_id"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
-                            value={editedCharacter.user_id}
-                            onChange={(e) => editedCharacter.user_id = e.target.value}
+                            defaultValue={character.user_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
                     <Grid item lg={2}>
@@ -160,11 +160,12 @@ export default function Character(props) {
                             margin="normal"
                             label="Points de destin"
                             name="fate_points"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
-                            value={editedCharacter.fate_points}
-                            onChange={(e) => editedCharacter.fate_points = e.target.value}
+                            defaultValue={character.fate_points}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
                     </Grid>
                     <Grid item lg={4}>
@@ -173,12 +174,13 @@ export default function Character(props) {
                             margin="normal"
                             label="Pays d'origine"
                             name="country_id"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
                             select
-                            value={editedCharacter.country_id}
-                            onChange={(e) => editedCharacter.country_id = e.target.value}
+                            defaultValue={character.country_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
                         </TextField>
@@ -189,12 +191,13 @@ export default function Character(props) {
                             margin="normal"
                             label="Race"
                             name="race_id"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
                             select
-                            value={editedCharacter.race_id}
-                            onChange={(e) => editedCharacter.race_id = e.target.value}
+                            defaultValue={character.race_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
                         </TextField>
@@ -205,12 +208,13 @@ export default function Character(props) {
                             margin="normal"
                             label="Religion"
                             name="religion_id"
+                            InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
                             required
                             select
-                            value={editedCharacter.religion_id}
-                            onChange={(e) => editedCharacter.country_id = e.target.value}
+                            defaultValue={character.religion_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
                             {religions.map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
                         </TextField>
