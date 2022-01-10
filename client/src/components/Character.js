@@ -6,7 +6,7 @@ import { getCurrentUser } from '../common';
 export default function Character(props) {
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
-    const [originalCharacter, setOriginalCharacter] = useState();
+    const [originalCharacter, setOriginalCharacter] = useState(props.character);
     const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
@@ -59,12 +59,13 @@ export default function Character(props) {
     };
 
     const updateField = (field, value) => {
-        character[field] = value;
-        setCharacter(character);
+        const copy = {...character};
+        copy[field] = value;
+        setCharacter(copy);
     }
 
     const handleCancel = () => {
-        setCharacter(Object.assign({}, originalCharacter));
+        setCharacter({...originalCharacter});
         setIsEdit(false);
     };
 
@@ -77,7 +78,7 @@ export default function Character(props) {
     }
 
     const handleEdit = () => {
-        setOriginalCharacter(Object.assign({}, character));
+        setOriginalCharacter({...character});
         setIsEdit(true);
     };
 
