@@ -74,9 +74,13 @@ export default function CharacterPage() {
                         :
                         <>
                             <Grid container spacing={2}>
-                                <Grid item>
-                                    <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
-                                </Grid>
+                                {!isEdit
+                                    ?
+                                    <Grid item>
+                                        <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
+                                    </Grid>
+                                    : null
+                                }
                                 <Grid item>
                                     <Character ref={componentRef} character={character} isEdit={isEdit} />
                                 </Grid>
