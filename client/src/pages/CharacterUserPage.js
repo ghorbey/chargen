@@ -6,12 +6,17 @@ import CharacterService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
 
+function createNewCharacter(userId) {
+    return { id: 0, user_id: +userId, character_name: '', character_type: 'pj', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '' };
+}
+
 export default function CharacterUserPage() {
     let { action } = useParams();
     const { userId } = getCurrentUser();
-    const [currentCharacter, setCurrentCharacter] = useState(undefined);
+    const [character, setCharacter] = useState(undefined);
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
+    const [isFound, setIsFound] = useState(undefined);
     const [errorMessage] = useState();
     const theme = createTheme();
 
@@ -22,21 +27,22 @@ export default function CharacterUserPage() {
                 CharacterService
                     .getForUser(userId)
                     .then(response => {
+                        console.log(response.data);
                         if (response.data) {
-                            setCurrentCharacter(response.data);
+                            setIsFound(true);
+                            setCharacter(response.data);
                         } else {
-                            setCurrentCharacter({});
+                            setIsFound(true);
+                            setCharacter(createNewCharacter(userId));
                         }
                     })
                     .finally(() => setIsLoading(false));
-            } else {
-                setCurrentCharacter({});
             }
         };
-        if (!isLoading && !currentCharacter && +userId > 0) {
+        if (!isLoading && !character && isFound === undefined && +userId > 0) {
             loadData();
         }
-    }, [isLoading, userId, currentCharacter, setIsLoading, setCurrentCharacter]);
+    }, [isLoading, userId, character, isFound, setIsLoading, setCharacter]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -44,7 +50,7 @@ export default function CharacterUserPage() {
                 <CssBaseline />
                 {isLoading
                     ? <Loading />
-                    : <Character character={currentCharacter} isEdit={isEdit} />
+                    : <Character character={character} isEdit={isEdit} />
                 }
                 <Error errorMessage={errorMessage} />
             </Container>

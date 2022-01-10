@@ -86,7 +86,7 @@ export default function Character(props) {
             <>
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
-                        {!isEdit
+                        {!isEdit && isAdmin
                             ? <Button color="primary" variant="outlined" onClick={handleBack} sx={{ mr: 2 }}>Retour</Button>
                             : null
                         }
@@ -154,7 +154,7 @@ export default function Character(props) {
                             label="Joueur"
                             name="user_id"
                             InputLabelProps={{ shrink: true }}
-                            disabled={!isEdit}
+                            disabled={!isEdit || !isAdmin}
                             fullWidth
                             required
                             value={character.user_id}

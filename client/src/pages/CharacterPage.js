@@ -8,7 +8,7 @@ import { getCurrentUser } from '../common';
 
 function createNewCharacter(id, userId) {
     if (+id === 0) {
-        return { id: 0, user_id: +userId, character_name: '', character_type: '', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '' };
+        return { id: 0, user_id: +userId, character_name: '', character_type: 'pj', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '' };
     } else {
         return undefined;
     }
@@ -17,7 +17,7 @@ function createNewCharacter(id, userId) {
 export default function CharacterPage() {
     const { id, action } = useParams();
     const navigate = useNavigate();
-    const { userId } = getCurrentUser();
+    const { userId, isAdmin } = getCurrentUser();
     const [character, setCharacter] = useState(createNewCharacter(id, userId));
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +33,7 @@ export default function CharacterPage() {
                     .get(id)
                     .then(response => {
                         if (response.data) {
-                            if (response.data.user_id === userId) {
+                            if (response.data.user_id === userId || isAdmin) {
                                 setIsFound(true);
                                 console.log(response.data);
                                 setCharacter(response.data);
@@ -55,7 +55,7 @@ export default function CharacterPage() {
         if (!isLoading && !character && isFound === undefined && id >= 0) {
             loadData();
         }
-    }, [isLoading, userId, id, character, isFound, setCharacter, navigate]);
+    }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter, navigate]);
 
     return (
         <ThemeProvider theme={theme}>

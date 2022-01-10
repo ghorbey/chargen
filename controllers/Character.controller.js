@@ -87,7 +87,6 @@ element_add = (request, response) => {
     try {
         const { characterList } = request.body;
         const fields = 'user_id, character_name, character_type, character_number, fate_points, country_id, race_id, religion_id, vocation_id, current_xp, total_xp, public_legend, background';
-        let addedCharacterList = [];
         let queryList = [];
         characterList.forEach(character => {
             console.log(`Added character ${character.character_name} for user ${character.user_id}`);
@@ -112,43 +111,43 @@ element_add = (request, response) => {
             .then(results => {
                 let data = {};
                 if (results.rowCount === queryList.length) {
-                    data = { isSuccessful: true, message: '', data: characterList };
+                    data = { isSuccessful: true, message: '' };
                 } else {
-                    data = { isSuccessful: false, message: 'Erreur', data: [] };
+                    data = { isSuccessful: false, message: 'Erreur' };
                 }
                 response.send(data);
             })
             .catch(error => {
-                response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}`, data: [] });
+                response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}` });
             });
     }
     catch (ex) {
         console.error(ex);
-        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}`, data: [] });
+        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}` });
     }
 };
 
 element_update = (request, response) => {
     try {
         const { characterList } = request.body;
-        const fields = 'user_id, character_name, character_type, character_number, fate_points, country_id, race_id, religion_id, vocation_id, current_xp, total_xp, public_legend, background';
+        const fields = 'character_name, character_type, character_number, fate_points, country_id, race_id, religion_id, vocation_id, current_xp, total_xp, public_legend, background';
         let queryList = [];
         characterList.forEach(character => {
             console.log(`Updated character ${character.id} for user ${character.user_id}`);
             const query = `UPDATE characters SET 
-                ${character.user_id}, 
-                '${character.character_name}', 
-                '${character.character_type}', 
-                '${character.character_number}', 
-                ${character.fate_points}, 
-                ${character.country_id}, 
-                ${character.race_id}, 
-                ${character.religion_id}, 
-                ${character.vocation_id}, 
-                ${character.current_xp}, 
-                ${character.total_xp}, 
-                '${character.public_legend}', 
-                '${character.background}');`;
+                character_name = '${character.character_name}', 
+                character_type = '${character.character_type}', 
+                character_number ='${character.character_number}', 
+                fate_points = ${character.fate_points}, 
+                country_id = ${character.country_id}, 
+                race_id = ${character.race_id}, 
+                religion_id = ${character.religion_id}, 
+                vocation_id = ${character.vocation_id}, 
+                current_xp = ${character.current_xp}, 
+                total_xp = ${character.total_xp}, 
+                public_legend = '${character.public_legend}', 
+                background = '${character.background}'
+                WHERE id = ${character.id};`;
             queryList.push(query);
         });
         database
@@ -156,19 +155,19 @@ element_update = (request, response) => {
             .then(results => {
                 let data = {};
                 if (results.rowCount === queryList.length) {
-                    data = { isSuccessful: true, message: '', data: characterList };
+                    data = { isSuccessful: true, message: '' };
                 } else {
-                    data = { isSuccessful: false, message: 'Erreur', data: [] };
+                    data = { isSuccessful: false, message: 'Erreur' };
                 }
                 response.send(data);
             })
             .catch(error => {
-                response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}`, data: [] });
+                response.send({ isSuccessful: false, message: `Impossible de mettre à jour le personnage : ${error}` });
             });
     }
     catch (ex) {
         console.error(ex);
-        response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${ex}`, data: [] });
+        response.send({ isSuccessful: false, message: `Impossible de mettre à jour le personnage : ${ex}` });
     }
 };
 
@@ -200,7 +199,7 @@ element_delete = (request, response) => {
 
 router.get(`${url}/getAll`, auth, element_get_all);
 router.get(`${url}/:id`, auth, element_get);
-router.get(`${url}/user/:user_id`, auth, element_get_for_user);
+router.get(`${url}/user/:userId`, auth, element_get_for_user);
 router.post(`${url}/add`, auth, element_add);
 router.post(`${url}/update`, auth, element_update);
 router.post(`${url}/delete`, auth, element_delete);
