@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
+import { useData } from '../common';
 
 export default function CharacterList(props) {
+    const { globalData } = useData();
     const { characterList, deleteCharacter, isCreateAllowed } = props;
     const navigate = useNavigate();
 

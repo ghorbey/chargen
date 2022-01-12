@@ -3,13 +3,13 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const http = require('http');
 const terminate = require('./common/terminate');
+const dataController = require('./controllers/data.controller');
 const characterController = require('./controllers/Character.controller');
 const userController = require('./controllers/User.controller');
 const preferencesController = require('./controllers/Preferences.controller');
 
 const app = express();
-const port = process.env.PORT || 5000;
-
+const port = process.env.PORT || 5001;
 if (process.env.NODE_ENV !== 'production') {
   const cors = require('cors');
   app.use(cors());
@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(characterController);
 app.use(userController);
 app.use(preferencesController);
+app.use(dataController);
 
 const server = http.createServer(app);
 

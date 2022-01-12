@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import PropTypes from 'prop-types';
-import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid } from '@mui/material';
+import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
@@ -15,7 +15,7 @@ function createNewCharacter(id, userId) {
     }
 }
 
-export default function CharacterPage() {
+export default function CharacterPage(props) {
     const { id, action } = useParams();
     const navigate = useNavigate();
     const { userId, isAdmin } = getCurrentUser();
@@ -41,7 +41,6 @@ export default function CharacterPage() {
                         if (response.data) {
                             if (response.data.user_id === userId || isAdmin) {
                                 setIsFound(true);
-                                console.log(response.data);
                                 setCharacter(response.data);
                             } else {
                                 console.error('Trying to access unauthorized resource!');
@@ -70,22 +69,27 @@ export default function CharacterPage() {
                 {isLoading
                     ? <Loading />
                     : isFound === false
-                        ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
+                        ?
+                        <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
                         :
-                        <>
-                            <Grid container spacing={2}>
-                                {!isEdit
-                                    ?
-                                    <Grid item>
-                                        <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
-                                    </Grid>
-                                    : null
-                                }
-                                <Grid item>
-                                    <Character ref={componentRef} character={character} isEdit={isEdit} />
+                        <Grid container spacing={2}>
+                            {character ?
+                                <Grid item lg={!isEdit ? 10 : 12}>
+                                    <Typography>{character.character_name}</Typography>
                                 </Grid>
+                                : null
+                            }
+                            {!isEdit
+                                ?
+                                <Grid item lg={2}>
+                                    <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
+                                </Grid>
+                                : null
+                            }
+                            <Grid item>
+                                <Character ref={componentRef} character={character} isEdit={isEdit} />
                             </Grid>
-                        </>
+                        </Grid>
                 }
                 <Error errorMessage={errorMessage} />
             </Container>

@@ -1,37 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
-import { getCurrentUser } from '../common';
+import { getCurrentUser, useData } from '../common';
 
-export const Character = React.forwardRef((props, ref) => {
+export const Character = forwardRef((props, ref) => {
+    const { globalData } = useData();
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
     const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
-    const countries = [
-        { id: 1, country_name: 'Principautés Frontalières' },
-        { id: 2, country_name: 'Bretonie' }
-    ];
-    const races = [
-        { id: 1, race_name: 'Humain' },
-        { id: 2, race_name: 'Elfe' },
-        { id: 3, race_name: 'Nain' },
-        { id: 4, race_name: 'Autre' }
-    ];
-    const religions = [
-        { id: 1, religion_name: 'Tous' },
-        { id: 2, religion_name: 'Sigmar' },
-        { id: 3, religion_name: 'Ulric' },
-        { id: 4, religion_name: 'Mórr' },
-        { id: 5, religion_name: 'Ranald' },
-        { id: 6, religion_name: 'Shallya' },
-        { id: 7, religion_name: 'Aucun' },
-        { id: 8, religion_name: 'Autre' }
-    ];
 
     const handleSave = () => {
         setIsEdit(false);
@@ -191,7 +172,7 @@ export const Character = React.forwardRef((props, ref) => {
                             value={character.country_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
+                            {globalData.countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
                         </TextField>
                     </Grid>
                     <Grid item lg={4}>
@@ -208,7 +189,7 @@ export const Character = React.forwardRef((props, ref) => {
                             value={character.race_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
+                            {globalData.races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
                         </TextField>
                     </Grid>
                     <Grid item lg={4}>
@@ -225,7 +206,41 @@ export const Character = React.forwardRef((props, ref) => {
                             value={character.religion_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {religions.map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
+                            {globalData.religions.map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={6}>
+                        <TextField
+                            id="vocation_id"
+                            margin="normal"
+                            label="Vocation"
+                            name="vocation_id"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            required
+                            select
+                            value={character.vocation_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        >
+                            {globalData.vocations.map(vocation => <MenuItem key={vocation.id} value={vocation.id}>{vocation.vocation_name}</MenuItem>)}
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={6}>
+                        <TextField
+                            id="race_skills"
+                            margin="normal"
+                            label="Compétences de race"
+                            name="race_skills"
+                            InputLabelProps={{ shrink: true }}
+                            disabled
+                            rows={character.race_skills.length}
+                            multiline
+                            fullWidth
+                            value={character.race_skills.join('\n')}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        >
+                            {character.race_skills.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                         </TextField>
                     </Grid>
                 </Grid>

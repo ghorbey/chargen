@@ -10,7 +10,7 @@ function createNewCharacter(userId) {
     return { id: 0, user_id: +userId, character_name: '', character_type: 'pj', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '' };
 }
 
-export default function CharacterUserPage() {
+export default function CharacterUserPage(props) {
     let { action } = useParams();
     const { userId } = getCurrentUser();
     const [character, setCharacter] = useState(undefined);
@@ -27,7 +27,6 @@ export default function CharacterUserPage() {
                 CharacterService
                     .getForUser(userId)
                     .then(response => {
-                        console.log(response.data);
                         if (response.data) {
                             setIsFound(true);
                             setCharacter(response.data);

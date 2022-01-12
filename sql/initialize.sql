@@ -72,6 +72,15 @@ CREATE TABLE careers_skills (
     CONSTRAINT fk_skill FOREIGN KEY(skill_id) REFERENCES skills(id)
 );
 
+CREATE TABLE races_skills (
+    id SERIAL,
+    race_id int,
+    skill_id int,
+    PRIMARY KEY(id),
+    CONSTRAINT fk_race FOREIGN KEY(race_id) REFERENCES races(id),
+    CONSTRAINT fk_skill FOREIGN KEY(skill_id) REFERENCES skills(id)
+);
+
 CREATE TABLE characters (
     id SERIAL,
     user_id int,

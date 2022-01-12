@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const database = require('../common/database');
+const db = require('../common/knexConfig');
+const database = require('../common/knexConfig');
 const auth = require('./auth.controller');
 
 const router = express.Router();
@@ -27,14 +28,13 @@ login = (request, response) => {
         response.send({ token: null, message: `Veuillez fournir un nom d'utilisateur et un mot de passe` });
         return;
     }
-    const query = `SELECT id, user_password, is_admin, user_firstname, user_lastname FROM users WHERE email = $1`;
-    const values = [email];
-    database
-        .executeQuery(query, values)
+    db.select('id', 'user_password', 'is_admin', 'user_firstname', 'user_lastname')
+        .from('users')
+        .where('email', '=', email)
         .then(result => {
             let data = {};
-            if (result && result.rowCount === 1) {
-                const { user_password, id, is_admin, user_firstname, user_lastname } = result.rows[0];
+            if (result && result.length === 1) {
+                const { user_password, id, is_admin, user_firstname, user_lastname } = result[0];
                 if (user_password !== password) {
                     data = { token: null, message: 'Mot de passe invalide!' };
                 } else {
@@ -49,11 +49,23 @@ login = (request, response) => {
 };
 
 element_get_all = (request, response) => {
-    const fakeData = [
-        { id: '1', userName: 'Steph' },
-        { id: '2', userName: 'Fred' }
-    ];
-    response.send(fakeData);
+    db.select('*')
+        .from('users')
+        .then(result => {
+            let data = {};
+            if (result) {
+                const { user_password, id, is_admin, user_firstname, user_lastname } = result.rows[0];
+                if (user_password !== password) {
+                    data = { token: null, message: 'Mot de passe invalide!' };
+                } else {
+                    const token = generateToken(id, email, is_admin, user_firstname, user_lastname);
+                    data = { token, message: '' };
+                }
+            } else {
+                data = { token: null, message: `L'utilisateur ${email} n'existe pas!` };
+            }
+            response.send(data);
+        });
 };
 
 element_get_one = (request, response) => {

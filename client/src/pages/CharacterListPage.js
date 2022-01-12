@@ -6,7 +6,7 @@ import { checkAccess } from '../common';
 import { Error, Loading, CharacterList } from '../components';
 import { getCurrentUser } from '../common';
 
-export default function CharacterPage() {
+export default function CharacterPage(props) {
     let { userId } = useParams();
     const { isAdmin } = getCurrentUser();
     const [characterList, setCharacterList] = useState(undefined);
