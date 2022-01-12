@@ -83,7 +83,7 @@ element_add = (request, response) => {
         let rowsToInsert = [];
         // Check if add is allowed (Only 1 per PJ)
         characterList.forEach(character => {
-            console.log(`Added character ${character.character_name} for user ${character.user_id}`);
+            console.log(`Add character ${character.character_name} for user ${character.user_id}`);
             const rowToInsert = {
                 user_id: character.user_id,
                 character_name: character.character_name,
@@ -128,7 +128,7 @@ element_update = (request, response) => {
         const { characterList } = request.body;
         let rowsToUpdate = [];
         characterList.forEach(character => {
-            console.log(`Updated character ${character.id} for user ${character.user_id}`);
+            console.log(`Update character ${character.id} for user ${character.user_id}`);
             const rowToUpdate = db('characters')
                 .where('id', character.id)
                 .update({

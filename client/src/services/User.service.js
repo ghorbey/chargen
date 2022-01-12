@@ -11,8 +11,9 @@ const UserService = {
         const callUrl = `${url}/getAll`;
         return RequestService.get(callUrl, true);
     },
-    getOne: (id) => {
-        const callUrl = `${url}/get/${id}`;
+    get: (id) => {
+        const callUrl = `${url}/${id}`;
+        console.log(callUrl);
         return RequestService.get(callUrl, true);
     },
     add: (elementList) => {

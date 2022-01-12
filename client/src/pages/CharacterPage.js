@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
-import CharacterService from '../services/Character.service';
+import UserService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
 
@@ -32,7 +32,7 @@ export default function CharacterPage(props) {
     useEffect(() => {
         const loadData = () => {
             setIsLoading(true);
-            CharacterService
+            UserService
                 .get(id)
                 .then(response => {
                     setErrorMessage(response?.message);

@@ -5,7 +5,6 @@ import CharacterService from '../services/Character.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
 
-
 export const Character = (props) => {
     const [globalData] = useState(props.globalData);
     const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], isComputed: false });
@@ -72,7 +71,6 @@ export const Character = (props) => {
         if (!computedData.isComputed && globalData && character) {
             const racesSkills = getRaceSkills(globalData, character.race_id);
             const chapters = [];
-            console.log(computedData);
             setComputedData({
                 racesSkills,
                 chapters,

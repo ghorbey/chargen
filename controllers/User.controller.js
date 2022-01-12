@@ -1,7 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const db = require('../common/knexConfig');
-const database = require('../common/knexConfig');
 const auth = require('./auth.controller');
 
 const router = express.Router();
@@ -56,10 +55,7 @@ element_get_all = (request, response) => {
             let data = {};
             if (results.length >= 1) {
                 console.log('users retrieved');
-                const userDTO = results.map(user => {
-                    return { user_password, id, is_admin, user_firstname, user_lastname } = user;
-                });
-                data = { data: userDTO, isSuccessful: true, message: '' };
+                data = { data: results, isSuccessful: true, message: '' };
             } else {
                 data = { data: [], isSuccessful: true, message: 'Aucun utilisateur existant' };
             }
@@ -67,32 +63,144 @@ element_get_all = (request, response) => {
         });
 };
 
-element_get_one = (request, response) => {
-    const fakeData = { id: '1', userId: 1, userName: 'Steph' };
-    response.send(fakeData);
+element_get = (request, response) => {
+    try {
+        const { id } = request.params;
+        let query = undefined;
+        console.log(`retrieve user ${id}`);
+        query = db.select('*').from('users').where('id', '=', id);
+        if (query) {
+            Promise
+                .resolve(query)
+                .then(result => {
+                    let data = {};
+                    if (result.length > 0) {
+                        console.log('user retrieved');
+                        data = { data: result[0], isSuccessful: true, message: '' };
+                        response.send(data);
+                    } else {
+                        response.send({ isSuccessful: false, message: `L'utilisateur n'existe pas`, data: undefined });
+                    }
+                });
+        } else {
+            response.send({ data: undefined, isSuccessful: false, message: `Id d'utilisateur invalide` });
+        }
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de récupérer l'utilisateur' : ${ex}`, data: undefined });
+    }
 };
 
 element_add = (request, response) => {
-    const elementList = request.params;
-    const result = `NOT IMPLEMENTED: ${url} add ${elementList.length}`;
-    response.send(result);
+    try {
+        const { userList } = request.body;
+        let rowsToInsert = [];
+        userList.forEach(user => {
+            console.log(`Add user ${user.user_firstname} ${user.user_lastname}`);
+            const rowToInsert = {
+                user_firstname: user.user_firstname,
+                user_lastname: user.user_lastname,
+                phone_number: user.phone_number,
+                email: user.email,
+                user_password: user.user_password,
+                is_admin: user.is_admin
+            }
+            rowsToInsert.push(rowToInsert);
+        });
+        db('users')
+            .insert(rowsToInsert)
+            .then(results => {
+                let data = {};
+                if (results.rowCount === rowsToInsert.length) {
+                    console.log('users added');
+                    data = { isSuccessful: true, message: '' };
+                } else {
+                    data = { isSuccessful: false, message: 'Erreur' };
+                }
+                response.send(data);
+            })
+            .catch(error => {
+                response.send({ isSuccessful: false, message: `Impossible de créer l'utilisateur : ${error}` });
+            });
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de créer l'utilisateur : ${ex}` });
+    }
 };
 
 element_update = (request, response) => {
-    const elementList = request.params;
-    const result = `NOT IMPLEMENTED: ${url} update ${elementList.length}`;
-    response.send(result);
+    try {
+        const { userList } = request.body;
+        let rowsToUpdate = [];
+        userList.forEach(user => {
+            console.log(`Update user ${user.id}`);
+            const rowToUpdate = db('users')
+                .where('id', '=', user.id)
+                .update({
+                    user_firstname: user.user_firstname,
+                    user_lastname: user.user_lastname,
+                    phone_number: user.phone_number,
+                    email: user.email,
+                    user_password: user.user_password,
+                    is_admin: user.is_admin
+                });
+            rowsToUpdate.push(rowToUpdate);
+        });
+        Promise.all(rowsToUpdate)
+            .then(results => {
+                let data = {};
+                if (results.length === rowsToUpdate.length) {
+                    console.log('users updated');
+                    data = { isSuccessful: true, message: '' };
+                } else {
+                    data = { isSuccessful: false, message: 'Erreur' };
+                }
+                response.send(data);
+            })
+            .catch(error => {
+                response.send({ isSuccessful: false, message: `Impossible de mettre à jour l'utilisateur' : ${error}` });
+            });
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de mettre à jour l'utilisateur : ${ex}` });
+    }
 };
 
 element_delete = (request, response) => {
-    const elementList = request.params;
-    const result = `NOT IMPLEMENTED: ${url} delete ${elementList.length}`;
-    response.send(result);
+    try {
+        const { idList } = request.body;
+        let rowsToDelete = [];
+        idList.forEach(id => {
+            console.log(`Delete user ${id}`);
+            const rowToDelete = db('users')
+                .where('id', '=', id)
+                .del();
+            rowsToDelete.push(rowToDelete);
+        });
+        Promise.all(rowsToDelete)
+            .then(results => {
+                let data = {};
+                if (results.length === rowsToDelete.length) {
+                    console.log('users deleted');
+                    data = { isSuccessful: true, message: '' };
+                } else {
+                    data = { isSuccessful: false, message: 'Erreur' };
+                }
+                response.send(data);
+            });
+    }
+    catch (ex) {
+        console.error(ex);
+        response.send({ isSuccessful: false, message: `Impossible de supprimer l'utilisateur' : ${ex}` });
+    }
 };
 
 router.post(`${url}/login`, login);
 router.get(`${url}/getAll`, auth, element_get_all);
-router.get(`${url}/:id`, auth, element_get_one);
+router.get(`${url}/:id`, auth, element_get);
 router.post(`${url}/add`, element_add);
 router.post(`${url}/update`, auth, element_update);
 router.post(`${url}/delete`, auth, element_delete);

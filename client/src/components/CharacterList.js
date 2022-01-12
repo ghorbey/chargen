@@ -41,20 +41,12 @@ export default function CharacterList(props) {
                                         key={character.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
-                                        <TableCell component="th" scope="row">
-                                            {character.character_name}
-                                        </TableCell>
+                                        <TableCell component="th" scope="row">{character.character_name}</TableCell>
                                         <TableCell>{character.user_id}</TableCell>
                                         <TableCell align="right">
-                                            <Button component={Link} to={`/character/${character.id}/view`}>
-                                                View
-                                            </Button>
-                                            <Button component={Link} to={`/character/${character.id}/edit`}>
-                                                Edit
-                                            </Button>
-                                            <Button onClick={() => handleDelete(character.id)}>
-                                                Delete
-                                            </Button>
+                                            <Button component={Link} to={`/character/${character.id}/view`}>View</Button>
+                                            <Button component={Link} to={`/character/${character.id}/edit`}>Edit</Button>
+                                            <Button onClick={() => handleDelete(character.id)}>Delete</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

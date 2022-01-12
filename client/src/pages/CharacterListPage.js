@@ -27,7 +27,7 @@ export default function CharacterPage(props) {
                 .then(response => {
                     const { isSuccessful, message } = response;
                     if (isSuccessful) {
-                        setCharacterList(characterList ? characterList.filter(c => c.id !== id) : characterList);
+                        setCharacterList(characterList ? characterList.filter(character => character.id !== id) : characterList);
                     } else {
                         setErrorMessage(message);
                     }
@@ -55,7 +55,7 @@ export default function CharacterPage(props) {
         if (!isLoading && !characterList) {
             loadData();
         }
-    }, [isLoading, characterList, setIsLoading, setCharacterList]);
+    }, [isLoading, characterList, setIsLoading]);
 
     return (
         <ThemeProvider theme={theme}>

@@ -38,7 +38,6 @@ export default function Navigation(props) {
                 .getAll()
                 .then(response => {
                     if (response?.isSuccessful) {
-                        console.log('setGlobalData');
                         setGlobalData(response.data);
                     } else {
                         setGlobalData({});
@@ -88,7 +87,7 @@ export default function Navigation(props) {
                         <Route path='/character/:id/:action' element={<CharacterPage globalData={globalData} />} />
                         <Route path='/character/user/:action' element={<CharacterUserPage globalData={globalData} />} />
                         <Route path='/user-list' element={<UserListPage />} />
-                        <Route path='/user/:userId' element={<UserPage />} />
+                        <Route path='/user/:id/:action' element={<UserPage />} />
                         <Route path='/preferences/:userId' element={<PreferencesPage />} />
                         <Route path='/logout' element={<HomePage />} />
                     </Routes>
