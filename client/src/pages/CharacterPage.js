@@ -35,6 +35,7 @@ export default function CharacterPage(props) {
             CharacterService
                 .get(id)
                 .then(response => {
+                    console.log(response);
                     if (response.data && (response.data.user_id === userId || isAdmin)) {
                         setIsFound(true);
                         setCharacter(response.data);

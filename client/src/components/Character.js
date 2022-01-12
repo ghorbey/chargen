@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
+import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
 
 
 export const Character = (props) => {
-    const [computedData, setComputedData] = useState({ racesSkills: [], isComputed: false });
+    const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], isComputed: false });
     const [globalData] = useState(props.globalData);
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
@@ -44,7 +44,7 @@ export const Character = (props) => {
         const copy = { ...character };
         copy[field] = value;
         setCharacter(copy);
-    }
+    };
 
     const handleCancel = () => {
         setCharacter(props.character);
@@ -55,6 +55,10 @@ export const Character = (props) => {
         setIsEdit(true);
     };
 
+    const handleChangeCareer = () => {
+        console.log('change career');
+    };
+
     useEffect(() => {
         const getRaceSkills = (globalData, race_id) => {
             const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
@@ -62,9 +66,10 @@ export const Character = (props) => {
         };
         if (!computedData.isComputed && globalData && character) {
             const racesSkills = getRaceSkills(globalData, character.race_id);
-            console.log(racesSkills);
+            const chapters = [];
             setComputedData({
                 racesSkills,
+                chapters,
                 isComputed: true
             });
         }
@@ -76,7 +81,7 @@ export const Character = (props) => {
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
                         {!isEdit && isAdmin
-                            ? <Button color="primary" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} variant="outlined" sx={{ mr: 2 }}>Retour</Button>
+                            ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2 }}>Retour</Button>
                             : null
                         }
                         {isEdit
@@ -248,8 +253,147 @@ export const Character = (props) => {
                             value={computedData.racesSkills.map(skill => skill.skill_name).join('\n')}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {computedData.racesSkills.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                         </TextField>
+                    </Grid>
+                    <Grid item lg={6}>
+                        <TextField
+                            id="current_career_id"
+                            margin="normal"
+                            label="Carrière actuelle"
+                            name="current_career_id"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            required
+                            select
+                            value={character.vocation_id}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        >
+                            {globalData.careers.map(career => <MenuItem key={career.id} value={career.id}>{career.vocation_name}</MenuItem>)}
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={2}>
+                        <Button color="primary" variant="outlined" onClick={handleChangeCareer} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>Changer &gt;&gt;</Button>
+                    </Grid>
+                    <Grid item lg={4}>
+                        <TextField
+                            id="careers_history"
+                            margin="normal"
+                            label="Historique des carrières"
+                            name="careers_history"
+                            InputLabelProps={{ shrink: true }}
+                            disabled
+                            rows={character.careers_history.length}
+                            multiline
+                            fullWidth
+                            value={character.careers_history.map(career => career.career_name).join('\n')}
+                        >
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={6}>
+                        <TextField
+                            id="base_skills"
+                            margin="normal"
+                            label="Compétences de base"
+                            name="base_skills"
+                            InputLabelProps={{ shrink: true }}
+                            disabled
+                            rows={globalData.skills.filter(skill => skill.is_base).length}
+                            multiline
+                            fullWidth
+                            value={globalData.skills.filter(skill => skill.is_base).map(skill => skill.skill_name).join('\n')}
+                        >
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={6}>
+                        <TextField
+                            id="career_skills"
+                            margin="normal"
+                            label="Compétences de carrière"
+                            name="career_skills"
+                            InputLabelProps={{ shrink: true }}
+                            disabled
+                            rows={globalData.skills.filter(skill => skill.is_base).length}
+                            multiline
+                            fullWidth
+                            value={globalData.skills.filter(skill => skill.is_base).map(skill => skill.skill_name).join('\n')}
+                        >
+                        </TextField>
+                    </Grid>
+                    <Grid item lg={4}>
+                        Quête personnelle
+                    </Grid>
+                    <Grid item lg={4}>
+                        <TextField
+                            id="current_xp"
+                            margin="normal"
+                            label="XP actuels"
+                            name="current_xp"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            required
+                            value={character.current_xp}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        />
+                    </Grid>
+                    <Grid item lg={4}>
+                        <TextField
+                            id="total_xp"
+                            margin="normal"
+                            label="XP acquis"
+                            name="total_xp"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            required
+                            value={character.current_xp}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        />
+                    </Grid>
+                    <Grid item lg={4}>
+                        <FormControlLabel control={<Checkbox disabled />} label="XP Scénario" />
+                    </Grid>
+                    <Grid item lg={4}>
+                        <FormControlLabel control={<Checkbox disabled />} label="XP roleplay" />
+                    </Grid>
+                    <Grid item lg={12}>
+                        <TextField
+                            id="public_legend"
+                            margin="normal"
+                            label="Légende publique"
+                            name="public_legend"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            value={character.public_legend}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        />
+                    </Grid>
+                    <Grid item lg={12}>
+                        <TextField
+                            id="background"
+                            margin="normal"
+                            label="Background"
+                            name="background"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            value={character.background}
+                            onChange={(e) => updateField(e.target.name, e.target.value)}
+                        />
+                    </Grid>
+                    <Grid item lg={12}>
+                        <TextField
+                            id="chapters"
+                            margin="normal"
+                            label="Chapitres"
+                            name="chapters"
+                            InputLabelProps={{ shrink: true }}
+                            disabled={!isEdit}
+                            fullWidth
+                            value={computedData.chapters.map(chapter => chapter).join('\n')}
+                        />
                     </Grid>
                 </Grid>
             </>

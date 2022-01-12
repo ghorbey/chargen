@@ -30,59 +30,52 @@ element_get_all = (request, response) => {
 
 element_get = (request, response) => {
     try {
-        const { id } = request.params;
-        if (+id > 0) {
-            console.log(`retrieve character ${id}`);
-            db.select('*')
-                .from('characters')
-                .where('id', '=', id)
+        const { id, isUser } = request.params;
+        console.log(id);
+        console.log(isUser);
+        let query = undefined;
+        if (+id > 0 && isUser) {
+            query = db.select('*').from('characters').where('user_id', '=', id).limit(1);
+        } else if (+id > 0 && !isUser) {
+            query = db.select('*').from('characters').where('id', '=', id);
+        }
+        const character_careers = db.select('careers.*', 'characters_careers.is_current as is_current').from('characters_careers').innerJoin('careers', 'characters_careers.career_id', 'careers.id').where('characters_careers.character_id', '=', id);
+        console.log(character_careers.toSQL().toNative());
+        let queries = [
+            character_careers
+        ];
+        if (query) {
+            if (isUser) {
+                console.log(`retrieve character for user ${id}`);
+            } else {
+                console.log(`retrieve character ${id}`);
+            }
+            Promise
+                .resolve(query)
                 .then(result => {
+                    console.log(result);
                     let data = {};
-                    if (result.length === 1) {
+                    if (result) {
                         console.log('character retrieved');
                         let characterDTO = result[0];
-                        data = { data: characterDTO, isSuccessful: true, message: '' };
+                        Promise.all(queries)
+                            .then(results => {
+                                characterDTO.careers_history = results[0];
+                                data = { data: characterDTO, isSuccessful: true, message: '' };
+                                response.send(data);
+                            })
                     } else {
-                        data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
+                        data = { data: undefined, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
+                        response.send(data);
                     }
-                    response.send(data);
                 });
         } else {
-            response.send({ data: null, isSuccessful: false, message: 'Id de personnage invalide' });
+            response.send({ data: undefined, isSuccessful: false, message: 'Id de personnage invalide' });
         }
     }
     catch (ex) {
         console.error(ex);
-        response.send({ isSuccessful: false, message: `Impossible de récupérer le personnage : ${ex}`, data: [] });
-    }
-};
-
-element_get_for_user = (request, response) => {
-    try {
-        const { userId } = request.params;
-        if (+userId > 0) {
-            console.log(`retrieve character for user ${userId}`);
-            db.select('*')
-                .from('characters')
-                .where('user_id', '=', userId)
-                .limit(1)
-                .then(result => {
-                    let data = {};
-                    if (result.length === 1) {
-                        console.log('character retrieved');
-                        data = { data: result[0], isSuccessful: true, message: '' };
-                    } else {
-                        data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
-                    }
-                    response.send(data);
-                });
-        } else {
-            response.send({ data: null, isSuccessful: false, message: 'Id de personnage invalide' });
-        }
-    }
-    catch (ex) {
-        console.error(ex);
-        response.send({ isSuccessful: false, message: `Impossible de récupérer le personnage du joueur : ${ex}`, data: [] });
+        response.send({ isSuccessful: false, message: `Impossible de récupérer le personnage : ${ex}`, data: undefined });
     }
 };
 
@@ -207,8 +200,7 @@ element_delete = (request, response) => {
 };
 
 router.get(`${url}/getAll`, auth, element_get_all);
-router.get(`${url}/:id`, auth, element_get);
-router.get(`${url}/user/:userId`, auth, element_get_for_user);
+router.get(`${url}/:id/:isUser`, auth, element_get);
 router.post(`${url}/add`, auth, element_add);
 router.post(`${url}/update`, auth, element_update);
 router.post(`${url}/delete`, auth, element_delete);
