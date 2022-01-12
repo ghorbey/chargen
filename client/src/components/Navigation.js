@@ -38,7 +38,6 @@ export default function Navigation(props) {
                 .getAll()
                 .then(response => {
                     if (response?.isSuccessful) {
-                        console.log(response.data);
                         setGlobalData(response.data);
                     } else {
                         setGlobalData({});
