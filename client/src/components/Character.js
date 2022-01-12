@@ -397,6 +397,6 @@ export const Character = (props) => {
                     </Grid>
                 </Grid>
             </>
-            : <Alert severity="info">Aucun personnage disponible</Alert>
+            : null
     );
 }

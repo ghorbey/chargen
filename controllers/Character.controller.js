@@ -31,8 +31,6 @@ element_get_all = (request, response) => {
 element_get = (request, response) => {
     try {
         const { id, isUser } = request.params;
-        console.log(id);
-        console.log(isUser);
         let query = undefined;
         if (+id > 0 && isUser) {
             query = db.select('*').from('characters').where('user_id', '=', id).limit(1);
@@ -40,7 +38,6 @@ element_get = (request, response) => {
             query = db.select('*').from('characters').where('id', '=', id);
         }
         const character_careers = db.select('careers.*', 'characters_careers.is_current as is_current').from('characters_careers').innerJoin('careers', 'characters_careers.career_id', 'careers.id').where('characters_careers.character_id', '=', id);
-        console.log(character_careers.toSQL().toNative());
         let queries = [
             character_careers
         ];
@@ -53,7 +50,6 @@ element_get = (request, response) => {
             Promise
                 .resolve(query)
                 .then(result => {
-                    console.log(result);
                     let data = {};
                     if (result) {
                         console.log('character retrieved');
