@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
@@ -9,7 +9,6 @@ export const Character = React.forwardRef((props, ref) => {
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
-    const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
     const countries = [
@@ -71,9 +70,9 @@ export const Character = React.forwardRef((props, ref) => {
 
     const handleBack = () => {
         if (isAdmin) {
-            navigate('/character-list');
+            <Navigate to='/character-list' />;
         } else {
-            navigate('/character/user/view');
+            <Navigate to='/character/user/view' />;
         }
     }
 

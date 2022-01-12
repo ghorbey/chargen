@@ -1,24 +1,22 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
 
 export default function CharacterList(props) {
     const { characterList, deleteCharacter, isCreateAllowed } = props;
-    const navigate = useNavigate();
 
     const handleCreate = () => {
-        navigate(`/character/0/edit`);
+        <Navigate to='/character/0/edit' />;
     };
 
     const handleEdit = (id) => {
         if (id) {
-            navigate(`/character/${id}/edit`);
+            <Navigate to={`/character/${id}/edit`} />;
         }
     };
 
     const handleView = (id) => {
         if (id) {
-            navigate(`/character/${id}/view`);
+            <Navigate to='/character/${id}/view' />
         }
     };
 

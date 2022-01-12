@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
 import { ActivityList, NewsList } from '../components';
 
 export default function HomePage() {
     const { pathname } = useLocation();
-    const navigate = useNavigate();
     const theme = createTheme();
 
     useEffect(() => {
         if (pathname === '/logout') {
             sessionStorage.removeItem('token');
-            navigate('/');
+            <Navigate to='/' />;
             window.location.reload(false);
         }
     });
