@@ -269,7 +269,7 @@ export const Character = (props) => {
                             value={character.vocation_id}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {globalData.careers.map(career => <MenuItem key={career.id} value={career.id}>{career.vocation_name}</MenuItem>)}
+                            {globalData.careers.map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
                         </TextField>
                     </Grid>
                     <Grid item lg={2}>
