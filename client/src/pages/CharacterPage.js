@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { useReactToPrint } from 'react-to-print';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
 import CharacterService from '../services/Character.service';
@@ -16,6 +15,7 @@ function createNewCharacter(id, userId) {
 }
 
 export default function CharacterPage(props) {
+    const [globalData] = useState(props.globalData);
     const { id, action } = useParams();
     const { userId, isAdmin } = getCurrentUser();
     const [character, setCharacter] = useState(createNewCharacter(id, userId));
@@ -25,39 +25,36 @@ export default function CharacterPage(props) {
     const [errorMessage] = useState();
     const theme = createTheme();
 
-    const componentRef = useRef();
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current
-    });
+    const handlePrint = () => {
+        console.log('print');
+    };
 
     useEffect(() => {
         const loadData = () => {
-            if (!isLoading && id > 0) {
-                setIsLoading(true);
-                CharacterService
-                    .get(id)
-                    .then(response => {
-                        if (response.data) {
-                            if (response.data.user_id === userId || isAdmin) {
-                                setIsFound(true);
-                                setCharacter(response.data);
-                            } else {
-                                console.error('Trying to access unauthorized resource!');
-                                <Navigate to='/' />
-                            }
-                        } else {
-                            setIsFound(false);
-                            setCharacter(undefined);
-                        }
-                    })
-                    .finally(() => setIsLoading(false));
+            setIsLoading(true);
+            CharacterService
+                .get(id)
+                .then(response => {
+                    if (response.data && (response.data.user_id === userId || isAdmin)) {
+                        setIsFound(true);
+                        setCharacter(response.data);
+                    } else {
+                        console.error('Trying to access unauthorized resource!');
+                        setIsFound(false);
+                        setCharacter(undefined);
+                    }
+                })
+                .finally(() => setIsLoading(false));
+        };
+        if (!isLoading && !character && isFound === undefined && id > 0) {
+            loadData();
+        } else {
+            if (+id >= 0) {
+                setIsFound(true);
             } else {
                 setIsFound(false);
                 setCharacter(undefined);
             }
-        };
-        if (!isLoading && !character && isFound === undefined && id > 0) {
-            loadData();
         }
     }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter]);
 
@@ -68,8 +65,7 @@ export default function CharacterPage(props) {
                 {isLoading
                     ? <Loading />
                     : isFound === false
-                        ?
-                        <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
+                        ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
                         :
                         <Grid container spacing={2}>
                             {character ?
@@ -81,12 +77,12 @@ export default function CharacterPage(props) {
                             {!isEdit
                                 ?
                                 <Grid item lg={2}>
-                                    <Button color="primary" variant="outlined" onClick={handlePrint}>Print to pdf</Button>
+                                    <Button color="primary" variant="outlined" onClick={handlePrint}>PDF</Button>
                                 </Grid>
                                 : null
                             }
                             <Grid item>
-                                <Character ref={componentRef} character={character} isEdit={isEdit} />
+                                <Character character={character} isEdit={isEdit} globalData={globalData} />
                             </Grid>
                         </Grid>
                 }

@@ -11,10 +11,11 @@ element_get_all = (request, response) => {
         db.select('*')
             .from('characters')
             .orderBy('character_name')
-            .then(result => {
+            .then(results => {
                 let data = {};
-                if (result.length >= 1) {
-                    data = { data: result.rows, isSuccessful: true, message: '' };
+                console.log('characters retrieved');
+                if (results.length >= 1) {
+                    data = { data: results, isSuccessful: true, message: '' };
                 } else {
                     data = { data: [], isSuccessful: true, message: 'Aucun personnage existant' };
                 }
@@ -38,8 +39,8 @@ element_get = (request, response) => {
                 .then(result => {
                     let data = {};
                     if (result.length === 1) {
-                        let characterDTO = result.rows[0];
-                        characterDTO.race_skills = [1, 2];
+                        console.log('character retrieved');
+                        let characterDTO = result[0];
                         data = { data: characterDTO, isSuccessful: true, message: '' };
                     } else {
                         data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
@@ -68,7 +69,8 @@ element_get_for_user = (request, response) => {
                 .then(result => {
                     let data = {};
                     if (result.length === 1) {
-                        data = { data: result.rows[0], isSuccessful: true, message: '' };
+                        console.log('character retrieved');
+                        data = { data: result[0], isSuccessful: true, message: '' };
                     } else {
                         data = { data: null, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
                     }
@@ -88,6 +90,7 @@ element_add = (request, response) => {
     try {
         const { characterList } = request.body;
         let rowsToInsert = [];
+        // Check if add is allowed (Only 1 per PJ)
         characterList.forEach(character => {
             console.log(`Added character ${character.character_name} for user ${character.user_id}`);
             const rowToInsert = {
@@ -111,7 +114,8 @@ element_add = (request, response) => {
             .insert(rowsToInsert)
             .then(results => {
                 let data = {};
-                if (results.length === queryList.length) {
+                if (results.rowCount === rowsToInsert.length) {
+                    console.log('characters added');
                     data = { isSuccessful: true, message: '' };
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
@@ -155,7 +159,8 @@ element_update = (request, response) => {
         Promise.all(rowsToUpdate)
             .then(results => {
                 let data = {};
-                if (results.length === queryList.length) {
+                if (results.length === rowsToUpdate.length) {
+                    console.log('characters updated');
                     data = { isSuccessful: true, message: '' };
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
@@ -186,7 +191,8 @@ element_delete = (request, response) => {
         Promise.all(rowsToDelete)
             .then(results => {
                 let data = {};
-                if (results.length === queryList.length) {
+                if (results.length === rowsToDelete.length) {
+                    console.log('characters deleted');
                     data = { isSuccessful: true, message: '' };
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };

@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS characters;
 DROP TABLE IF EXISTS careers_skills;
 DROP TABLE IF EXISTS careers;
 DROP TABLE IF EXISTS vocations;
+DROP TABLE IF EXISTS races_skills;
 DROP TABLE IF EXISTS races;
 DROP TABLE IF EXISTS skills;
 DROP TABLE IF EXISTS users;
@@ -64,19 +65,17 @@ CREATE TABLE careers (
 );
 
 CREATE TABLE careers_skills (
-    id SERIAL,
     career_id int,
     skill_id int,
-    PRIMARY KEY(id),
+    PRIMARY KEY(career_id, skill_id),
     CONSTRAINT fk_career FOREIGN KEY(career_id) REFERENCES careers(id),
     CONSTRAINT fk_skill FOREIGN KEY(skill_id) REFERENCES skills(id)
 );
 
 CREATE TABLE races_skills (
-    id SERIAL,
     race_id int,
     skill_id int,
-    PRIMARY KEY(id),
+    PRIMARY KEY(race_id, skill_id),
     CONSTRAINT fk_race FOREIGN KEY(race_id) REFERENCES races(id),
     CONSTRAINT fk_skill FOREIGN KEY(skill_id) REFERENCES skills(id)
 );
@@ -185,6 +184,11 @@ INSERT INTO skills (skill_name, is_base) VALUES ('Estimation', false); /* 8 */
 INSERT INTO skills (skill_name, is_base) VALUES ('Dissimulation', false); /* 9 */
 INSERT INTO skills (skill_name, is_base) VALUES ('Crochetage', false); /* 10 */
 INSERT INTO skills (skill_name, is_base) VALUES ('Soins I', false); /* 11 */
+
+INSERT INTO races_skills (race_id, skill_id) VALUES (1, 1);
+INSERT INTO races_skills (race_id, skill_id) VALUES (2, 2);
+INSERT INTO races_skills (race_id, skill_id) VALUES (3, 3);
+INSERT INTO races_skills (race_id, skill_id) VALUES (4, 4);
 
 INSERT INTO careers (career_name, vocation_id) VALUES ('Milicien', 1);
 INSERT INTO careers_skills (career_id, skill_id) VALUES (1, 3);

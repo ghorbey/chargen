@@ -15,14 +15,15 @@ get_all = (request, response) => {
             db.select('*').from('races').orderBy('id'),
             db.select('*').from('countries').orderBy('id'),
             db.select('*').from('careers').orderBy('id'),
-            db.select('*').from('careers_skills').orderBy('id'),
-            db.select('*').from('races_skills').orderBy('id')
+            db.select('*').from('careers_skills'),
+            db.select('*').from('races_skills')
         ];
         Promise
             .all(selects)
             .then(results => {
                 let data = {};
                 if (results.length === selects.length) {
+                    console.log('data retrieved');
                     const vocations = results[0];
                     const skills = results[1];
                     const religions = results[2];

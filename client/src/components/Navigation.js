@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography } from '@mui/material';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
-import { useToken, getCurrentUser, Provider } from '../common';
+import { useToken, getCurrentUser } from '../common';
 import DataService from '../services/Data.service';
 
 export default function Navigation(props) {
@@ -37,8 +37,8 @@ export default function Navigation(props) {
             DataService
                 .getAll()
                 .then(response => {
-                    console.log(response?.data);
                     if (response?.isSuccessful) {
+                        console.log(response.data);
                         setGlobalData(response.data);
                     } else {
                         setGlobalData({});
@@ -47,8 +47,6 @@ export default function Navigation(props) {
         };
         if (userId) {
             loadData();
-        } else {
-            setGlobalData(undefined);
         }
     }, [userId]);
 
@@ -62,40 +60,38 @@ export default function Navigation(props) {
         );
     } else {
         return (
-            <Provider globalData={globalData} userId={userId}>
-                <Router>
-                    <AppBar position="sticky">
-                        <Container component="main" maxWidth="lg">
-                            <Toolbar disableGutters>
-                                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                                    {pages.map((page) => (
-                                        <Button key={page.key} component={Link} to={page.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
-                                            {page.name}
-                                        </Button>
-                                    ))}
-                                </Box>
-                            </Toolbar>
-                        </Container>
-                    </AppBar>
-                    <Container>
-                        <br />
-                        <Breadcrumbs aria-label="breadcrumb">
-                            <Typography color="text.primary">Breadcrumbs</Typography>
-                        </Breadcrumbs>
-                        <br />
+            <Router>
+                <AppBar position="sticky">
+                    <Container component="main" maxWidth="lg">
+                        <Toolbar disableGutters>
+                            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                                {pages.map((page) => (
+                                    <Button key={page.key} component={Link} to={page.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
+                                        {page.name}
+                                    </Button>
+                                ))}
+                            </Box>
+                        </Toolbar>
                     </Container>
-                    <Routes>
-                        <Route exact path='/' element={<HomePage />} />
-                        <Route path='/character-list' element={<CharacterListPage />} />
-                        <Route path='/character/:id/:action' element={<CharacterPage />} />
-                        <Route path='/character/user/:action' element={<CharacterUserPage />} />
-                        <Route path='/user-list' element={<UserListPage />} />
-                        <Route path='/user/:userId' element={<UserPage />} />
-                        <Route path='/preferences/:userId' element={<PreferencesPage />} />
-                        <Route path='/logout' element={<HomePage />} />
-                    </Routes>
-                </Router>
-            </Provider>
+                </AppBar>
+                <Container>
+                    <br />
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">Breadcrumbs</Typography>
+                    </Breadcrumbs>
+                    <br />
+                </Container>
+                <Routes>
+                    <Route exact path='/' element={<HomePage />} />
+                    <Route path='/character-list' element={<CharacterListPage globalData={globalData} />} />
+                    <Route path='/character/:id/:action' element={<CharacterPage globalData={globalData} />} />
+                    <Route path='/character/user/:action' element={<CharacterUserPage globalData={globalData} />} />
+                    <Route path='/user-list' element={<UserListPage />} />
+                    <Route path='/user/:userId' element={<UserPage />} />
+                    <Route path='/preferences/:userId' element={<PreferencesPage />} />
+                    <Route path='/logout' element={<HomePage />} />
+                </Routes>
+            </Router>
         );
     }
 }

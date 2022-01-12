@@ -34,6 +34,7 @@ login = (request, response) => {
         .then(result => {
             let data = {};
             if (result && result.length === 1) {
+                console.log('user retrieved');
                 const { user_password, id, is_admin, user_firstname, user_lastname } = result[0];
                 if (user_password !== password) {
                     data = { token: null, message: 'Mot de passe invalide!' };
@@ -51,18 +52,16 @@ login = (request, response) => {
 element_get_all = (request, response) => {
     db.select('*')
         .from('users')
-        .then(result => {
+        .then(results => {
             let data = {};
-            if (result) {
-                const { user_password, id, is_admin, user_firstname, user_lastname } = result.rows[0];
-                if (user_password !== password) {
-                    data = { token: null, message: 'Mot de passe invalide!' };
-                } else {
-                    const token = generateToken(id, email, is_admin, user_firstname, user_lastname);
-                    data = { token, message: '' };
-                }
+            if (results.length >= 1) {
+                console.log('users retrieved');
+                const userDTO = results.map(user => {
+                    return { user_password, id, is_admin, user_firstname, user_lastname } = user;
+                });
+                data = { data: userDTO, isSuccessful: true, message: '' };
             } else {
-                data = { token: null, message: `L'utilisateur ${email} n'existe pas!` };
+                data = { data: [], isSuccessful: true, message: 'Aucun utilisateur existant' };
             }
             response.send(data);
         });

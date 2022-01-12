@@ -1,27 +1,10 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
-import { useData } from '../common';
 
 export default function CharacterList(props) {
-    const { globalData } = useData();
+    const [globalData] = useState(props.globalData);
     const { characterList, deleteCharacter, isCreateAllowed } = props;
-
-    const handleCreate = () => {
-        <Navigate to='/character/0/edit' />;
-    };
-
-    const handleEdit = (id) => {
-        if (id) {
-            <Navigate to={`/character/${id}/edit`} />;
-        }
-    };
-
-    const handleView = (id) => {
-        if (id) {
-            <Navigate to={`/character/${id}/view`} />;
-        }
-    };
 
     const handleDelete = (id) => {
         deleteCharacter(id);
@@ -36,7 +19,7 @@ export default function CharacterList(props) {
                 <Grid item xl={12}>
                     {isCreateAllowed
                         ?
-                        <Button color="primary" variant="outlined" onClick={handleCreate}>
+                        <Button component={Link} to="/character/0/edit" color="primary" variant="outlined">
                             Créer un personnage
                         </Button>
                         : null
@@ -63,10 +46,10 @@ export default function CharacterList(props) {
                                         </TableCell>
                                         <TableCell>{character.user_id}</TableCell>
                                         <TableCell align="right">
-                                            <Button onClick={() => handleView(character.id)}>
+                                            <Button component={Link} to={`/character/${character.id}/view`}>
                                                 View
                                             </Button>
-                                            <Button onClick={() => handleEdit(character.id)}>
+                                            <Button component={Link} to={`/character/${character.id}/edit`}>
                                                 Edit
                                             </Button>
                                             <Button onClick={() => handleDelete(character.id)}>

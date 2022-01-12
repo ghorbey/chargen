@@ -1,12 +1,14 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem } from '@mui/material';
-import { Navigate } from 'react-router-dom';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
-import { getCurrentUser, useData } from '../common';
+import { getCurrentUser } from '../common';
 
-export const Character = forwardRef((props, ref) => {
-    const { globalData } = useData();
+
+export const Character = (props) => {
+    const [computedData, setComputedData] = useState({ racesSkills: [], isComputed: false });
+    const [globalData] = useState(props.globalData);
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
@@ -49,25 +51,32 @@ export const Character = forwardRef((props, ref) => {
         setIsEdit(false);
     };
 
-    const handleBack = () => {
-        if (isAdmin) {
-            <Navigate to='/character-list' />;
-        } else {
-            <Navigate to='/character/user/view' />;
-        }
-    }
-
     const handleEdit = () => {
         setIsEdit(true);
     };
 
-    if (character) {
-        return (
+    useEffect(() => {
+        const getRaceSkills = (globalData, race_id) => {
+            const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
+            return globalData.skills.filter(skill => skillIdList.includes(skill.id));
+        };
+        if (!computedData.isComputed && globalData && character) {
+            const racesSkills = getRaceSkills(globalData, character.race_id);
+            console.log(racesSkills);
+            setComputedData({
+                racesSkills,
+                isComputed: true
+            });
+        }
+    }, [globalData, character, computedData, setComputedData]);
+
+    return (
+        (character && computedData?.isComputed) ?
             <>
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
                         {!isEdit && isAdmin
-                            ? <Button color="primary" variant="outlined" onClick={handleBack} sx={{ mr: 2 }}>Retour</Button>
+                            ? <Button color="primary" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} variant="outlined" sx={{ mr: 2 }}>Retour</Button>
                             : null
                         }
                         {isEdit
@@ -80,7 +89,7 @@ export const Character = forwardRef((props, ref) => {
                         <Error errorMessage={errorMessage} />
                     </Grid>
                 </Grid>
-                <Grid container spacing={2} ref={ref}>
+                <Grid container spacing={2}>
                     <Grid item lg={6}>
                         <TextField
                             id="character_name"
@@ -233,21 +242,17 @@ export const Character = forwardRef((props, ref) => {
                             name="race_skills"
                             InputLabelProps={{ shrink: true }}
                             disabled
-                            rows={character.race_skills.length}
+                            rows={computedData.racesSkills.length}
                             multiline
                             fullWidth
-                            value={character.race_skills.join('\n')}
+                            value={computedData.racesSkills.map(skill => skill.skill_name).join('\n')}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         >
-                            {character.race_skills.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                            {computedData.racesSkills.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                         </TextField>
                     </Grid>
                 </Grid>
             </>
-        );
-    } else {
-        return (
-            <Alert severity="info">Aucun personnage disponible</Alert>
-        );
-    }
-});
+            : <Alert severity="info">Aucun personnage disponible</Alert>
+    );
+}

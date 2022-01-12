@@ -42,6 +42,7 @@ export default function CharacterPage(props) {
                 CharacterService
                     .getAll()
                     .then(response => {
+                        console.log(response);
                         if (response.data) {
                             setCharacterList(response.data);
                         } else {
