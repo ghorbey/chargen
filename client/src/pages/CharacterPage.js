@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import PropTypes from 'prop-types';
 import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
@@ -17,7 +17,6 @@ function createNewCharacter(id, userId) {
 
 export default function CharacterPage(props) {
     const { id, action } = useParams();
-    const navigate = useNavigate();
     const { userId, isAdmin } = getCurrentUser();
     const [character, setCharacter] = useState(createNewCharacter(id, userId));
     const [isEdit] = useState(action === 'edit');
@@ -44,7 +43,7 @@ export default function CharacterPage(props) {
                                 setCharacter(response.data);
                             } else {
                                 console.error('Trying to access unauthorized resource!');
-                                navigate('/');
+                                <Navigate to='/' />
                             }
                         } else {
                             setIsFound(false);
@@ -60,7 +59,7 @@ export default function CharacterPage(props) {
         if (!isLoading && !character && isFound === undefined && id >= 0) {
             loadData();
         }
-    }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter, navigate]);
+    }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter]);
 
     return (
         <ThemeProvider theme={theme}>
