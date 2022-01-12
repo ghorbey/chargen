@@ -9,7 +9,7 @@ const userController = require('./controllers/User.controller');
 const preferencesController = require('./controllers/Preferences.controller');
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production') {
   const cors = require('cors');
   app.use(cors());

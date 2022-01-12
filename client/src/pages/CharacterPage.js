@@ -56,7 +56,7 @@ export default function CharacterPage(props) {
                 setCharacter(undefined);
             }
         };
-        if (!isLoading && !character && isFound === undefined && id >= 0) {
+        if (!isLoading && !character && isFound === undefined && id > 0) {
             loadData();
         }
     }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter]);

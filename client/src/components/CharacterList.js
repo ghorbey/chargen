@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
 import { useData } from '../common';
 
@@ -18,7 +19,7 @@ export default function CharacterList(props) {
 
     const handleView = (id) => {
         if (id) {
-            <Navigate to='/character/${id}/view' />
+            <Navigate to={`/character/${id}/view`} />;
         }
     };
 
