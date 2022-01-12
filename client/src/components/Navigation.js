@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
-import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography } from '@mui/material';
+import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography, Grid } from '@mui/material';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 import DataService from '../services/Data.service';
@@ -10,18 +10,21 @@ export default function Navigation(props) {
     const { isAdmin, userId } = getCurrentUser();
     const { token, setToken } = useToken();
 
-    let pages = [
+    let menuLeft = [
         { key: '1', name: 'Accueil', path: '/', access: ['everyone'] },
-        { key: '2', name: 'Liste des personnages', path: '/character-list', access: ['admin'] },
+        { key: '2', name: 'Personnages', path: '/character-list', access: ['admin'] },
         { key: '3', name: 'Votre personnage', path: `/character/user/view`, access: ['pj'] },
-        { key: '4', name: 'Liste des utilisateurs', path: '/user-list', access: ['admin'] },
-        { key: '5', name: 'Votre profil', path: `/user/${userId}`, access: ['everyone'] },
-        { key: '6', name: 'Vos préférences', path: `/preferences/${userId}`, access: ['everyone'] },
+        { key: '4', name: 'Utilisateurs', path: '/user-list', access: ['admin'] }
+    ];
+
+    let menuRight = [
+        { key: '5', name: `Profil de ${userId}`, path: `/user/${userId}/view`, access: ['everyone'] },
+        { key: '6', name: 'Préférences', path: `/preferences/${userId}`, access: ['everyone'] },
         { key: '7', name: 'Déconnexion', path: `/logout`, access: ['everyone'] }
     ];
 
     // Filter pages based on user type
-    pages = pages.filter(page => {
+    menuLeft = menuLeft.filter(page => {
         if (page.access.includes('everyone')) {
             return true;
         } else if (page.access.includes('admin') && isAdmin) {
@@ -63,15 +66,31 @@ export default function Navigation(props) {
                 <Router>
                     <AppBar position="sticky">
                         <Container component="main" maxWidth="lg">
-                            <Toolbar disableGutters>
-                                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                                    {pages.map((page) => (
-                                        <Button key={page.key} component={Link} to={page.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
-                                            {page.name}
-                                        </Button>
-                                    ))}
-                                </Box>
-                            </Toolbar>
+                            <Grid container>
+                                <Grid item lg={6}>
+                                    <Toolbar disableGutters>
+                                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                                            {menuLeft.map((element) => (
+                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
+                                                    {element.name}
+                                                </Button>
+                                            ))}
+                                        </Box>
+                                    </Toolbar>
+                                </Grid>
+                                <Grid item lg={6}>
+                                    <Toolbar disableGutters>
+                                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                                            {menuRight.map((element) => (
+                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
+                                                    {element.name}
+                                                </Button>
+                                            ))}
+                                        </Box>
+                                    </Toolbar>
+                                </Grid>
+                            </Grid>
+
                         </Container>
                     </AppBar>
                     <Container>

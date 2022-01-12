@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
 
 export default function CharacterList(props) {
-    const [globalData] = useState(props.globalData);
     const { characterList, deleteCharacter, isCreateAllowed } = props;
 
     const handleDelete = (id) => {

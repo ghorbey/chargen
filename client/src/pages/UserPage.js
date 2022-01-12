@@ -17,7 +17,7 @@ export default function UserPage(props) {
     const { id, action } = useParams();
     const { userId, isAdmin } = getCurrentUser();
     const [user, setUser] = useState(createNewUser(id));
-    const [isEdit] = useState(action === 'edit');
+    const [isEdit] = useState(action === 'edit' && isAdmin);
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState();
@@ -30,16 +30,16 @@ export default function UserPage(props) {
                 .get(id)
                 .then(response => {
                     setErrorMessage(response?.message);
-                    if (isAdmin) {
-                        if (response.data) {
-                            setIsFound(true);
-                            setUser(response.data);
-                        }
+                    if (response?.isSuccessful && isAdmin) {
+                        setIsFound(true);
+                        setUser(response.data);
+                    }
+                    else if (response?.isSuccessful && !isAdmin) {
+                        setErrorMessage('Accès interdit');
+                        console.error('Trying to access unauthorized resource!');
+                        setIsFound(false);
+                        setUser(undefined);
                     } else {
-                        if (response?.data?.user_id !== userId && !isAdmin) {
-                            setErrorMessage('Accès interdit');
-                            console.error('Trying to access unauthorized resource!');
-                        }
                         setIsFound(false);
                         setUser(undefined);
                     }
@@ -47,7 +47,6 @@ export default function UserPage(props) {
                 .finally(() => setIsLoading(false));
         };
         if (!isLoading && !user && isFound === undefined && id > 0) {
-            console.log('loadData');
             loadData();
         } else {
             if (+id >= 0) {
@@ -57,27 +56,25 @@ export default function UserPage(props) {
                 setUser(undefined);
             }
         }
-    }, [isLoading, userId, id, user, isFound, isAdmin, setUser]);
+    }, [isLoading, id, user, isFound, isAdmin]);
 
     return (
-        (user) ?
-            <ThemeProvider theme={theme}>
-                <Container component="main" maxWidth="lg">
-                    <CssBaseline />
-                    {isLoading
-                        ? <Loading />
-                        : isFound === false
-                            ? <Alert severity="error">Aucun utilisateur avec l'id {id} existant.</Alert>
-                            :
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <User user={user} isEdit={isEdit} />
-                                </Grid>
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="lg">
+                <CssBaseline />
+                {isLoading
+                    ? <Loading />
+                    : (user && isFound === false)
+                        ? <Alert severity="error">Aucun utilisateur avec l'id {id} existant.</Alert>
+                        :
+                        <Grid container spacing={2}>
+                            <Grid item>
+                                <User user={user} isEdit={isEdit} />
                             </Grid>
-                    }
-                    <Error errorMessage={errorMessage} />
-                </Container>
-            </ThemeProvider>
-            : null
+                        </Grid>
+                }
+                <Error errorMessage={errorMessage} />
+            </Container>
+        </ThemeProvider>
     );
 }

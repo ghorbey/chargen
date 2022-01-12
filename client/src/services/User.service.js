@@ -13,7 +13,6 @@ const UserService = {
     },
     get: (id) => {
         const callUrl = `${url}/${id}`;
-        console.log(callUrl);
         return RequestService.get(callUrl, true);
     },
     add: (elementList) => {

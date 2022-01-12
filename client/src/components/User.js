@@ -70,7 +70,9 @@ export default function User(props) {
     };
 
     const handleEdit = () => {
-        setIsEdit(true);
+        if (isAdmin) {
+            setIsEdit(true);
+        }
     };
 
     return (
@@ -82,11 +84,14 @@ export default function User(props) {
                             ? <Button color="primary" variant="outlined" component={Link} to={'/user-list'} sx={{ mr: 2 }}>Retour</Button>
                             : null
                         }
-                        {isEdit
+                        {isEdit && isAdmin
                             ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2 }}>Annuler</Button>
                             : null
                         }
-                        <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
+                        {isAdmin
+                            ? <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
+                            : null
+                        }
                     </Grid>
                     <Grid item xl={12}>
                         <Error errorMessage={errorMessage} />

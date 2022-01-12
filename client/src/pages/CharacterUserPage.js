@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
 import CharacterService from '../services/Character.service';
@@ -11,13 +11,15 @@ function createNewCharacter(userId) {
 }
 
 export default function CharacterUserPage(props) {
-    let { action } = useParams();
+    const [globalData] = useState(props.globalData);
+    let { id, action } = useParams();
+    const navigate = useNavigate();
     const { userId } = getCurrentUser();
-    const [character, setCharacter] = useState(undefined);
+    const [character, setCharacter] = useState(createNewCharacter(id, userId));
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
-    const [errorMessage] = useState();
+    const [errorMessage, setErrorMessage] = useState();
     const theme = createTheme();
 
     useEffect(() => {
@@ -27,12 +29,12 @@ export default function CharacterUserPage(props) {
                 CharacterService
                     .getForUser(userId)
                     .then(response => {
-                        if (response.data) {
+                        setErrorMessage(response?.message);
+                        if (response?.isSuccessful) {
                             setIsFound(true);
                             setCharacter(response.data);
                         } else {
-                            setIsFound(true);
-                            setCharacter(createNewCharacter(userId));
+                            navigate('/character/0/edit');
                         }
                     })
                     .finally(() => setIsLoading(false));
@@ -41,7 +43,7 @@ export default function CharacterUserPage(props) {
         if (!isLoading && !character && isFound === undefined && +userId > 0) {
             loadData();
         }
-    }, [isLoading, userId, character, isFound, setIsLoading, setCharacter]);
+    }, [isLoading, userId, character, isFound, setIsLoading, setCharacter, navigate]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -49,7 +51,7 @@ export default function CharacterUserPage(props) {
                 <CssBaseline />
                 {isLoading
                     ? <Loading />
-                    : <Character character={character} isEdit={isEdit} />
+                    : <Character character={character} globalData={globalData} isEdit={isEdit} />
                 }
                 <Error errorMessage={errorMessage} />
             </Container>
