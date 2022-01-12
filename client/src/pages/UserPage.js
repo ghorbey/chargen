@@ -30,11 +30,11 @@ export default function UserPage(props) {
                 .get(id)
                 .then(response => {
                     setErrorMessage(response?.message);
-                    if (response?.isSuccessful && isAdmin) {
+                    if (response?.isSuccessful && (isAdmin || response?.data?.id === userId)) {
                         setIsFound(true);
                         setUser(response.data);
                     }
-                    else if (response?.isSuccessful && !isAdmin) {
+                    else if (response?.isSuccessful && !isAdmin && response?.data?.userId !== userId) {
                         setErrorMessage('Accès interdit');
                         console.error('Trying to access unauthorized resource!');
                         setIsFound(false);
@@ -56,7 +56,7 @@ export default function UserPage(props) {
                 setUser(undefined);
             }
         }
-    }, [isLoading, id, user, isFound, isAdmin]);
+    }, [isLoading, id, user, userId, isFound, isAdmin]);
 
     return (
         <ThemeProvider theme={theme}>
