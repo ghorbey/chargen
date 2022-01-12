@@ -22,7 +22,7 @@ export default function CharacterPage(props) {
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
-    const [errorMessage] = useState();
+    const [errorMessage, setErrorMessage] = useState();
     const theme = createTheme();
 
     const handlePrint = () => {
@@ -35,10 +35,16 @@ export default function CharacterPage(props) {
             CharacterService
                 .get(id)
                 .then(response => {
-                    if (response.data && (response.data.user_id === userId || isAdmin)) {
-                        setIsFound(true);
-                        setCharacter(response.data);
+                    setErrorMessage(response?.message);
+                    if (response?.data?.user_id === userId || isAdmin) {
+                        if (response.data) {
+                            setIsFound(true);
+                            setCharacter(response.data);
+                        }
                     } else {
+                        if (response?.data?.user_id !== userId && !isAdmin) {
+                            setErrorMessage('Accès interdit');
+                        }
                         console.error('Trying to access unauthorized resource!');
                         setIsFound(false);
                         setCharacter(undefined);
@@ -59,36 +65,38 @@ export default function CharacterPage(props) {
     }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter]);
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="lg">
-                <CssBaseline />
-                {isLoading
-                    ? <Loading />
-                    : isFound === false
-                        ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
-                        :
-                        <Grid container spacing={2}>
-                            {character ?
-                                <Grid item lg={!isEdit ? 10 : 12}>
-                                    <Typography>{character.character_name}</Typography>
+        (globalData && character) ?
+            <ThemeProvider theme={theme}>
+                <Container component="main" maxWidth="lg">
+                    <CssBaseline />
+                    {isLoading
+                        ? <Loading />
+                        : isFound === false
+                            ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
+                            :
+                            <Grid container spacing={2}>
+                                {character ?
+                                    <Grid item lg={!isEdit ? 10 : 12}>
+                                        <Typography>{character.character_name}</Typography>
+                                    </Grid>
+                                    : null
+                                }
+                                {!isEdit
+                                    ?
+                                    <Grid item lg={2}>
+                                        <Button color="primary" variant="outlined" onClick={handlePrint}>PDF</Button>
+                                    </Grid>
+                                    : null
+                                }
+                                <Grid item>
+                                    <Character character={character} globalData={globalData} isEdit={isEdit} />
                                 </Grid>
-                                : null
-                            }
-                            {!isEdit
-                                ?
-                                <Grid item lg={2}>
-                                    <Button color="primary" variant="outlined" onClick={handlePrint}>PDF</Button>
-                                </Grid>
-                                : null
-                            }
-                            <Grid item>
-                                <Character character={character} isEdit={isEdit} globalData={globalData} />
                             </Grid>
-                        </Grid>
-                }
-                <Error errorMessage={errorMessage} />
-            </Container>
-        </ThemeProvider>
+                    }
+                    <Error errorMessage={errorMessage} />
+                </Container>
+            </ThemeProvider>
+            : null
     );
 }
 

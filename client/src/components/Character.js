@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
@@ -7,11 +7,12 @@ import { getCurrentUser } from '../common';
 
 
 export const Character = (props) => {
-    const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], isComputed: false });
     const [globalData] = useState(props.globalData);
+    const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], isComputed: false });
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
+    const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
 
@@ -47,8 +48,12 @@ export const Character = (props) => {
     };
 
     const handleCancel = () => {
-        setCharacter(props.character);
-        setIsEdit(false);
+        if (character?.id) {
+            setCharacter(props.character);
+            setIsEdit(false);
+        } else {
+            navigate('/character-list');
+        }
     };
 
     const handleEdit = () => {
@@ -67,13 +72,14 @@ export const Character = (props) => {
         if (!computedData.isComputed && globalData && character) {
             const racesSkills = getRaceSkills(globalData, character.race_id);
             const chapters = [];
+            console.log(computedData);
             setComputedData({
                 racesSkills,
                 chapters,
                 isComputed: true
             });
         }
-    }, [globalData, character, computedData, setComputedData]);
+    }, [globalData, character, computedData]);
 
     return (
         (character && computedData?.isComputed) ?
@@ -366,6 +372,7 @@ export const Character = (props) => {
                             InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
+                            multiline
                             value={character.public_legend}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
@@ -379,6 +386,7 @@ export const Character = (props) => {
                             InputLabelProps={{ shrink: true }}
                             disabled={!isEdit}
                             fullWidth
+                            multiline
                             value={character.background}
                             onChange={(e) => updateField(e.target.name, e.target.value)}
                         />
@@ -397,6 +405,8 @@ export const Character = (props) => {
                     </Grid>
                 </Grid>
             </>
-            : null
+            : (errorMessage)
+                ? <Alert severity="information">{errorMessage}</Alert>
+                : null
     );
 }

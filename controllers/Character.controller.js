@@ -30,11 +30,14 @@ element_get_all = (request, response) => {
 
 element_get = (request, response) => {
     try {
-        const { id, isUser } = request.params;
+        const { id } = request.params;
+        const isUser = request.params.isUser === 'true';
         let query = undefined;
-        if (+id > 0 && isUser) {
+        if (id > 0 && isUser) {
+            console.log(`retrieve character for user ${id}`);
             query = db.select('*').from('characters').where('user_id', '=', id).limit(1);
-        } else if (+id > 0 && !isUser) {
+        } else if (id > 0 && !isUser) {
+            console.log(`retrieve character ${id}`);
             query = db.select('*').from('characters').where('id', '=', id);
         }
         const character_careers = db.select('careers.*', 'characters_careers.is_current as is_current').from('characters_careers').innerJoin('careers', 'characters_careers.career_id', 'careers.id').where('characters_careers.character_id', '=', id);
@@ -42,11 +45,6 @@ element_get = (request, response) => {
             character_careers
         ];
         if (query) {
-            if (isUser) {
-                console.log(`retrieve character for user ${id}`);
-            } else {
-                console.log(`retrieve character ${id}`);
-            }
             Promise
                 .resolve(query)
                 .then(result => {
@@ -54,12 +52,16 @@ element_get = (request, response) => {
                     if (result) {
                         console.log('character retrieved');
                         let characterDTO = result[0];
-                        Promise.all(queries)
-                            .then(results => {
-                                characterDTO.careers_history = results[0];
-                                data = { data: characterDTO, isSuccessful: true, message: '' };
-                                response.send(data);
-                            })
+                        if (characterDTO) {
+                            Promise.all(queries)
+                                .then(results => {
+                                    characterDTO.careers_history = results[0];
+                                    data = { data: characterDTO, isSuccessful: true, message: '' };
+                                    response.send(data);
+                                });
+                        } else {
+                            response.send({ isSuccessful: false, message: `Le personnage n'existe pas`, data: undefined });
+                        }
                     } else {
                         data = { data: undefined, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
                         response.send(data);
