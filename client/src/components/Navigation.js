@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
-import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography, Grid } from '@mui/material';
+import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography, Grid, Stack } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faSignOutAlt, faAddressCard, faHome } from '@fortawesome/free-solid-svg-icons';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
@@ -67,29 +67,30 @@ export default function Navigation(props) {
                 <Router>
                     <AppBar position="sticky">
                         <Container component="main" maxWidth="lg">
-                            <Grid container justifyContent="flex-end">
+                            <Grid container justifyContent="space-between">
                                 <Grid item lg={2}>
                                     <Toolbar disableGutters>
                                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                             {menuLeft.map((element) => (
-                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ mr: 2, color: 'white', display: 'block' }}>
+                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
                                                     <FontAwesomeIcon icon={element.name} size="2x" />
                                                 </Button>
                                             ))}
                                         </Box>
                                     </Toolbar>
                                 </Grid>
-                                <Grid item lg={8}></Grid>
                                 <Grid item lg={2}>
-                                    <Toolbar disableGutters>
-                                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                                            {menuRight.map((element) => (
-                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ mr: 2, color: 'white', display: 'block' }}>
-                                                    <FontAwesomeIcon icon={element.name} size="2x" />
-                                                </Button>
-                                            ))}
-                                        </Box>
-                                    </Toolbar>
+                                    <Stack direction="ro" justifyContent="flex-end">
+                                        <Toolbar disableGutters>
+                                            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                                                {menuRight.map((element) => (
+                                                    <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
+                                                        <FontAwesomeIcon icon={element.name} size="2x" />
+                                                    </Button>
+                                                ))}
+                                            </Box>
+                                        </Toolbar>
+                                    </Stack>
                                 </Grid>
                             </Grid>
                         </Container>
