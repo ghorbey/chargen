@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function CharacterList(props) {
     const { characterList, deleteCharacter, isCreateAllowed } = props;
@@ -18,8 +20,8 @@ export default function CharacterList(props) {
                 <Grid item xl={12}>
                     {isCreateAllowed
                         ?
-                        <Button component={Link} to="/character/0/edit" color="primary" variant="outlined">
-                            Créer un personnage
+                        <Button color="primary" variant="outlined" component={Link} to="/character/0/edit" sx={{ mr: 2, height: 56 }}>
+                            <FontAwesomeIcon icon={faPlus} size="lg" />
                         </Button>
                         : null
                     }
@@ -43,9 +45,15 @@ export default function CharacterList(props) {
                                         <TableCell component="th" scope="row">{character.character_name}</TableCell>
                                         <TableCell>{character.user_id}</TableCell>
                                         <TableCell align="right">
-                                            <Button component={Link} to={`/character/${character.id}/view`}>View</Button>
-                                            <Button component={Link} to={`/character/${character.id}/edit`}>Edit</Button>
-                                            <Button onClick={() => handleDelete(character.id)}>Delete</Button>
+                                            <Button component={Link} to={`/character/${character.id}/view`}>
+                                                <FontAwesomeIcon icon={faEye} size="lg" />
+                                            </Button>
+                                            <Button component={Link} to={`/character/${character.id}/edit`}>
+                                                <FontAwesomeIcon icon={faEdit} size="lg" />
+                                            </Button>
+                                            <Button onClick={() => handleDelete(character.id)}>
+                                                <FontAwesomeIcon icon={faTrash} size="lg" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

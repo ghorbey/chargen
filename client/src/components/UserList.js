@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function UserList(props) {
     const { userList, deleteUser } = props;
@@ -16,8 +18,8 @@ export default function UserList(props) {
                     <Typography variant="h3">Liste des utilisateurs</Typography>
                 </Grid>
                 <Grid item xl={12}>
-                    <Button component={Link} to="/user/0/edit" color="primary" variant="outlined">
-                        Créer un utilisateur
+                    <Button color="primary" variant="outlined" component={Link} to="/user/0/edit" sx={{ mr: 2, height: 56 }}>
+                        <FontAwesomeIcon icon={faPlus} size="lg" />
                     </Button>
                 </Grid>
                 <Grid item xl={12}>
@@ -43,9 +45,15 @@ export default function UserList(props) {
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>{user.phone_number}</TableCell>
                                         <TableCell align="right">
-                                            <Button component={Link} to={`/user/${user.id}/view`}>View</Button>
-                                            <Button component={Link} to={`/user/${user.id}/edit`}>Edit</Button>
-                                            <Button onClick={() => handleDelete(user.id)}>Delete</Button>
+                                            <Button component={Link} to={`/user/${user.id}/view`}>
+                                                <FontAwesomeIcon icon={faEye} size="lg" />
+                                            </Button>
+                                            <Button component={Link} to={`/user/${user.id}/edit`}>
+                                                <FontAwesomeIcon icon={faEdit} size="lg" />
+                                            </Button>
+                                            <Button onClick={() => handleDelete(user.id)}>
+                                                <FontAwesomeIcon icon={faTrash} size="lg" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

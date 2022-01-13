@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import CharacterService from '../services/Character.service';
 import { Error, Loading, Character } from '../components';
 import { getCurrentUser } from '../common';
@@ -83,7 +85,9 @@ export default function CharacterPage(props) {
                                 {!isEdit
                                     ?
                                     <Grid item lg={2}>
-                                        <Button color="primary" variant="outlined" onClick={handlePrint}>PDF</Button>
+                                        <Button color="primary" variant="outlined" onClick={handlePrint} sx={{ mr: 2, height: 56 }}>
+                                            <FontAwesomeIcon icon={faFilePdf} size="lg" />
+                                        </Button>
                                     </Grid>
                                     : null
                                 }

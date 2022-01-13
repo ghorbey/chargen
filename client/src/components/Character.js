@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faArrowLeft, faSave, faBan } from '@fortawesome/free-solid-svg-icons';
 import CharacterService from '../services/Character.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
@@ -85,14 +87,20 @@ export const Character = (props) => {
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
                         {!isEdit && isAdmin
-                            ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2 }}>Retour</Button>
+                            ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                            </Button>
                             : null
                         }
                         {isEdit
-                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2 }}>Annuler</Button>
+                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faBan} size="lg" />
+                            </Button>
                             : null
                         }
-                        <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
+                        <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit} sx={{ mr: 2, height: 56 }}>
+                            {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
+                        </Button>
                     </Grid>
                     <Grid item xl={12}>
                         <Error errorMessage={errorMessage} />

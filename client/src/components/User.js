@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import sha256 from 'crypto-js/sha256';
 import { Button, Alert, Grid, TextField, FormControlLabel, Checkbox } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faArrowLeft, faSave, faBan } from '@fortawesome/free-solid-svg-icons';
 import UserService from '../services/User.service';
 import { Error } from '../components';
 import { getCurrentUser } from '../common';
@@ -81,15 +83,21 @@ export default function User(props) {
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
                         {!isEdit && isAdmin
-                            ? <Button color="primary" variant="outlined" component={Link} to={'/user-list'} sx={{ mr: 2 }}>Retour</Button>
+                            ? <Button color="primary" variant="outlined" component={Link} to={'/user-list'} sx={{ mr: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+                            </Button>
                             : null
                         }
                         {isEdit && isAdmin
-                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2 }}>Annuler</Button>
+                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faBan} size="lg" />
+                            </Button>
                             : null
                         }
                         {isAdmin
-                            ? <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit}>{!isEdit ? 'Éditer' : 'Enregistrer'}</Button>
+                            ? <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit} sx={{ mr: 2, height: 56 }}>
+                                {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
+                            </Button>
                             : null
                         }
                     </Grid>

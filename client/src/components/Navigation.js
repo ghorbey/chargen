@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
 import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography, Grid } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faUsers, faSignOutAlt, faAddressCard, faHome } from '@fortawesome/free-solid-svg-icons';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 import DataService from '../services/Data.service';
@@ -11,16 +13,15 @@ export default function Navigation(props) {
     const { token, setToken } = useToken();
 
     let menuLeft = [
-        { key: '1', name: 'Accueil', path: '/', access: ['everyone'] },
-        { key: '2', name: 'Personnages', path: '/character-list', access: ['admin'] },
-        { key: '3', name: 'Votre personnage', path: `/character/user/view`, access: ['pj'] },
-        { key: '4', name: 'Utilisateurs', path: '/user-list', access: ['admin'] }
+        { key: '1', name: faHome, path: '/', access: ['everyone'], isIcon: true },
+        { key: '2', name: faAddressCard, path: '/character-list', access: ['admin'], isIcon: true },
+        { key: '3', name: faAddressCard, path: `/character/user/view`, access: ['pj'], isIcon: true },
+        { key: '4', name: faUsers, path: '/user-list', access: ['admin'], isIcon: true }
     ];
 
     let menuRight = [
-        { key: '5', name: `Profil de ${userId}`, path: `/user/${userId}/view`, access: ['everyone'] },
-        { key: '6', name: 'Préférences', path: `/preferences/${userId}`, access: ['everyone'] },
-        { key: '7', name: 'Déconnexion', path: `/logout`, access: ['everyone'] }
+        { key: '5', name: faUser, path: `/user/${userId}/view`, access: ['everyone'], isIcon: true },
+        { key: '7', name: faSignOutAlt, path: `/logout`, access: ['everyone'], isIcon: true }
     ];
 
     // Filter pages based on user type
@@ -66,31 +67,31 @@ export default function Navigation(props) {
                 <Router>
                     <AppBar position="sticky">
                         <Container component="main" maxWidth="lg">
-                            <Grid container>
-                                <Grid item lg={6}>
+                            <Grid container justifyContent="flex-end">
+                                <Grid item lg={2}>
                                     <Toolbar disableGutters>
                                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                             {menuLeft.map((element) => (
-                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
-                                                    {element.name}
+                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ mr: 2, color: 'white', display: 'block' }}>
+                                                    <FontAwesomeIcon icon={element.name} size="2x" />
                                                 </Button>
                                             ))}
                                         </Box>
                                     </Toolbar>
                                 </Grid>
-                                <Grid item lg={6}>
+                                <Grid item lg={8}></Grid>
+                                <Grid item lg={2}>
                                     <Toolbar disableGutters>
                                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                             {menuRight.map((element) => (
-                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ my: 2, color: 'white', display: 'block' }}>
-                                                    {element.name}
+                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ mr: 2, color: 'white', display: 'block' }}>
+                                                    <FontAwesomeIcon icon={element.name} size="2x" />
                                                 </Button>
                                             ))}
                                         </Box>
                                     </Toolbar>
                                 </Grid>
                             </Grid>
-
                         </Container>
                     </AppBar>
                     <Container>
