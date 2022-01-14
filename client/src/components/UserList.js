@@ -1,14 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { ConfirmDialog } from '../components';
 
 export default function UserList(props) {
     const { userList, deleteUser } = props;
+    const [isOpen, setIsOpen] = useState(false);
+    const [userId, setUserId] = useState(undefined);
 
-    const handleDelete = (id) => {
-        deleteUser(id);
+    const handleClickOpen = (id) => {
+        setUserId(id);
+        setIsOpen(true);
+    };
+
+    const handleClose = () => {
+        setIsOpen(false);
+        setUserId(undefined);
+    };
+
+    const handleConfirmDelete = (id) => {
+        if (id) {
+            deleteUser(id);
+        }
+        setIsOpen(false);
     };
 
     return (
@@ -36,10 +52,7 @@ export default function UserList(props) {
                             </TableHead>
                             <TableBody>
                                 {userList?.map(user => (
-                                    <TableRow
-                                        key={user.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
+                                    <TableRow key={user.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell>{user.user_firstname}</TableCell>
                                         <TableCell>{user.user_lastname}</TableCell>
                                         <TableCell>{user.email}</TableCell>
@@ -51,7 +64,7 @@ export default function UserList(props) {
                                             <Button component={Link} to={`/user/${user.id}/edit`}>
                                                 <FontAwesomeIcon icon={faEdit} size="lg" />
                                             </Button>
-                                            <Button onClick={() => handleDelete(user.id)}>
+                                            <Button onClick={() => handleClickOpen(user.id)}>
                                                 <FontAwesomeIcon icon={faTrash} size="lg" />
                                             </Button>
                                         </TableCell>
@@ -62,6 +75,7 @@ export default function UserList(props) {
                     </TableContainer>
                 </Grid>
             </Grid>
+            <ConfirmDialog onConfirm={handleConfirmDelete} onClose={handleClose} isOpen={isOpen} id={userId}></ConfirmDialog>
         </>
     );
 }

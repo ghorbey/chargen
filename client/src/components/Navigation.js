@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Route, BrowserRouter as Router, Routes, Link } from 'react-router-dom';
-import { Container, Toolbar, AppBar, Box, Button, Breadcrumbs, Typography, Grid, Stack } from '@mui/material';
+import { Route, BrowserRouter as Router, Routes, Link as RouterLink } from 'react-router-dom';
+import { Container, Toolbar, AppBar, Box, Button, Grid, Stack } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faSignOutAlt, faAddressCard, faHome } from '@fortawesome/free-solid-svg-icons';
 import { CharacterPage, CharacterListPage, CharacterUserPage, HomePage, LoginPage, PreferencesPage, UserListPage, UserPage } from '../pages';
 import { useToken, getCurrentUser } from '../common';
 import DataService from '../services/Data.service';
+import { RouterBreadcrumbs } from '../components'
 
 export default function Navigation(props) {
     const [globalData, setGlobalData] = useState(undefined);
@@ -21,7 +22,7 @@ export default function Navigation(props) {
 
     let menuRight = [
         { key: '5', name: faUser, path: `/user/${userId}/view`, access: ['everyone'], isIcon: true },
-        { key: '7', name: faSignOutAlt, path: `/logout`, access: ['everyone'], isIcon: true }
+        { key: '6', name: faSignOutAlt, path: `/logout`, access: ['everyone'], isIcon: true }
     ];
 
     // Filter pages based on user type
@@ -72,7 +73,7 @@ export default function Navigation(props) {
                                     <Toolbar disableGutters>
                                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                             {menuLeft.map((element) => (
-                                                <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
+                                                <Button key={element.key} component={RouterLink} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
                                                     <FontAwesomeIcon icon={element.name} size="2x" />
                                                 </Button>
                                             ))}
@@ -80,11 +81,11 @@ export default function Navigation(props) {
                                     </Toolbar>
                                 </Grid>
                                 <Grid item lg={2}>
-                                    <Stack direction="ro" justifyContent="flex-end">
+                                    <Stack direction="row" justifyContent="flex-end">
                                         <Toolbar disableGutters>
                                             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                                                 {menuRight.map((element) => (
-                                                    <Button key={element.key} component={Link} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
+                                                    <Button key={element.key} component={RouterLink} to={element.path} color="primary" sx={{ color: 'white', display: 'block' }}>
                                                         <FontAwesomeIcon icon={element.name} size="2x" />
                                                     </Button>
                                                 ))}
@@ -96,11 +97,7 @@ export default function Navigation(props) {
                         </Container>
                     </AppBar>
                     <Container>
-                        <br />
-                        <Breadcrumbs aria-label="breadcrumb">
-                            <Typography color="text.primary">Breadcrumbs</Typography>
-                        </Breadcrumbs>
-                        <br />
+                        <RouterBreadcrumbs></RouterBreadcrumbs>
                     </Container>
                     <Routes>
                         <Route exact path='/' element={<HomePage />} />
