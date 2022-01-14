@@ -1,43 +1,93 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, FormControl } from '@mui/material';
+import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, FormControl, Stack } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faMinus, faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 
 import { CharacterActions } from '../../components';
 import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
 
 export default function Character(props) {
-    const [globalData] = useState(props.globalData);
-    const [computedData, setComputedData] = useState({ raceSkills: [], chapters: [], annexes: [], isComputed: false });
-    const [raceSkills, setRaceSkills] = useState([]);
+    const globalData = props.globalData;
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
+    const [isComputed, setIsComputed] = useState(false);
+    const [raceSkills, setRaceSkills] = useState([]);
+    const [vocationCareers, setVocationCareers] = useState([]);
+    const [careerSkills, setCareerSkills] = useState([]);
     const [errorMessage, setErrorMessage] = useState();
     const { isAdmin } = getCurrentUser();
     const navigate = useNavigate();
     const character_types = ['pj', 'pnj'];
+
+    let careerSkillInput = undefined;
+    let selectedCareerSkill = careerSkills.length > 0 ? careerSkills[0].id : 0;
 
     const getRaceSkills = (globalData, race_id) => {
         const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
         return globalData.skills.filter(skill => skillIdList.includes(skill.id));
     };
 
+    const getVocationCareers = (globalData, vocation_id) => {
+        const careerList = globalData.careers.filter(career => career.vocation_id === vocation_id);
+        return careerList;
+    };
+
+    const getCareerSkills = (globalData, career_id, character_skills) => {
+        let skillIdList = globalData.careers_skills.filter(rs => rs.career_id === career_id).map(rs => rs.skill_id);
+        skillIdList = skillIdList.filter(skillId => !character_skills.includes(skillId));
+        return globalData.skills.filter(skill => skillIdList.includes(skill.id));
+    };
+
     useEffect(() => {
-        if (!computedData.isComputed && globalData && character) {
-            const raceSkills = getRaceSkills(globalData, character.race_id);
-            const availableCareers = globalData.careers;
-            setComputedData({
-                raceSkills,
-                availableCareers,
-                isComputed: true
-            });
+        if (!isComputed && globalData && character) {
+            setRaceSkills(getRaceSkills(globalData, character.race_id));
+            setVocationCareers(getVocationCareers(globalData, character.vocation_id));
+            setCareerSkills(getCareerSkills(globalData, character.current_career_id, character.character_skills));
+            setIsComputed(true);
         }
-    }, [computedData, globalData, character]);
+    }, [isComputed, globalData, character]);
 
     const prepareCharacter = (character) => {
         const copy = { ...character };
         return copy;
     }
+
+    const updateField = (field, value) => {
+        const copy = { ...character };
+        copy[field] = value;
+        setCharacter(copy);
+    };
+
+    const updateUnrelatedField = (field, value) => {
+        selectedCareerSkill = value;
+    };
+
+    const updateRaceField = (field, value) => {
+        updateField(field, value);
+        const raceSkillsCopy = getRaceSkills(globalData, value);
+        setRaceSkills(raceSkillsCopy);
+    };
+
+    const updateVocationField = (field, value) => {
+        updateField(field, value);
+        const vocationCareersCopy = getVocationCareers(globalData, value);
+        if (character.current_career_id && !vocationCareersCopy?.find(career => career.id === character.current_career_id)) {
+            updateCareerField('current_career_id', vocationCareersCopy[0].id);
+        }
+        setVocationCareers(vocationCareersCopy);
+    };
+
+    const updateCareerField = (field, value) => {
+        updateField(field, value);
+        const careerSkillsCopy = getCareerSkills(globalData, value);
+        setCareerSkills(careerSkillsCopy);
+    };
+
+    const handleChangeCareer = () => {
+        console.log('change career');
+    };
 
     const handleSave = () => {
         const preparedCharacter = prepareCharacter(character);
@@ -86,36 +136,25 @@ export default function Character(props) {
         console.log('print');
     };
 
-    const updateField = (field, value) => {
+    const addCareerSkill = () => {
+        if (careerSkillInput?.value) {
+            const copy = { ...character };
+            copy.character_skills.push(careerSkillInput.value);
+            const cs = getCareerSkills(globalData, character.current_career_id, character.character_skills);
+            setCareerSkills(cs);
+            setCharacter(copy);
+        }
+    };
+
+    const clearCareerSkills = () => {
         const copy = { ...character };
-        copy[field] = value;
+        copy.character_skills = [];
         setCharacter(copy);
-    };
-
-    const updateRaceField = (field, value) => {
-        updateField(field, value);
-        const raceSkillsCopy = getRaceSkills(globalData, value);
-        setRaceSkills(raceSkillsCopy);
-    };
-
-    const updateComputableField = (field, value) => {
-        updateField(field, value);
-        const copy = { ...computedData };
-        copy.isComputed = false;
-        setComputedData(copy);
-    }
-
-    const updateVocationField = (field, value) => {
-        updateField(field, value);
-        //const filteredCareers = globalData.careers.filter(career => !character?.career_history?.includes(career.id) && career.vocation_id === value);
-    };
-
-    const handleChangeCareer = () => {
-        console.log('change career');
+        setCareerSkills(getCareerSkills(globalData, character.current_career_id, []));
     };
 
     return (
-        (character && computedData?.isComputed) ?
+        (character && isComputed) ?
             <>
                 <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handlePrint={() => handlePrint()} handleCancel={() => handleCancel()} />
                 <Grid container spacing={2}>
@@ -298,7 +337,7 @@ export default function Character(props) {
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item lg={6}>
+                    <Grid item lg={5}>
                         <FormControl fullWidth>
                             <TextField
                                 id="current_career_id"
@@ -311,16 +350,20 @@ export default function Character(props) {
                                 required
                                 select
                                 value={character.current_career_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCareerField(e.target.name, e.target.value)}
                             >
-                                {computedData.availableCareers.map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
+                                {vocationCareers.map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
-                    <Grid item lg={2}>
-                        <Button color="primary" variant="outlined" onClick={handleChangeCareer} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>Changer &gt;&gt;</Button>
+                    <Grid item lg={1}>
+                        <Stack direction="row" justifyContent="flex-end">
+                            <Button color="primary" variant="outlined" onClick={handleChangeCareer} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faArrowCircleRight} size="lg" />
+                            </Button>
+                        </Stack>
                     </Grid>
-                    <Grid item lg={4}>
+                    <Grid item lg={6}>
                         <FormControl fullWidth>
                             <TextField
                                 id="character_careers"
@@ -353,20 +396,57 @@ export default function Character(props) {
                         </FormControl>
                     </Grid>
                     <Grid item lg={6}>
-                        <FormControl fullWidth>
-                            <TextField
-                                id="career_skills"
-                                margin="normal"
-                                label="Compétences de carrière"
-                                name="career_skills"
-                                InputLabelProps={{ shrink: true }}
-                                disabled
-                                rows={character.character_skills.filter(skill => skill.is_base).length}
-                                multiline
-                                fullWidth
-                                value={character.character_skills.filter(skill => skill.is_base).map(skill => skill.skill_name).join('\n')}
-                            />
-                        </FormControl>
+                        <Grid container spacing={2}>
+                            <Grid item lg={10}>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        id="career_skills"
+                                        inputProps={{ ref: input => careerSkillInput = input }}
+                                        margin="normal"
+                                        label="Compétences de carrière"
+                                        name="career_skills"
+                                        InputLabelProps={{ shrink: true }}
+                                        select
+                                        fullWidth
+                                        value={selectedCareerSkill}
+                                        onChange={(e) => updateUnrelatedField(selectedCareerSkill, e.target.value)}
+                                    >
+                                        <MenuItem key={0} value={0}></MenuItem>
+                                        {careerSkills.filter(skill => !character.character_skills.includes(skill.id)).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                                    </TextField>
+                                </FormControl>
+                            </Grid>
+                            <Grid item lg={2}>
+                                <Stack direction="row" justifyContent="flex-end">
+                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                        <FontAwesomeIcon icon={faPlus} size="lg" />
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                            <Grid item lg={10}>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        id="characters_skills"
+                                        margin="normal"
+                                        label="Compétences de carrière acquises"
+                                        name="characters_skills"
+                                        InputLabelProps={{ shrink: true }}
+                                        disabled
+                                        rows={character.character_skills.filter(skill => !skill.is_base).length}
+                                        multiline
+                                        fullWidth
+                                        value={globalData.skills.filter(skill => character.character_skills.includes(skill.id)).map(skill => skill.skill_name).join('\n')}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item lg={2}>
+                                <Stack direction="row" justifyContent="flex-end">
+                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                        <FontAwesomeIcon icon={faMinus} size="lg" />
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item lg={4}>
                         <FormControl fullWidth>

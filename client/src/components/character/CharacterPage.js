@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, Grid } from '@mui/material';
+import { Alert, Grid, Typography } from '@mui/material';
 
 import { Error, Loading, Character, ThemeContainer } from '../../components';
 import { getCurrentUser, createNewCharacter } from '../../common';
 import CharacterService from '../../services/Character.service';
 
 export default function CharacterPage(props) {
-    const [globalData] = useState(props.globalData);
-    const { id, action } = useParams();
+    const globalData = props.globalData;
     const { userId, isAdmin } = getCurrentUser();
+    const { id, action } = useParams();
+
+    const [errorMessage, setErrorMessage] = useState();
     const [characterId, setCharacterId] = useState();
     const [character, setCharacter] = useState(undefined);
+    const [isFound, setIsFound] = useState(undefined);
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
-    const [isFound, setIsFound] = useState(undefined);
-    const [errorMessage, setErrorMessage] = useState();
 
     const handlePrint = () => {
         console.log('print');
@@ -60,11 +61,11 @@ export default function CharacterPage(props) {
     }, [isLoading, userId, id, character, isAdmin, characterId]);
 
     return (
-        (globalData && characterId) ?
-            <ThemeContainer>
+        (globalData && characterId)
+            ? <ThemeContainer>
                 {isLoading
                     ? <Loading />
-                    : isFound === false
+                    : (isFound === false)
                         ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
                         : <Grid container spacing={2}>
                             <Grid item>
@@ -74,6 +75,6 @@ export default function CharacterPage(props) {
                 }
                 <Error errorMessage={errorMessage} />
             </ThemeContainer>
-            : null
+            : <Typography>{characterId}</Typography>
     );
 }
