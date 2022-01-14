@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, FormControl } from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faArrowLeft, faSave, faBan, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
-import { Error } from '../../components';
+import { CharacterActions } from '../../components';
 import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
 
 export default function Character(props) {
-    const { handlePrint } = props;
     const [globalData] = useState(props.globalData);
-    const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], annexes: [], isComputed: false });
+    const [computedData, setComputedData] = useState({ raceSkills: [], chapters: [], annexes: [], isComputed: false });
+    const [raceSkills, setRaceSkills] = useState([]);
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
     const [errorMessage, setErrorMessage] = useState();
-    const navigate = useNavigate();
     const { isAdmin } = getCurrentUser();
+    const navigate = useNavigate();
     const character_types = ['pj', 'pnj'];
+
+    const getRaceSkills = (globalData, race_id) => {
+        const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
+        return globalData.skills.filter(skill => skillIdList.includes(skill.id));
+    };
+
+    useEffect(() => {
+        if (!computedData.isComputed && globalData && character) {
+            const raceSkills = getRaceSkills(globalData, character.race_id);
+            const availableCareers = globalData.careers;
+            setComputedData({
+                raceSkills,
+                availableCareers,
+                isComputed: true
+            });
+        }
+    }, [computedData, globalData, character]);
 
     const prepareCharacter = (character) => {
         const copy = { ...character };
@@ -51,10 +66,36 @@ export default function Character(props) {
         }
     };
 
+    const handleEdit = () => {
+        setIsEdit(true);
+        navigate(`/character/${character.id}/edit`);
+    };
+
+    const handleCancel = () => {
+        if (character?.id && !isAdmin) {
+            setIsEdit(false);
+            navigate(`/character/${character.id}/view`);
+        } else if (character?.id && isAdmin) {
+            navigate('/character-list');
+        } else {
+            navigate('/character-list');
+        }
+    };
+
+    const handlePrint = () => {
+        console.log('print');
+    };
+
     const updateField = (field, value) => {
         const copy = { ...character };
         copy[field] = value;
         setCharacter(copy);
+    };
+
+    const updateRaceField = (field, value) => {
+        updateField(field, value);
+        const raceSkillsCopy = getRaceSkills(globalData, value);
+        setRaceSkills(raceSkillsCopy);
     };
 
     const updateComputableField = (field, value) => {
@@ -69,75 +110,14 @@ export default function Character(props) {
         //const filteredCareers = globalData.careers.filter(career => !character?.career_history?.includes(career.id) && career.vocation_id === value);
     };
 
-    const handleCancel = () => {
-        if (character?.id && !isAdmin) {
-            setIsEdit(false);
-            navigate(`/character/${character.id}/view`);
-        } else if (character?.id && isAdmin) {
-            navigate('/character-list');
-        } else {
-            navigate('/character-list');
-        }
-    };
-
-    const handleEdit = () => {
-        setIsEdit(true);
-        navigate(`/character/${character.id}/edit`);
-    };
-
     const handleChangeCareer = () => {
         console.log('change career');
     };
 
-    useEffect(() => {
-        const getRaceSkills = (globalData, race_id) => {
-            const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
-            return globalData.skills.filter(skill => skillIdList.includes(skill.id));
-        };
-
-        if (!computedData.isComputed && globalData && character) {
-            const racesSkills = getRaceSkills(globalData, character.race_id);
-            const availableCareers = globalData.careers;
-            setComputedData({
-                racesSkills,
-                availableCareers,
-                isComputed: true
-            });
-        }
-    }, [computedData, globalData, character]);
-
-
     return (
         (character && computedData?.isComputed) ?
             <>
-                <Grid container spacing={2}>
-                    <Grid item xl={12}>
-                        {!isEdit && isAdmin
-                            ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2, height: 56 }}>
-                                <FontAwesomeIcon icon={faArrowLeft} size="lg" />
-                            </Button>
-                            : null
-                        }
-                        {isEdit
-                            ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2, height: 56 }}>
-                                <FontAwesomeIcon icon={faBan} size="lg" />
-                            </Button>
-                            : null
-                        }
-                        <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit} sx={{ mr: 2, height: 56 }}>
-                            {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
-                        </Button>
-                        {!isEdit
-                            ? <Button color="primary" variant="outlined" onClick={() => handlePrint()} sx={{ mr: 2, height: 56 }}>
-                                <FontAwesomeIcon icon={faFilePdf} size="lg" />
-                            </Button>
-                            : null
-                        }
-                    </Grid>
-                    <Grid item xl={12}>
-                        <Error errorMessage={errorMessage} />
-                    </Grid>
-                </Grid>
+                <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handlePrint={() => handlePrint()} handleCancel={() => handleCancel()} />
                 <Grid container spacing={2}>
                     <Grid item lg={6}>
                         <FormControl fullWidth>
@@ -257,7 +237,7 @@ export default function Character(props) {
                                 required
                                 select
                                 value={character.race_id}
-                                onChange={(e) => updateComputableField(e.target.name, e.target.value)}
+                                onChange={(e) => updateRaceField(e.target.name, e.target.value)}
                             >
                                 {globalData.races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
                             </TextField>
@@ -310,10 +290,10 @@ export default function Character(props) {
                                 name="race_skills"
                                 InputLabelProps={{ shrink: true }}
                                 disabled
-                                rows={computedData.racesSkills.length}
+                                rows={raceSkills.length}
                                 multiline
                                 fullWidth
-                                value={computedData.racesSkills.map(skill => skill.skill_name).join('\n')}
+                                value={raceSkills.map(skill => skill.skill_name).join('\n')}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
                             />
                         </FormControl>

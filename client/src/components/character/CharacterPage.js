@@ -10,19 +10,19 @@ export default function CharacterPage(props) {
     const [globalData] = useState(props.globalData);
     const { id, action } = useParams();
     const { userId, isAdmin } = getCurrentUser();
-    const [character, setCharacter] = useState(createNewCharacter(id, userId));
+    const [characterId, setCharacterId] = useState();
+    const [character, setCharacter] = useState(undefined);
     const [isEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState();
-    const [characterId, setCharacterId] = useState();
 
     const handlePrint = () => {
         console.log('print');
     };
 
     useEffect(() => {
-        const loadData = () => {
+        const loadData = (id) => {
             setIsLoading(true);
             const promise = (id === 'user')
                 ? CharacterService.getForUser(userId)
@@ -47,18 +47,17 @@ export default function CharacterPage(props) {
                 })
                 .finally(() => setIsLoading(false));
         };
-        if (!isLoading && !character && isFound === undefined && characterId === undefined) {
-            loadData();
+        if (!isLoading && characterId === undefined) {
+            if (+id === 0) {
+                setIsLoading(false);
+                setIsFound(true);
+                setCharacter(createNewCharacter(id, userId));
+                setCharacterId(id);
+            } else {
+                loadData(id);
+            }
         }
-        //  else {
-        //     if (+characterId >= 0) {
-        //         setIsFound(true);
-        //     } else {
-        //         setIsFound(false);
-        //         setCharacter(undefined);
-        //     }
-        // }
-    }, [isLoading, userId, id, character, isFound, isAdmin, characterId, setCharacter]);
+    }, [isLoading, userId, id, character, isAdmin, characterId]);
 
     return (
         (globalData && characterId) ?
@@ -67,8 +66,7 @@ export default function CharacterPage(props) {
                     ? <Loading />
                     : isFound === false
                         ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
-                        :
-                        <Grid container spacing={2}>
+                        : <Grid container spacing={2}>
                             <Grid item>
                                 <Character character={character} globalData={globalData} isEdit={isEdit} handlePrint={handlePrint} />
                             </Grid>

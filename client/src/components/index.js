@@ -1,5 +1,6 @@
 import ActivityList from './activity/ActivityList';
 import Character from './character/Character';
+import CharacterActions from './character/CharacterActions';
 import CharacterPage from './character/CharacterPage';
 import CharacterList from './characterList/CharacterList';
 import CharacterListPage from './characterList/CharacterListPage';
@@ -26,6 +27,7 @@ import ThemeContainer from './ThemeContainer';
 export {
     ActivityList,
     Character,
+    CharacterActions,
     CharacterPage,
     CharacterList,
     CharacterListPage,
