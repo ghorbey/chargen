@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid, Typography } from '@mui/material';
+import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
-import CharacterService from '../services/Character.service';
-import { Error, Loading, Character } from '../components';
-import { getCurrentUser } from '../common';
 
-function createNewCharacter(id, userId) {
-    if (+id === 0) {
-        return { id: 0, user_id: +userId, character_name: '', character_type: 'pj', character_number: '000', fate_points: 2, country_id: 1, race_id: 1, religion_id: 1, vocation_id: 1, current_xp: 0, total_xp: 0, public_legend: '', background: '', careers_history: [] };
-    } else {
-        return undefined;
-    }
-}
+import { Error, Loading, Character } from '../../components';
+import { getCurrentUser, createNewCharacter } from '../../common';
+import CharacterService from '../../services/Character.service';
 
 export default function CharacterPage(props) {
     const [globalData] = useState(props.globalData);
@@ -24,6 +17,7 @@ export default function CharacterPage(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState();
+    const [characterId, setCharacterId] = useState();
     const theme = createTheme();
 
     const handlePrint = () => {
@@ -33,14 +27,17 @@ export default function CharacterPage(props) {
     useEffect(() => {
         const loadData = () => {
             setIsLoading(true);
-            CharacterService
-                .get(id)
+            const promise = (id === 'user')
+                ? CharacterService.getForUser(userId)
+                : CharacterService.get(id);
+            promise
                 .then(response => {
                     setErrorMessage(response?.message);
                     if (response?.data?.user_id === userId || isAdmin) {
                         if (response.data) {
                             setIsFound(true);
                             setCharacter(response.data);
+                            setCharacterId(response.data.id);
                         }
                     } else {
                         if (response?.data?.user_id !== userId && !isAdmin) {
@@ -53,20 +50,21 @@ export default function CharacterPage(props) {
                 })
                 .finally(() => setIsLoading(false));
         };
-        if (!isLoading && !character && isFound === undefined && id > 0) {
+        if (!isLoading && !character && isFound === undefined && characterId === undefined) {
             loadData();
-        } else {
-            if (+id >= 0) {
-                setIsFound(true);
-            } else {
-                setIsFound(false);
-                setCharacter(undefined);
-            }
         }
-    }, [isLoading, userId, id, character, isFound, isAdmin, setCharacter]);
+        //  else {
+        //     if (+characterId >= 0) {
+        //         setIsFound(true);
+        //     } else {
+        //         setIsFound(false);
+        //         setCharacter(undefined);
+        //     }
+        // }
+    }, [isLoading, userId, id, character, isFound, isAdmin, characterId, setCharacter]);
 
     return (
-        (globalData && character) ?
+        (globalData && characterId) ?
             <ThemeProvider theme={theme}>
                 <Container component="main" maxWidth="lg">
                     <CssBaseline />
@@ -76,13 +74,7 @@ export default function CharacterPage(props) {
                             ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
                             :
                             <Grid container spacing={2}>
-                                {character ?
-                                    <Grid item lg={!isEdit ? 10 : 12}>
-                                        <Typography>{character.character_name}</Typography>
-                                    </Grid>
-                                    : null
-                                }
-                                {!isEdit
+                                {!false && isEdit
                                     ?
                                     <Grid item lg={2}>
                                         <Button color="primary" variant="outlined" onClick={handlePrint} sx={{ mr: 2, height: 56 }}>

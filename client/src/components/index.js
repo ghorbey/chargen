@@ -1,16 +1,48 @@
-import { Character } from './Character';
-import CharacterList from './CharacterList';
+import ActivityList from './activity/ActivityList';
+import Character from './character/Character';
+import CharacterPage from './character/CharacterPage';
+import CharacterList from './characterList/CharacterList';
+import CharacterListPage from './characterList/CharacterListPage';
+import HomePage from './home/HomePage';
+import LocalRoutes from './LocalRoutes'
+import LoginPage from './login/LoginPage';
+import News from './news/News';
+import NewsList from './newsList/NewsList';
+import PageNotFound from './pageNotFound/PageNotFound'
+import User from './user/User';
+import UserPage from './user/UserPage';
+import UserList from './userList/UserList';
+import UserListPage from './userList/UserListPage';
+
 import ConfirmDialog from './ConfirmDialog';
 import Error from './Error';
 import Header from './Header';
 import Loading from './Loading';
-import User from './User';
-import UserList from './UserList';
-import Activity from './Activity';
-import ActivityList from './ActivityList';
-import News from './News';
-import NewsList from './NewsList';
 import Navigation from './Navigation';
+import NavigationBar from './NavigationBar';
 import RouterBreadcrumbs from './RouterBreadcrumbs';
 
-export { Character, CharacterList, ConfirmDialog, Error, Header, Loading, User, UserList, Activity, ActivityList, News, NewsList, Navigation, RouterBreadcrumbs };
+export {
+    ActivityList,
+    Character,
+    CharacterPage,
+    CharacterList,
+    CharacterListPage,
+    HomePage,
+    LocalRoutes,
+    LoginPage,
+    News,
+    NewsList,
+    PageNotFound,
+    User,
+    UserPage,
+    UserList,
+    UserListPage,
+    ConfirmDialog,
+    Error,
+    Header,
+    Loading,
+    Navigation,
+    NavigationBar,
+    RouterBreadcrumbs
+};

@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createTheme, Container, ThemeProvider, CssBaseline, Grid } from '@mui/material';
-import { ActivityList, NewsList } from '../components';
-import getCurrentUser from '../common/getCurrentUser';
+
+import { ActivityList, NewsList } from '../../components';
+import { getCurrentUser } from '../../common';
 
 export default function HomePage() {
     const navigate = useNavigate();

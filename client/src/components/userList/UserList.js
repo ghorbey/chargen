@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { ConfirmDialog } from '../components';
+
+import { ConfirmDialog } from '../../components';
 
 export default function UserList(props) {
     const { userList, deleteUser } = props;

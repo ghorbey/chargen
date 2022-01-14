@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
-import CharacterService from '../services/Character.service';
-import { checkAccess } from '../common';
-import { Error, Loading, CharacterList } from '../components';
-import { getCurrentUser } from '../common';
+
+import { Error, Loading, CharacterList } from '../../components';
+import { getCurrentUser, checkAccess } from '../../common';
+import CharacterService from '../../services/Character.service';
 
 export default function CharacterPage(props) {
     let { userId } = useParams();

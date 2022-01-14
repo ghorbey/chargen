@@ -4,9 +4,10 @@ import sha256 from 'crypto-js/sha256';
 import { Button, Alert, Grid, TextField, FormControlLabel, Checkbox, FormControl } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faArrowLeft, faSave, faBan } from '@fortawesome/free-solid-svg-icons';
-import UserService from '../services/User.service';
-import { Error } from '../components';
-import { getCurrentUser } from '../common';
+
+import { Error } from '../../components';
+import { getCurrentUser } from '../../common';
+import UserService from '../../services/User.service';
 
 export default function User(props) {
     const [isEdit, setIsEdit] = useState(props.isEdit);

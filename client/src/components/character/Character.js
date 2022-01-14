@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, FormControl } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faArrowLeft, faSave, faBan } from '@fortawesome/free-solid-svg-icons';
-import CharacterService from '../services/Character.service';
-import { Error } from '../components';
-import { getCurrentUser } from '../common';
 
-export const Character = (props) => {
+import { Error } from '../../components';
+import { getCurrentUser } from '../../common';
+import CharacterService from '../../services/Character.service';
+
+export default function Character(props) {
     const [globalData] = useState(props.globalData);
     const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], annexes: [], isComputed: false });
     const [isEdit, setIsEdit] = useState(props.isEdit);
@@ -17,25 +18,32 @@ export const Character = (props) => {
     const { isAdmin } = getCurrentUser();
     const character_types = ['pj', 'pnj'];
 
+    const prepareCharacter = (character) => {
+        const copy = { ...character };
+        return copy;
+    }
+
     const handleSave = () => {
-        setIsEdit(false);
-        if (character.id) {
+        const preparedCharacter = prepareCharacter(character);
+        if (preparedCharacter.id) {
             CharacterService
-                .update([character])
+                .update([preparedCharacter])
                 .then(response => {
                     const { isSuccessful, message } = response;
                     if (isSuccessful) {
                         setIsEdit(false);
+                        navigate(`/character/${character.id}/view`);
                     }
                     setErrorMessage(message);
                 });
         } else {
             CharacterService
-                .add([character])
+                .add([preparedCharacter])
                 .then(response => {
                     const { isSuccessful, message } = response;
                     if (isSuccessful) {
                         setIsEdit(false);
+                        navigate(`/character/${character.id}/view`);
                     }
                     setErrorMessage(message);
                 });
@@ -48,10 +56,24 @@ export const Character = (props) => {
         setCharacter(copy);
     };
 
+    const updateComputableField = (field, value) => {
+        updateField(field, value);
+        const copy = { ...computedData };
+        copy.isComputed = false;
+        setComputedData(copy);
+    }
+
+    const updateVocationField = (field, value) => {
+        updateField(field, value);
+        //const filteredCareers = globalData.careers.filter(career => !character?.career_history?.includes(career.id) && career.vocation_id === value);
+    };
+
     const handleCancel = () => {
-        if (character?.id) {
-            setCharacter(props.character);
+        if (character?.id && !isAdmin) {
             setIsEdit(false);
+            navigate(`/character/${character.id}/view`);
+        } else if (character?.id && isAdmin) {
+            navigate('/character-list');
         } else {
             navigate('/character-list');
         }
@@ -59,6 +81,7 @@ export const Character = (props) => {
 
     const handleEdit = () => {
         setIsEdit(true);
+        navigate(`/character/${character.id}/edit`);
     };
 
     const handleChangeCareer = () => {
@@ -70,18 +93,18 @@ export const Character = (props) => {
             const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
             return globalData.skills.filter(skill => skillIdList.includes(skill.id));
         };
+
         if (!computedData.isComputed && globalData && character) {
             const racesSkills = getRaceSkills(globalData, character.race_id);
-            const chapters = [];
-            const annexes = [];
+            const availableCareers = globalData.careers;
             setComputedData({
                 racesSkills,
-                chapters,
-                annexes,
+                availableCareers,
                 isComputed: true
             });
         }
-    }, [globalData, character, computedData]);
+    }, [computedData, globalData, character]);
+
 
     return (
         (character && computedData?.isComputed) ?
@@ -227,7 +250,7 @@ export const Character = (props) => {
                                 required
                                 select
                                 value={character.race_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateComputableField(e.target.name, e.target.value)}
                             >
                                 {globalData.races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
                             </TextField>
@@ -265,7 +288,7 @@ export const Character = (props) => {
                                 required
                                 select
                                 value={character.vocation_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateVocationField(e.target.name, e.target.value)}
                             >
                                 {globalData.vocations.map(vocation => <MenuItem key={vocation.id} value={vocation.id}>{vocation.vocation_name}</MenuItem>)}
                             </TextField>
@@ -300,10 +323,10 @@ export const Character = (props) => {
                                 fullWidth
                                 required
                                 select
-                                value={character.vocation_id}
+                                value={character.current_career_id}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
                             >
-                                {globalData.careers.map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
+                                {computedData.availableCareers.map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
@@ -313,16 +336,16 @@ export const Character = (props) => {
                     <Grid item lg={4}>
                         <FormControl fullWidth>
                             <TextField
-                                id="careers_history"
+                                id="character_careers"
                                 margin="normal"
                                 label="Historique des carrières"
-                                name="careers_history"
+                                name="character_careers"
                                 InputLabelProps={{ shrink: true }}
                                 disabled
-                                rows={character.careers_history.length}
+                                rows={character.character_careers.length}
                                 multiline
                                 fullWidth
-                                value={character.careers_history.map(career => career.career_name).join('\n')}
+                                value={character.character_careers.map(career => career.career_name).join('\n')}
                             />
                         </FormControl>
                     </Grid>
@@ -351,10 +374,10 @@ export const Character = (props) => {
                                 name="career_skills"
                                 InputLabelProps={{ shrink: true }}
                                 disabled
-                                rows={globalData.skills.filter(skill => skill.is_base).length}
+                                rows={character.character_skills.filter(skill => skill.is_base).length}
                                 multiline
                                 fullWidth
-                                value={globalData.skills.filter(skill => skill.is_base).map(skill => skill.skill_name).join('\n')}
+                                value={character.character_skills.filter(skill => skill.is_base).map(skill => skill.skill_name).join('\n')}
                             />
                         </FormControl>
                     </Grid>
@@ -443,7 +466,7 @@ export const Character = (props) => {
                                 InputLabelProps={{ shrink: true }}
                                 disabled={!isEdit}
                                 fullWidth
-                                value={computedData.chapters.map(chapter => chapter).join('\n')}
+                                value={character.character_chapters.map(chapter => chapter).join('\n')}
                             />
                         </FormControl>
                     </Grid>
@@ -457,7 +480,7 @@ export const Character = (props) => {
                                 InputLabelProps={{ shrink: true }}
                                 disabled={!isEdit}
                                 fullWidth
-                                value={computedData.annexes.map(annex => annex).join('\n')}
+                                value={character.character_annexes.map(annex => annex).join('\n')}
                             />
                         </FormControl>
                     </Grid>

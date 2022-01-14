@@ -41,8 +41,16 @@ element_get = (request, response) => {
             query = db.select('*').from('characters').where('id', '=', id);
         }
         const character_careers = db.select('careers.*', 'characters_careers.is_current as is_current').from('characters_careers').innerJoin('careers', 'characters_careers.career_id', 'careers.id').where('characters_careers.character_id', '=', id);
+        const character_skills = db.select('skills.*').from('characters_skills').innerJoin('skills', 'characters_skills.skill_id', 'skills.id').where('characters_skills.character_id', '=', id);
+        const characters_personal_quests = db.select('*').from('characters_personal_quests').where('character_id', '=', id);
+        const characters_chapters = db.select('*').from('characters_chapters').where('character_id', '=', id);
+        const characters_annexes = db.select('*').from('characters_annexes').where('character_id', '=', id);
         let queries = [
-            character_careers
+            character_careers,
+            character_skills,
+            characters_personal_quests,
+            characters_chapters,
+            characters_annexes
         ];
         if (query) {
             Promise
@@ -55,7 +63,20 @@ element_get = (request, response) => {
                         if (characterDTO) {
                             Promise.all(queries)
                                 .then(results => {
-                                    characterDTO.careers_history = results[0];
+                                    // character_careers
+                                    const character_careers = results[0];
+                                    // Get default career id based on vocation.
+                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current) : 1;
+                                    characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current) : [];
+                                    // character_skills
+                                    const character_skills = results[1];
+                                    characterDTO.character_skills = (character_skills?.length > 0) ? character_skills.filter(skill => !skill.is_base) : [];
+                                    // character_personal_quests
+                                    characterDTO.character_personal_quests = (results[2]?.length > 0) ? results[2] : [];
+                                    // character_chapters
+                                    characterDTO.character_chapters = (results[3]?.length > 0) ? results[3] : [];
+                                    // character_annexes
+                                    characterDTO.character_annexes = (results[4]?.length > 0) ? results[4] : [];
                                     data = { data: characterDTO, isSuccessful: true, message: '' };
                                     response.send(data);
                                 });
@@ -195,6 +216,10 @@ element_delete = (request, response) => {
         console.error(ex);
         response.send({ isSuccessful: false, message: `Impossible de supprimer le personnage : ${ex}` });
     }
+};
+
+get_default_career_id = (vocation_id) => {
+
 };
 
 router.get(`${url}/getAll`, auth, element_get_all);

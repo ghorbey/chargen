@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
-import UserService from '../services/User.service';
-import { checkAccess } from '../common';
-import { Error, Loading, UserList } from '../components';
+
+import { Error, Loading, UserList } from '../../components';
+import { checkAccess } from '../../common';
+import UserService from '../../services/User.service';
 
 export default function UserListPage() {
     let { userId } = useParams();

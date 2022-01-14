@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Grid } from '@mui/material';
-import UserService from '../services/User.service';
-import { Error, Loading, User } from '../components';
-import { getCurrentUser } from '../common';
+
+import { Error, Loading, User } from '../../components';
+import { getCurrentUser } from '../../common';
+import UserService from '../../services/User.service';
 
 function createNewUser(id) {
     if (+id === 0) {
@@ -13,7 +14,7 @@ function createNewUser(id) {
     }
 }
 
-export default function UserPage(props) {
+const UserPage = (props) => {
     const { id, action } = useParams();
     const { userId, isAdmin } = getCurrentUser();
     const [user, setUser] = useState(createNewUser(id));
@@ -78,3 +79,5 @@ export default function UserPage(props) {
         </ThemeProvider>
     );
 }
+
+export default UserPage;

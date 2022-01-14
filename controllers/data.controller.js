@@ -23,7 +23,7 @@ get_all = (request, response) => {
             .then(results => {
                 let data = {};
                 if (results.length === selects.length) {
-                    console.log('data retrieved');
+                    console.log(`data retrieved ${new Date()}`);
                     const vocations = results[0];
                     const skills = results[1];
                     const religions = results[2];
