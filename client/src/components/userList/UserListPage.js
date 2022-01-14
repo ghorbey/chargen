@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { createTheme, ThemeProvider, Container, CssBaseline } from '@mui/material';
 
-import { Error, Loading, UserList } from '../../components';
+import { Error, Loading, UserList, ThemeContainer } from '../../components';
 import { checkAccess } from '../../common';
 import UserService from '../../services/User.service';
 
@@ -12,7 +11,6 @@ export default function UserListPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState();
     const { authorized, currentUserId } = checkAccess(userId);
-    const theme = createTheme();
 
     if (!authorized) {
         console.error('Trying to access unauthorized resource!');
@@ -57,15 +55,12 @@ export default function UserListPage() {
     }, [isLoading, userList, setIsLoading]);
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="lg">
-                <CssBaseline />
-                {isLoading
-                    ? <Loading />
-                    : <UserList userList={userList} deleteUser={handleDelete} />
-                }
-                <Error errorMessage={errorMessage} />
-            </Container>
-        </ThemeProvider>
+        <ThemeContainer>
+            {isLoading
+                ? <Loading />
+                : <UserList userList={userList} deleteUser={handleDelete} />
+            }
+            <Error errorMessage={errorMessage} />
+        </ThemeContainer>
     );
 }

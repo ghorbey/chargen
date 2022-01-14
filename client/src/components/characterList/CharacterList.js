@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Grid } from '@mui/material';
+import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Grid } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -31,9 +31,6 @@ export default function CharacterList(props) {
     return (
         <>
             <Grid container spacing={2}>
-                <Grid item xl={12}>
-                    <Typography variant="h3">Liste des personnages</Typography>
-                </Grid>
                 <Grid item xl={12}>
                     {isCreateAllowed
                         ?

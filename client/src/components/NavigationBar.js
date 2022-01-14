@@ -4,7 +4,6 @@ import { Container, Toolbar, AppBar, Box, Button, Grid, Stack } from '@mui/mater
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faSignOutAlt, faAddressCard, faHome } from '@fortawesome/free-solid-svg-icons';
 
-import { RouterBreadcrumbs } from '../components';
 import { getCurrentUser } from '../common';
 
 export default function NavigationBar(props) {
@@ -37,7 +36,7 @@ export default function NavigationBar(props) {
     return (
         (token) ?
             <>
-                < AppBar >
+                <AppBar position="static">
                     <Container component="main" maxWidth="lg">
                         <Grid container justifyContent="space-between">
                             <Grid item lg={2}>
@@ -51,6 +50,7 @@ export default function NavigationBar(props) {
                                     </Box>
                                 </Toolbar>
                             </Grid>
+                            <Grid item lg={8}></Grid>
                             <Grid item lg={2}>
                                 <Stack direction="row" justifyContent="flex-end">
                                     <Toolbar disableGutters>
@@ -66,10 +66,7 @@ export default function NavigationBar(props) {
                             </Grid>
                         </Grid>
                     </Container>
-                </AppBar >
-                <Container>
-                    <RouterBreadcrumbs></RouterBreadcrumbs>
-                </Container>
+                </AppBar>
             </>
             : null
     );

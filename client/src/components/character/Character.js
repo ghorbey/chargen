@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, FormControl } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faArrowLeft, faSave, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faArrowLeft, faSave, faBan, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
 import { Error } from '../../components';
 import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
 
 export default function Character(props) {
+    const { handlePrint } = props;
     const [globalData] = useState(props.globalData);
     const [computedData, setComputedData] = useState({ racesSkills: [], chapters: [], annexes: [], isComputed: false });
     const [isEdit, setIsEdit] = useState(props.isEdit);
@@ -126,6 +127,12 @@ export default function Character(props) {
                         <Button color="primary" variant="outlined" onClick={isEdit ? handleSave : handleEdit} sx={{ mr: 2, height: 56 }}>
                             {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
                         </Button>
+                        {!isEdit
+                            ? <Button color="primary" variant="outlined" onClick={() => handlePrint()} sx={{ mr: 2, height: 56 }}>
+                                <FontAwesomeIcon icon={faFilePdf} size="lg" />
+                            </Button>
+                            : null
+                        }
                     </Grid>
                     <Grid item xl={12}>
                         <Error errorMessage={errorMessage} />

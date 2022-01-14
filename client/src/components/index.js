@@ -21,6 +21,7 @@ import Loading from './Loading';
 import Navigation from './Navigation';
 import NavigationBar from './NavigationBar';
 import RouterBreadcrumbs from './RouterBreadcrumbs';
+import ThemeContainer from './ThemeContainer';
 
 export {
     ActivityList,
@@ -44,5 +45,6 @@ export {
     Loading,
     Navigation,
     NavigationBar,
-    RouterBreadcrumbs
+    RouterBreadcrumbs,
+    ThemeContainer
 };

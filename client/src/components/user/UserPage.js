@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Grid } from '@mui/material';
+import { Alert, Grid } from '@mui/material';
 
-import { Error, Loading, User } from '../../components';
+import { Error, Loading, User, ThemeContainer } from '../../components';
 import { getCurrentUser } from '../../common';
 import UserService from '../../services/User.service';
 
@@ -22,7 +22,6 @@ const UserPage = (props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState();
-    const theme = createTheme();
 
     useEffect(() => {
         const loadData = () => {
@@ -60,23 +59,20 @@ const UserPage = (props) => {
     }, [isLoading, id, user, userId, isFound, isAdmin]);
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="lg">
-                <CssBaseline />
-                {isLoading
-                    ? <Loading />
-                    : (user && isFound === false)
-                        ? <Alert severity="error">Aucun utilisateur avec l'id {id} existant.</Alert>
-                        :
-                        <Grid container spacing={2}>
-                            <Grid item>
-                                <User user={user} isEdit={isEdit} />
-                            </Grid>
+        <ThemeContainer>
+            {isLoading
+                ? <Loading />
+                : (user && isFound === false)
+                    ? <Alert severity="error">Aucun utilisateur avec l'id {id} existant.</Alert>
+                    :
+                    <Grid container spacing={2}>
+                        <Grid item>
+                            <User user={user} isEdit={isEdit} />
                         </Grid>
-                }
-                <Error errorMessage={errorMessage} />
-            </Container>
-        </ThemeProvider>
+                    </Grid>
+            }
+            <Error errorMessage={errorMessage} />
+        </ThemeContainer>
     );
 }
 

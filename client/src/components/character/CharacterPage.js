@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { createTheme, ThemeProvider, Container, CssBaseline, Alert, Button, Grid } from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { Alert, Grid } from '@mui/material';
 
-import { Error, Loading, Character } from '../../components';
+import { Error, Loading, Character, ThemeContainer } from '../../components';
 import { getCurrentUser, createNewCharacter } from '../../common';
 import CharacterService from '../../services/Character.service';
 
@@ -18,7 +16,6 @@ export default function CharacterPage(props) {
     const [isFound, setIsFound] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState();
     const [characterId, setCharacterId] = useState();
-    const theme = createTheme();
 
     const handlePrint = () => {
         console.log('print');
@@ -65,32 +62,20 @@ export default function CharacterPage(props) {
 
     return (
         (globalData && characterId) ?
-            <ThemeProvider theme={theme}>
-                <Container component="main" maxWidth="lg">
-                    <CssBaseline />
-                    {isLoading
-                        ? <Loading />
-                        : isFound === false
-                            ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
-                            :
-                            <Grid container spacing={2}>
-                                {!false && isEdit
-                                    ?
-                                    <Grid item lg={2}>
-                                        <Button color="primary" variant="outlined" onClick={handlePrint} sx={{ mr: 2, height: 56 }}>
-                                            <FontAwesomeIcon icon={faFilePdf} size="lg" />
-                                        </Button>
-                                    </Grid>
-                                    : null
-                                }
-                                <Grid item>
-                                    <Character character={character} globalData={globalData} isEdit={isEdit} />
-                                </Grid>
+            <ThemeContainer>
+                {isLoading
+                    ? <Loading />
+                    : isFound === false
+                        ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
+                        :
+                        <Grid container spacing={2}>
+                            <Grid item>
+                                <Character character={character} globalData={globalData} isEdit={isEdit} handlePrint={handlePrint} />
                             </Grid>
-                    }
-                    <Error errorMessage={errorMessage} />
-                </Container>
-            </ThemeProvider>
+                        </Grid>
+                }
+                <Error errorMessage={errorMessage} />
+            </ThemeContainer>
             : null
     );
 }
