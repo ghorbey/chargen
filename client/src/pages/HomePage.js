@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { createTheme, Container, ThemeProvider, CssBaseline, Typography } from '@mui/material';
+import { createTheme, Container, ThemeProvider, CssBaseline, Grid } from '@mui/material';
 import { ActivityList, NewsList } from '../components';
+import getCurrentUser from '../common/getCurrentUser';
 
 export default function HomePage() {
     const navigate = useNavigate();
     const { pathname } = useLocation();
+    const { isAdmin } = getCurrentUser();
     const theme = createTheme();
 
     useEffect(() => {
@@ -20,9 +22,18 @@ export default function HomePage() {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="lg">
                 <CssBaseline />
-                <Typography variant="h2">Page d'accueil</Typography>
-                <NewsList />
-                <ActivityList />
+                <Grid container>
+                    <Grid item lg={isAdmin ? 6 : 12}>
+                        <NewsList />
+                    </Grid>
+                    {
+                        isAdmin ?
+                            <Grid item lg={6}>
+                                <ActivityList />
+                            </Grid>
+                            : null
+                    }
+                </Grid>
             </Container>
         </ThemeProvider>
     );
