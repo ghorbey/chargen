@@ -29,7 +29,9 @@
     "sass": "^1.45.1",
     "web-vitals": "^2.1.2"
   },
-  "excludes": ["/node_modules\/(css-loader|core-js|promise-polyfill|webpack|html-webpack-plugin|whatwg-fetch)\//"],
+  "excludes": [
+    "/node_modules/(css-loader|core-js|promise-polyfill|webpack|html-webpack-plugin|whatwg-fetch)//"
+  ],
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -54,5 +56,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "mini-css-extract-plugin": "2.4.5"
   }
 }
