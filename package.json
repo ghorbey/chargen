@@ -28,5 +28,6 @@
   "engines": {
     "node": "16.3.0"
   },
-  "proxy": "http://localhost:5000/"
+  "proxy": "http://localhost:5000/",
+  "excludes": ["/node_modules\/(css-loader|core-js|promise-polyfill|webpack|html-webpack-plugin|whatwg-fetch)\//"]
 }
