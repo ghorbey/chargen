@@ -15,7 +15,7 @@ export default function createNewCharacter(id, userId) {
             total_xp: 0,
             public_legend: '',
             background: '',
-            current_career_id: 1,
+            current_career_id: 19,
             character_skills: [],
             character_personal_quests: [],
             character_chapters: [],
