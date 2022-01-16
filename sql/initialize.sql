@@ -108,6 +108,16 @@ CREATE TABLE characters (
     CONSTRAINT fk_vocation FOREIGN KEY(vocation_id) REFERENCES vocations(id)
 );
 
+CREATE TABLE characters_careers (
+    id SERIAL,
+    character_id int NOT NULL,
+    career_id int NOT NULL,
+    is_current boolean DEFAULT false NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES characters(id),
+    CONSTRAINT fk_career FOREIGN KEY(career_id) REFERENCES careers(id)
+);
+
 CREATE TABLE characters_skills (
     id SERIAL,
     character_id int NOT NULL,
@@ -130,19 +140,9 @@ CREATE TABLE characters_chapters (
     id SERIAL,
     character_id int NOT NULL,
     content text DEFAULT '',
-    sortOrder int,
+    sort_order int,
     PRIMARY KEY(id),
     CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES characters(id)
-);
-
-CREATE TABLE characters_careers (
-    id SERIAL,
-    character_id int NOT NULL,
-    career_id int NOT NULL,
-    is_current boolean DEFAULT false NOT NULL,
-    PRIMARY KEY(id),
-    CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES characters(id),
-    CONSTRAINT fk_career FOREIGN KEY(career_id) REFERENCES careers(id)
 );
 
 CREATE TABLE characters_annexes (

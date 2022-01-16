@@ -66,7 +66,6 @@ element_get = (request, response) => {
                                     // character_careers
                                     const character_careers = results[0];
                                     // Get default career id based on vocation.
-                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current) : 1;
                                     characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current) : [];
                                     // character_skills
                                     const character_skills = results[1];
@@ -101,7 +100,7 @@ element_get = (request, response) => {
 element_add = (request, response) => {
     try {
         const { characterList } = request.body;
-        let rowsToInsert = [];
+        const rowsToInsert = [];
         // Check if add is allowed (Only 1 per PJ)
         characterList.forEach(character => {
             console.log(`Add character ${character.character_name} for user ${character.user_id}`);
@@ -118,21 +117,59 @@ element_add = (request, response) => {
                 current_xp: character.current_xp,
                 total_xp: character.total_xp,
                 public_legend: character.public_legend,
-                background: character.background
+                background: character.background,
+                career_plan: character.career_plan
             }
             rowsToInsert.push(rowToInsert);
         });
+        // ADD TRANSACTION
         db('characters')
+            .returning('id')
             .insert(rowsToInsert)
             .then(results => {
+                console.log(results);
                 let data = {};
+                const afterDelete = [];
+                const afterInsert = [];
                 if (results.rowCount === rowsToInsert.length) {
                     console.log('characters added');
+                    results.forEach(result => {
+                        const characterId = result;
+                        afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_skills').where("id", "=", characterId).del());
+                        afterDelete.push(db('character_personal_quests').where("id", "=", characterId).del());
+                        afterDelete.push(db('character_chapters').where("id", "=", characterId).del());
+                        afterDelete.push(db('character_annexes').where("id", "=", characterId).del());
+                        characterList.forEach(character => {
+                            character.character_careers.forEach(career => {
+                                afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
+                            });
+                            character.character_skills.forEach(skill => {
+                                afterInsert.push(db('characters_skills').insert({ character_id: characterId, skill_id: skill }));
+                            });
+                            character.character_personal_quests.forEach(quest => {
+                                afterInsert.push(db('characters_personal_quests').insert({ character_id: characterId, content: quest.content, is_completed: quest.is_completed }));
+                            });
+                            character.character_chapters.forEach(chapter => {
+                                afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, is_completed: chapter.sort_order }));
+                            });
+                            character.character_annexes.forEach(annexe => {
+                                afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
+                            });
+                        });
+                    });
+                    Promise.all(afterDelete).then(deleteResults => {
+                        Promise.all(afterInsert).then(insertResults => {
+                            data = { isSuccessful: true, message: '' };
+                            response.send(data);
+                        })
+                    });
                     data = { isSuccessful: true, message: '' };
+                    response.send(data);
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
+                    response.send(data);
                 }
-                response.send(data);
             })
             .catch(error => {
                 response.send({ isSuccessful: false, message: `Impossible de créer le personnage : ${error}` });
@@ -147,7 +184,9 @@ element_add = (request, response) => {
 element_update = (request, response) => {
     try {
         const { characterList } = request.body;
-        let rowsToUpdate = [];
+        const rowsToUpdate = [];
+        const afterDelete = [];
+        const afterInsert = [];
         characterList.forEach(character => {
             console.log(`Update character ${character.id} for user ${character.user_id}`);
             const rowToUpdate = db('characters')
@@ -164,16 +203,47 @@ element_update = (request, response) => {
                     current_xp: character.current_xp,
                     total_xp: character.total_xp,
                     public_legend: character.public_legend,
-                    background: character.background
+                    background: character.background,
+                    career_plan: character.career_plan
                 });
             rowsToUpdate.push(rowToUpdate);
         });
+        // ADD TRANSACTION
         Promise.all(rowsToUpdate)
             .then(results => {
                 let data = {};
                 if (results.length === rowsToUpdate.length) {
                     console.log('characters updated');
-                    data = { isSuccessful: true, message: '' };
+                    results.forEach(result => {
+                        afterDelete.push(db('characters_careers').where("id", "=", character.id).del());
+                        afterDelete.push(db('characters_skills').where("id", "=", character.id).del());
+                        afterDelete.push(db('characters_personal_quests').where("id", "=", character.id).del());
+                        afterDelete.push(db('characters_chapters').where("id", "=", character.id).del());
+                        afterDelete.push(db('characters_annexes').where("id", "=", character.id).del());
+                        characterList.forEach(character => {
+                            character.character_careers.forEach(career => {
+                                afterInsert.push(db('characters_careers').insert({ character_id: character.id, career_id: career.career_id, is_current: career.is_current }));
+                            });
+                            character.character_skills.forEach(skill => {
+                                afterInsert.push(db('characters_skills').insert({ character_id: character.id, skill_id: skill }));
+                            });
+                            character.character_personal_quests.forEach(quest => {
+                                afterInsert.push(db('characters_personal_quests').insert({ character_id: character.id, content: quest.content, is_completed: quest.is_completed }));
+                            });
+                            character.character_chapters.forEach(chapter => {
+                                afterInsert.push(db('characters_chapters').insert({ character_id: character.id, content: chapter.content, is_completed: chapter.sort_order }));
+                            });
+                            character.character_annexes.forEach(annexe => {
+                                afterInsert.push(db('characters_annexes').insert({ character_id: character.id, content: annexe }));
+                            });
+                        });
+                    });
+                    Promise.all(afterDelete).then(deleteResults => {
+                        Promise.all(afterInsert).then(insertResults => {
+                            data = { isSuccessful: true, message: '' };
+                            response.send(data);
+                        })
+                    });
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
                 }
@@ -192,24 +262,34 @@ element_update = (request, response) => {
 element_delete = (request, response) => {
     try {
         const { idList } = request.body;
-        let rowsToDelete = [];
+        const rowsToDelete = [];
+        const beforeDelete = [];
         idList.forEach(id => {
             console.log(`Delete character ${id}`);
+            beforeDelete.push(db('characters_careers').where("id", "=", id).del());
+            beforeDelete.push(db('characters_skills').where("id", "=", id).del());
+            beforeDelete.push(db('characters_personal_quests').where("id", "=", id).del());
+            beforeDelete.push(db('characters_chapters').where("id", "=", id).del());
+            beforeDelete.push(db('characters_annexes').where("id", "=", id).del());
             const rowToDelete = db('characters')
                 .where('id', '=', id)
                 .del();
             rowsToDelete.push(rowToDelete);
         });
-        Promise.all(rowsToDelete)
-            .then(results => {
-                let data = {};
-                if (results.length === rowsToDelete.length) {
-                    console.log('characters deleted');
-                    data = { isSuccessful: true, message: '' };
-                } else {
-                    data = { isSuccessful: false, message: 'Erreur' };
-                }
-                response.send(data);
+        // ADD TRANSACTION
+        Promise.all(beforeDelete)
+            .then(beforeResults => {
+                Promise.all(rowsToDelete)
+                    .then(results => {
+                        let data = {};
+                        if (results.length === rowsToDelete.length) {
+                            console.log('characters deleted');
+                            data = { isSuccessful: true, message: '' };
+                        } else {
+                            data = { isSuccessful: false, message: 'Erreur' };
+                        }
+                        response.send(data);
+                    });
             });
     }
     catch (ex) {
