@@ -66,6 +66,7 @@ element_get = (request, response) => {
                                     // character_careers
                                     const character_careers = results[0];
                                     // Get default career id based on vocation.
+                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current) : 0;
                                     characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current) : [];
                                     // character_skills
                                     const character_skills = results[1];
@@ -134,7 +135,7 @@ element_add = (request, response) => {
                 if (results.rowCount === rowsToInsert.length) {
                     console.log('characters added');
                     results.forEach(result => {
-                        const characterId = result;
+                        const characterId = result[0];
                         afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
                         afterDelete.push(db('characters_skills').where("id", "=", characterId).del());
                         afterDelete.push(db('character_personal_quests').where("id", "=", characterId).del());
@@ -190,6 +191,7 @@ element_update = (request, response) => {
         characterList.forEach(character => {
             console.log(`Update character ${character.id} for user ${character.user_id}`);
             const rowToUpdate = db('characters')
+                .returning('id')
                 .where('id', character.id)
                 .update({
                     character_name: character.character_name,
@@ -215,26 +217,28 @@ element_update = (request, response) => {
                 if (results.length === rowsToUpdate.length) {
                     console.log('characters updated');
                     results.forEach(result => {
-                        afterDelete.push(db('characters_careers').where("id", "=", character.id).del());
-                        afterDelete.push(db('characters_skills').where("id", "=", character.id).del());
-                        afterDelete.push(db('characters_personal_quests').where("id", "=", character.id).del());
-                        afterDelete.push(db('characters_chapters').where("id", "=", character.id).del());
-                        afterDelete.push(db('characters_annexes').where("id", "=", character.id).del());
+                        const characterId = result[0];
+                        console.log(characterId);
+                        afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_skills').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_personal_quests').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_chapters').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_annexes').where("id", "=", characterId).del());
                         characterList.forEach(character => {
                             character.character_careers.forEach(career => {
-                                afterInsert.push(db('characters_careers').insert({ character_id: character.id, career_id: career.career_id, is_current: career.is_current }));
+                                afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
                             });
                             character.character_skills.forEach(skill => {
-                                afterInsert.push(db('characters_skills').insert({ character_id: character.id, skill_id: skill }));
+                                afterInsert.push(db('characters_skills').insert({ character_id: characterId, skill_id: skill }));
                             });
                             character.character_personal_quests.forEach(quest => {
-                                afterInsert.push(db('characters_personal_quests').insert({ character_id: character.id, content: quest.content, is_completed: quest.is_completed }));
+                                afterInsert.push(db('characters_personal_quests').insert({ character_id: characterId, content: quest.content, is_completed: quest.is_completed }));
                             });
                             character.character_chapters.forEach(chapter => {
-                                afterInsert.push(db('characters_chapters').insert({ character_id: character.id, content: chapter.content, is_completed: chapter.sort_order }));
+                                afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, is_completed: chapter.sort_order }));
                             });
                             character.character_annexes.forEach(annexe => {
-                                afterInsert.push(db('characters_annexes').insert({ character_id: character.id, content: annexe }));
+                                afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
                             });
                         });
                     });
@@ -246,8 +250,8 @@ element_update = (request, response) => {
                     });
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
+                    response.send(data);
                 }
-                response.send(data);
             })
             .catch(error => {
                 response.send({ isSuccessful: false, message: `Impossible de mettre à jour le personnage : ${error}` });

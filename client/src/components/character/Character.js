@@ -7,70 +7,13 @@ import { faPlus, faMinus, faArrowCircleRight } from '@fortawesome/free-solid-svg
 import { CharacterActions } from '../../components';
 import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
-
-
-const getRaceSkills = (globalData, race_id) => {
-    const skillIdList = globalData.races_skills.filter(rs => rs.race_id === race_id).map(rs => rs.skill_id);
-    return globalData.skills.filter(skill => skillIdList.includes(skill.id));
-};
-
-const getVocationCareers = (globalData, vocation_id) => {
-    const careerList = globalData.careers.filter(career => career.vocation_id === vocation_id);
-    return careerList;
-};
-
-const getAvailableReligions = (globalData, race_id) => {
-    const religionList = globalData.religions.filter(religion => religion.race_id === race_id || religion.race_id === 0);
-    return religionList;
-}
-
-const getBaseSkills = (skills, character_skills) => {
-    const baseSkills = skills.filter(skill => skill.is_base === true && !character_skills.includes(skill.id));
-    return baseSkills;
-}
-
-const getCharacterBaseSkills = (skills, character_skills) => {
-    const characterBaseSkills = skills.filter(skill => skill.is_base === true && character_skills.includes(skill.id));
-    return characterBaseSkills;
-}
-
-const getCareerSkills = (globalData, current_career_id, character_skills) => {
-    const nonBaseSkills = globalData.skills.filter(skill => skill.is_base === false && !character_skills.includes(skill.id));
-    const careerSkills = nonBaseSkills.filter(skill => globalData.careers_skills.filter(cs => cs.career_id === current_career_id).includes(skill.id));
-    return careerSkills;
-}
-
-const getCharacterCareerSkills = (globalData, character_skills, character_careers) => {
-    const nonBaseSkills = globalData.skills.filter(skill => skill.is_base === false && character_skills.includes(skill.id));
-    const characterCareerSkills = nonBaseSkills.filter(skill => character_careers.includes(skill.id));
-    return characterCareerSkills;
-}
-
-const getSelectedValue = (arrayOfId, selectedValue, character) => {
-    const value = arrayOfId.length > 0 && character
-        ? character.country_id && arrayOfId.includes(selectedValue)
-            ? character.country_id
-            : arrayOfId[0]
-        : 0;
-    return value;
-}
-
-const getCharacterCurrentCareerId = (globalData, character_careers, vocation_id) => {
-    let currentCareerId = getVocationCareers(globalData, vocation_id)[0].id;
-    if (character_careers?.length > 0) {
-        const currentCareer = character_careers.find(cc => cc.is_current === true);
-        if (currentCareer) {
-            currentCareerId = currentCareer.id;
-        }
-    }
-    return currentCareerId;
-}
+import * as methods from './character.methods'
 
 export default function Character(props) {
     const globalData = props.globalData;
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [character, setCharacter] = useState(props.character);
-    const [selectedData, setSelectedData] = useState({ base_skills_id: getBaseSkills(globalData.skills, character.character_skills)[0] ? getBaseSkills(globalData.skills, character.character_skills)[0].id : 0 });
+    const [selectedData, setSelectedData] = useState({ base_skills_id: methods.getBaseSkills(globalData.skills, character.character_skills)[0] ? methods.getBaseSkills(globalData.skills, character.character_skills)[0].id : 0 });
     const [isComputed, setIsComputed] = useState(false);
     const [raceSkills, setRaceSkills] = useState([]);
     const [errorMessage, setErrorMessage] = useState();
@@ -81,23 +24,30 @@ export default function Character(props) {
     let careerSkillInput = undefined;
     let baseSkillInput = undefined;
 
+    const updateCharacterField = (field, value) => {
+        const copy = { ...character };
+        copy[field] = value;
+        setCharacter(copy);
+    }
+
     useEffect(() => {
         if (!isComputed && globalData && character) {
-            setRaceSkills(getRaceSkills(globalData, character.race_id));
+            setRaceSkills(methods.getRaceSkills(globalData, character.race_id));
             setIsComputed(true);
         }
-    }, [isComputed, globalData, character]);
+
+        if (character && character.current_career_id === 0) {
+            const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
+            character.current_career_id = cci;
+            updateCharacterField('current_career_id', cci);
+            console.log(cci);
+        }
+    }, [isComputed, globalData, character, updateCharacterField]);
 
     const prepareCharacter = (character) => {
         const copy = { ...character };
         return copy;
     }
-
-    const updateField = (field, value) => {
-        const copy = { ...character };
-        copy[field] = value;
-        setCharacter(copy);
-    };
 
     const updateUnrelatedField = (field, value) => {
         console.log(field);
@@ -105,18 +55,13 @@ export default function Character(props) {
     };
 
     const updateRaceField = (field, value) => {
-        updateField(field, value);
-        const raceSkillsCopy = getRaceSkills(globalData, value);
+        updateCharacterField(field, value);
+        const raceSkillsCopy = methods.getRaceSkills(globalData, value);
         setRaceSkills(raceSkillsCopy);
     };
 
-    const updateVocationField = (field, value) => {
-        updateField(field, value);
-        const vocationCareersCopy = getVocationCareers(globalData, value);
-    };
-
     const updateCareerField = (field, value) => {
-        updateField(field, value);
+        updateCharacterField(field, value);
     };
 
     const updateDataField = (field, value) => {
@@ -193,7 +138,7 @@ export default function Character(props) {
     const addBaseSkill = () => {
         if (baseSkillInput?.value) {
             const copy = { ...character };
-            const baseSkills = getBaseSkills(globalData.skills, character.character_skills).filter(skill => skill.id !== baseSkillInput.value);
+            const baseSkills = methods.getBaseSkills(globalData.skills, character.character_skills).filter(skill => skill.id !== baseSkillInput.value);
             if (baseSkills.length > 0) {
                 selectedData.base_skills_id = baseSkills[0].id;
             }
@@ -204,7 +149,7 @@ export default function Character(props) {
 
     const clearBaseSkills = () => {
         const copy = { ...character };
-        const baseSkills = getCharacterBaseSkills(globalData.skills, character.character_skills);
+        const baseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
         copy.character_skills = copy.character_skills.filter(skillId => !baseSkills.map(s => s.id).includes(skillId));
         setCharacter(copy);
     };
@@ -227,7 +172,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.character_name}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -245,7 +190,7 @@ export default function Character(props) {
                                 select
                                 defaultValue={character_types[0]}
                                 value={character.character_type}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             >
                                 {character_types.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
                             </TextField>
@@ -264,7 +209,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.character_number}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -280,7 +225,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.user_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -296,7 +241,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.fate_points}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -312,9 +257,9 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={getSelectedValue(globalData.countries.map(item => item.id), character.country_id, character)}
+                                defaultValue={methods.getSelectedValue(globalData.countries.map(item => item.id), character.country_id, character)}
                                 value={character.country_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             >
                                 {globalData.countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
                             </TextField>
@@ -332,7 +277,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={getSelectedValue(globalData.races.map(item => item.id), character.race_id, character)}
+                                defaultValue={methods.getSelectedValue(globalData.races.map(item => item.id), character.race_id, character)}
                                 value={character.race_id}
                                 onChange={(e) => updateRaceField(e.target.name, e.target.value)}
                             >
@@ -352,11 +297,11 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={getSelectedValue(globalData.religions.map(item => item.id), character.religion_id, character)}
+                                defaultValue={methods.getSelectedValue(globalData.religions.map(item => item.id), character.religion_id, character)}
                                 value={character.religion_id}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             >
-                                {getAvailableReligions(globalData, character.race_id).map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
+                                {methods.getAvailableReligions(globalData, character.race_id).map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
@@ -372,9 +317,9 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={getSelectedValue(globalData.vocations.map(item => item.id), character.vocation_id, character)}
+                                defaultValue={methods.getSelectedValue(globalData.vocations.map(item => item.id), character.vocation_id, character)}
                                 value={character.vocation_id}
-                                onChange={(e) => updateVocationField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             >
                                 {globalData.vocations.map(vocation => <MenuItem key={vocation.id} value={vocation.id}>{vocation.vocation_name}</MenuItem>)}
                             </TextField>
@@ -393,7 +338,7 @@ export default function Character(props) {
                                 multiline
                                 fullWidth
                                 value={raceSkills.map(skill => skill.skill_name).join('\n')}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -409,11 +354,11 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={getCharacterCurrentCareerId(globalData, character.careers, character.vocation_id)}
+                                defaultValue={methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id)}
                                 value={character.current_career_id}
                                 onChange={(e) => updateCareerField(e.target.name, e.target.value)}
                             >
-                                {getVocationCareers(globalData, character.vocation_id).map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
+                                {methods.getVocationCareers(globalData, character.vocation_id).map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
@@ -458,7 +403,7 @@ export default function Character(props) {
                                         onChange={(e) => updateDataField(e.target.name, e.target.value)}
                                     >
                                         <MenuItem key={0} value={0}></MenuItem>
-                                        {getBaseSkills(globalData.skills, character.character_skills).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                                        {methods.getBaseSkills(globalData.skills, character.character_skills).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
                                 </FormControl>
                             </Grid>
@@ -478,10 +423,10 @@ export default function Character(props) {
                                         name="character_base_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={getCharacterBaseSkills(globalData.skills, character.character_skills).length}
+                                        rows={methods.getCharacterBaseSkills(globalData.skills, character.character_skills).length}
                                         multiline
                                         fullWidth
-                                        value={getCharacterBaseSkills(globalData.skills, character.character_skills).map(skill => skill.skill_name).join('\n')}
+                                        value={methods.getCharacterBaseSkills(globalData.skills, character.character_skills).map(skill => skill.skill_name).join('\n')}
                                     />
                                 </FormControl>
                             </Grid>
@@ -507,11 +452,11 @@ export default function Character(props) {
                                         InputLabelProps={{ shrink: true }}
                                         select
                                         fullWidth
-                                        value={getCareerSkills(globalData, character.current_career_id, character.character_skills)[0]?.id ? getCareerSkills(globalData, character.current_career_id, character.character_skills)[0].id : 0}
+                                        value={methods.getCareerSkills(globalData, character.current_career_id, character.character_skills)[0]?.id ? methods.getCareerSkills(globalData, character.current_career_id, character.character_skills)[0].id : 0}
                                         onChange={(e) => updateUnrelatedField(e.target.name, e.target.value)}
                                     >
                                         <MenuItem key={0} value={0}></MenuItem>
-                                        {getCareerSkills(globalData, character.current_career_id, character.character_skills).filter(skill => !character.character_skills.includes(skill.id)).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                                        {methods.getCareerSkills(globalData, character.current_career_id, character.character_skills).filter(skill => !character.character_skills.includes(skill.id)).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
                                 </FormControl>
                             </Grid>
@@ -531,10 +476,10 @@ export default function Character(props) {
                                         name="characters_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).length}
+                                        rows={methods.getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).length}
                                         multiline
                                         fullWidth
-                                        value={getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).map(skill => skill.skill_name).join('\n')}
+                                        value={methods.getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).map(skill => skill.skill_name).join('\n')}
                                     />
                                 </FormControl>
                             </Grid>
@@ -564,7 +509,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.current_xp}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -580,7 +525,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 value={character.current_xp}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -602,7 +547,7 @@ export default function Character(props) {
                                 fullWidth
                                 multiline
                                 value={character.public_legend}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
@@ -618,7 +563,7 @@ export default function Character(props) {
                                 fullWidth
                                 multiline
                                 value={character.background}
-                                onChange={(e) => updateField(e.target.name, e.target.value)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>

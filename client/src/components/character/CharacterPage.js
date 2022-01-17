@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Alert, Grid, Typography } from '@mui/material';
 
 import { Error, Loading, Character, ThemeContainer } from '../../components';
-import { getCurrentUser, createNewCharacter } from '../../common';
+import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
+import createNewCharacter from './createNewCharacter';
 
 export default function CharacterPage(props) {
     const globalData = props.globalData;
