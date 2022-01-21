@@ -13,11 +13,11 @@ export default function NavigationBar(props) {
     let menuLeft = [
         { key: '1', name: faHome, path: '/', access: ['everyone'], isIcon: true },
         { key: '2', name: faAddressCard, path: '/character-list', access: ['admin'], isIcon: true },
-        { key: '3', name: faAddressCard, path: `/character/user/view`, access: ['pj'], isIcon: true },
-        { key: '4', name: faUsers, path: '/user-list', access: ['admin'], isIcon: true }
+        { key: '3', name: faAddressCard, path: `/character/user/view`, access: ['pj'], isIcon: true }
     ];
 
     let menuRight = [
+        { key: '4', name: faUsers, path: '/user-list', access: ['admin'], isIcon: true },
         { key: '5', name: faUser, path: `/user/${userId}/view`, access: ['everyone'], isIcon: true },
         { key: '6', name: faSignOutAlt, path: `/logout`, access: ['everyone'], isIcon: true }
     ];

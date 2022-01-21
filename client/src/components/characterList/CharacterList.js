@@ -7,9 +7,16 @@ import { faPlus, faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icon
 import { ConfirmDialog } from '../../components';
 
 export default function CharacterList(props) {
-    const { characterList, deleteCharacter, isCreateAllowed } = props;
+    const { characterList, deleteCharacter, isCreateAllowed, globalData } = props;
     const [isOpen, setIsOpen] = useState(false);
     const [characterId, setCharacterId] = useState(undefined);
+
+    const getUsername = (users, user_id) => {
+        const foundUser = users.find(user => user.id === user_id);
+        return foundUser
+            ? `${foundUser.user_firstname} ${foundUser.user_lastname}`
+            : `Pas d'utilisateur correspondant`
+    };
 
     const handleClickOpen = (id) => {
         setCharacterId(id);
@@ -54,7 +61,7 @@ export default function CharacterList(props) {
                                 {characterList?.map(character => (
                                     <TableRow key={character.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                         <TableCell component="th" scope="row">{character.character_name}</TableCell>
-                                        <TableCell>{character.user_id}</TableCell>
+                                        <TableCell>{getUsername(globalData.users, character.user_id)}</TableCell>
                                         <TableCell align="right">
                                             <Button component={Link} to={`/character/${character.id}/view`}>
                                                 <FontAwesomeIcon icon={faEye} size="lg" />

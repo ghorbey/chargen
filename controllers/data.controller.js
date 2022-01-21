@@ -16,7 +16,8 @@ get_all = (request, response) => {
             db.select('*').from('countries').orderBy('id'),
             db.select('*').from('careers').orderBy('id'),
             db.select('*').from('careers_skills'),
-            db.select('*').from('races_skills')
+            db.select('*').from('races_skills'),
+            db.select('id', 'user_firstname', 'user_lastname').from('users')
         ];
         Promise
             .all(selects)
@@ -32,7 +33,8 @@ get_all = (request, response) => {
                     const careers = results[5];
                     const careers_skills = results[6];
                     const races_skills = results[7];
-                    data = { data: { vocations, skills, religions, races, countries, careers, careers_skills, races_skills }, isSuccessful: true, message: '' };
+                    const users = results[8];
+                    data = { data: { vocations, skills, religions, races, countries, careers, careers_skills, races_skills, users }, isSuccessful: true, message: '' };
                 } else {
                     console.log('Problème lors de la récupération des données');
                     data = { data: [], isSuccessful: false, message: 'Problème lors de la récupération des données' };

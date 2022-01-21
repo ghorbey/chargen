@@ -24,14 +24,13 @@ const getCharacterBaseSkills = (skills, character_skills) => {
 }
 
 const getCareerSkills = (globalData, current_career_id, character_skills) => {
-    const nonBaseSkills = globalData.skills.filter(skill => skill.is_base === false && !character_skills.includes(skill.id));
-    const careerSkills = nonBaseSkills.filter(skill => globalData.careers_skills.filter(cs => cs.career_id === current_career_id).includes(skill.id));
-    return careerSkills;
+    const nonBaseSkillList = globalData.skills.filter(skill => skill.is_base === false && !character_skills.includes(skill.id));
+    const currentCareerSkillList = nonBaseSkillList.filter(skill => globalData.careers_skills.filter(cs => cs.career_id === current_career_id).map(cs => cs.skill_id).includes(skill.id));
+    return currentCareerSkillList;
 }
 
-const getCharacterCareerSkills = (globalData, character_skills, character_careers) => {
-    const nonBaseSkills = globalData.skills.filter(skill => skill.is_base === false && character_skills.includes(skill.id));
-    const characterCareerSkills = nonBaseSkills.filter(skill => character_careers.includes(skill.id));
+const getCharacterCareerSkills = (globalData, character_skills) => {
+    const characterCareerSkills = globalData.skills.filter(skill => skill.is_base === false && character_skills.includes(skill.id));
     return characterCareerSkills;
 }
 
@@ -58,7 +57,6 @@ const getCharacterCurrentCareerId = (globalData, character_careers, vocation_id)
 const getSelectedCareerOnVocationId = (globalData, vocation_id, current_career_id) => {
     const careers = getVocationCareers(globalData, vocation_id);
     if ((current_career_id === 0 || !careers.map(career => career.id).includes(current_career_id)) && careers?.length > 0) {
-        console.log(careers[0].id);
         return careers[0].id;
     } else {
         return 0;

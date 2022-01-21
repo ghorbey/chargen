@@ -24,30 +24,35 @@ export default function Character(props) {
     let careerSkillInput = undefined;
     let baseSkillInput = undefined;
 
+    let baseSkillList = [];
+    let selectedBaseSkillId = 0;
+    let characterBaseSkills = [];
+    let numberOfCharacterBaseSkills = 0;
+
+    let careerSkillList = [];
+    let selectedCareerSkillId = 0;
+    let characterCareerSkills = [];
+    let numberOfCharacterCareerSkills = 0;
+
+    //#region Update methods
     const updateCharacterField = (field, value) => {
         const copy = { ...character };
         copy[field] = value;
         setCharacter(copy);
-    }
+    };
 
-    useEffect(() => {
-        if (!isComputed && globalData && character) {
-            setRaceSkills(methods.getRaceSkills(globalData, character.race_id));
-            setIsComputed(true);
-        }
-
-        if (character && character.current_career_id === 0) {
-            const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
-            character.current_career_id = cci;
-            updateCharacterField('current_career_id', cci);
-            console.log(cci);
-        }
-    }, [isComputed, globalData, character, updateCharacterField]);
-
-    const prepareCharacter = (character) => {
+    const updateCharacterFields = (fields, values) => {
         const copy = { ...character };
-        return copy;
-    }
+        fields.forEach((field, index) => {
+            copy[field] = values[index];
+        });
+        setCharacter(copy);
+    };
+
+    const updateVocationField = (field, vocation_id) => {
+        const cci = methods.getSelectedCareerOnVocationId(globalData, vocation_id, character.current_career_id);
+        updateCharacterFields(['vocation_id', 'current_career_id'], [vocation_id, cci]);
+    };
 
     const updateUnrelatedField = (field, value) => {
         console.log(field);
@@ -69,7 +74,75 @@ export default function Character(props) {
         copy[field] = value;
         setSelectedData(copy);
     }
+    //#endregion
 
+    //#region Initialization
+    if (character && character.current_career_id === 0) {
+        const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
+        character.current_career_id = cci;
+        updateCharacterField('current_career_id', cci);
+    }
+
+    // TODO: Check if removable?
+    const prepareCharacter = (character) => {
+        const copy = { ...character };
+        return copy;
+    }
+
+    if (globalData && character?.current_career_id && character.character_skills && character.character_careers) {
+        baseSkillList = methods.getBaseSkills(globalData.skills, character.character_skills);
+        selectedBaseSkillId = baseSkillList?.length > 0
+            ? baseSkillList[0].id
+            : 0;
+        characterBaseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
+        numberOfCharacterBaseSkills = characterBaseSkills?.length;
+
+        careerSkillList = methods.getCareerSkills(globalData, character.current_career_id, character.character_skills);
+        selectedCareerSkillId = careerSkillList?.length > 0
+            ? careerSkillList[0].id
+            : 0;
+        characterCareerSkills = methods.getCharacterCareerSkills(globalData, character.character_skills);
+        numberOfCharacterCareerSkills = characterCareerSkills?.length;
+    }
+
+    //#endregion
+
+    //#region Skills methods
+    const addCareerSkill = () => {
+        if (careerSkillInput?.value) {
+            const copy = { ...character };
+            copy.character_skills.push(careerSkillInput.value);
+            setCharacter(copy);
+        }
+    };
+
+    const clearCareerSkills = () => {
+        const copy = { ...character };
+        copy.character_skills = [];
+        setCharacter(copy);
+    };
+
+    const addBaseSkill = () => {
+        if (baseSkillInput?.value) {
+            const copy = { ...character };
+            const baseSkills = methods.getBaseSkills(globalData.skills, character.character_skills).filter(skill => skill.id !== baseSkillInput.value);
+            if (baseSkills.length > 0) {
+                selectedData.base_skills_id = baseSkills[0].id;
+            }
+            copy.character_skills.push(baseSkillInput.value);
+            setCharacter(copy);
+        }
+    };
+
+    const clearBaseSkills = () => {
+        const copy = { ...character };
+        const baseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
+        copy.character_skills = copy.character_skills.filter(skillId => !baseSkills.map(s => s.id).includes(skillId));
+        setCharacter(copy);
+    };
+    //#endregion
+
+    //#region Form actions methods
     const handleChangeCareer = () => {
         console.log('change career');
     };
@@ -120,40 +193,18 @@ export default function Character(props) {
     const handlePrint = () => {
         console.log('print');
     };
+    //#endregion
 
-    const addCareerSkill = () => {
-        if (careerSkillInput?.value) {
-            const copy = { ...character };
-            copy.character_skills.push(careerSkillInput.value);
-            setCharacter(copy);
+    //#region Hooks
+    useEffect(() => {
+        if (!isComputed && globalData && character) {
+            setRaceSkills(methods.getRaceSkills(globalData, character.race_id));
+            setIsComputed(true);
         }
-    };
+    }, [isComputed, globalData, character]);
+    //#endregion
 
-    const clearCareerSkills = () => {
-        const copy = { ...character };
-        copy.character_skills = [];
-        setCharacter(copy);
-    };
-
-    const addBaseSkill = () => {
-        if (baseSkillInput?.value) {
-            const copy = { ...character };
-            const baseSkills = methods.getBaseSkills(globalData.skills, character.character_skills).filter(skill => skill.id !== baseSkillInput.value);
-            if (baseSkills.length > 0) {
-                selectedData.base_skills_id = baseSkills[0].id;
-            }
-            copy.character_skills.push(baseSkillInput.value);
-            setCharacter(copy);
-        }
-    };
-
-    const clearBaseSkills = () => {
-        const copy = { ...character };
-        const baseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
-        copy.character_skills = copy.character_skills.filter(skillId => !baseSkills.map(s => s.id).includes(skillId));
-        setCharacter(copy);
-    };
-
+    //#region Rendering
     return (
         (character && isComputed) ?
             <>
@@ -224,9 +275,12 @@ export default function Character(props) {
                                 disabled={!isEdit || !isAdmin}
                                 fullWidth
                                 required
+                                select
                                 value={character.user_id}
                                 onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                            />
+                            >
+                                {globalData.users.map(user => <MenuItem key={user.id} value={user.id}>{user.user_firstname} {user.user_lastname}</MenuItem>)}
+                            </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={2}>
@@ -319,7 +373,7 @@ export default function Character(props) {
                                 select
                                 defaultValue={methods.getSelectedValue(globalData.vocations.map(item => item.id), character.vocation_id, character)}
                                 value={character.vocation_id}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
+                                onChange={(e) => updateVocationField(e.target.name, e.target.value)}
                             >
                                 {globalData.vocations.map(vocation => <MenuItem key={vocation.id} value={vocation.id}>{vocation.vocation_name}</MenuItem>)}
                             </TextField>
@@ -396,20 +450,20 @@ export default function Character(props) {
                                         label="Compétences de base"
                                         name="base_skills_id"
                                         InputLabelProps={{ shrink: true }}
+                                        disabled={!baseSkillList || baseSkillList?.length === 0}
                                         select
                                         fullWidth
-                                        defaultValue={selectedData.base_skills_id}
-                                        value={selectedData.base_skills_id}
+                                        value={selectedBaseSkillId}
                                         onChange={(e) => updateDataField(e.target.name, e.target.value)}
                                     >
                                         <MenuItem key={0} value={0}></MenuItem>
-                                        {methods.getBaseSkills(globalData.skills, character.character_skills).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                                        {baseSkillList.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={!isEdit || !baseSkillList || baseSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -423,16 +477,16 @@ export default function Character(props) {
                                         name="character_base_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={methods.getCharacterBaseSkills(globalData.skills, character.character_skills).length}
+                                        rows={numberOfCharacterBaseSkills}
                                         multiline
                                         fullWidth
-                                        value={methods.getCharacterBaseSkills(globalData.skills, character.character_skills).map(skill => skill.skill_name).join('\n')}
+                                        value={characterBaseSkills.map(skill => skill.skill_name).join('\n')}
                                     />
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={!isEdit || !characterBaseSkills || characterBaseSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -450,19 +504,20 @@ export default function Character(props) {
                                         label="Compétences de carrière"
                                         name="career_skills"
                                         InputLabelProps={{ shrink: true }}
+                                        disabled={!careerSkillList || careerSkillList?.length === 0}
                                         select
                                         fullWidth
-                                        value={methods.getCareerSkills(globalData, character.current_career_id, character.character_skills)[0]?.id ? methods.getCareerSkills(globalData, character.current_career_id, character.character_skills)[0].id : 0}
+                                        value={selectedCareerSkillId}
                                         onChange={(e) => updateUnrelatedField(e.target.name, e.target.value)}
                                     >
                                         <MenuItem key={0} value={0}></MenuItem>
-                                        {methods.getCareerSkills(globalData, character.current_career_id, character.character_skills).filter(skill => !character.character_skills.includes(skill.id)).map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
+                                        {careerSkillList.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={!isEdit || !careerSkillList || careerSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -476,16 +531,16 @@ export default function Character(props) {
                                         name="characters_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={methods.getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).length}
+                                        rows={numberOfCharacterCareerSkills}
                                         multiline
                                         fullWidth
-                                        value={methods.getCharacterCareerSkills(globalData, character.character_careers, character.character_skills).map(skill => skill.skill_name).join('\n')}
+                                        value={characterCareerSkills.map(skill => skill.skill_name).join('\n')}
                                     />
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={!isEdit} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={!isEdit || !characterCareerSkills || characterCareerSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -601,4 +656,5 @@ export default function Character(props) {
                 ? <Alert severity="information">{errorMessage}</Alert>
                 : null
     );
+    //#endregion
 }

@@ -5,7 +5,8 @@ import { Error, Loading, CharacterList, ThemeContainer } from '../../components'
 import { getCurrentUser, checkAccess } from '../../common';
 import CharacterService from '../../services/Character.service';
 
-export default function CharacterPage(props) {
+export default function CharacterListPage(props) {
+    const { globalData } = props;
     let { userId } = useParams();
     const { isAdmin } = getCurrentUser();
     const [characterList, setCharacterList] = useState(undefined);
@@ -57,9 +58,9 @@ export default function CharacterPage(props) {
 
     return (
         <ThemeContainer>
-            {isLoading
+            {isLoading || !globalData
                 ? <Loading />
-                : <CharacterList characterList={characterList} deleteCharacter={handleDelete} isCreateAllowed={isAdmin} />
+                : <CharacterList characterList={characterList} globalData={globalData} deleteCharacter={handleDelete} isCreateAllowed={isAdmin} />
             }
             <Error errorMessage={errorMessage} />
         </ThemeContainer>
