@@ -77,32 +77,32 @@ export default function Character(props) {
     //#endregion
 
     //#region Initialization
-    if (character && character.current_career_id === 0) {
-        const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
-        character.current_career_id = cci;
-        updateCharacterField('current_career_id', cci);
-    }
+    if (character) {
+        character.visible_base_character_skills = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === true).map(skill => skill.id);
+        character.visible_career_character_skills = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === false).map(skill => skill.id);
+        character.visible_base_character_skill_names = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === true).map(skill => skill.skill_name);
+        character.visible_career_character_skill_names = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === false).map(skill => skill.skill_name);
+        if (character.current_career_id === 0) {
+            const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
+            character.current_career_id = cci;
+            updateCharacterField('current_career_id', cci);
+        }
 
-    // TODO: Check if removable?
-    const prepareCharacter = (character) => {
-        const copy = { ...character };
-        return copy;
-    }
+        if (globalData && character.current_career_id && character.character_skills && character.character_careers) {
+            baseSkillList = methods.getBaseSkills(globalData.skills, character.character_skills);
+            selectedBaseSkillId = baseSkillList?.length > 0
+                ? baseSkillList[0].id
+                : 0;
+            characterBaseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
+            numberOfCharacterBaseSkills = characterBaseSkills?.length;
 
-    if (globalData && character?.current_career_id && character.character_skills && character.character_careers) {
-        baseSkillList = methods.getBaseSkills(globalData.skills, character.character_skills);
-        selectedBaseSkillId = baseSkillList?.length > 0
-            ? baseSkillList[0].id
-            : 0;
-        characterBaseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
-        numberOfCharacterBaseSkills = characterBaseSkills?.length;
-
-        careerSkillList = methods.getCareerSkills(globalData, character.current_career_id, character.character_skills);
-        selectedCareerSkillId = careerSkillList?.length > 0
-            ? careerSkillList[0].id
-            : 0;
-        characterCareerSkills = methods.getCharacterCareerSkills(globalData, character.character_skills);
-        numberOfCharacterCareerSkills = characterCareerSkills?.length;
+            careerSkillList = methods.getCareerSkills(globalData, character.current_career_id, character.character_skills);
+            selectedCareerSkillId = careerSkillList?.length > 0
+                ? careerSkillList[0].id
+                : 0;
+            characterCareerSkills = methods.getCharacterCareerSkills(globalData.skills, character.character_skills);
+            numberOfCharacterCareerSkills = characterCareerSkills?.length;
+        }
     }
 
     //#endregion
@@ -118,7 +118,8 @@ export default function Character(props) {
 
     const clearCareerSkills = () => {
         const copy = { ...character };
-        copy.character_skills = [];
+        const careerSkills = methods.getCharacterCareerSkills(globalData.skills, character.character_skills);
+        copy.character_skills = copy.character_skills.filter(skillId => !careerSkills.map(s => s.id).includes(skillId));
         setCharacter(copy);
     };
 
@@ -146,6 +147,20 @@ export default function Character(props) {
     const handleChangeCareer = () => {
         console.log('change career');
     };
+
+    // TODO: Check if removable?
+    const prepareCharacter = (character) => {
+        const copy = { ...character };
+        // copy.character_skills = [];
+        // if (copy.visible_base_character_skills?.length > 0) {
+        //     copy.character_skills = copy.character_skills.concat(copy.visible_base_character_skills.map(skill => skill.id));
+        // }
+        // if (copy.visible_career_character_skills?.length > 0) {
+        //     copy.character_skills = copy.character_skills.concat(copy.visible_career_character_skills.map(skill => skill.id));
+        // }
+        // console.log(copy.character_skills);
+        return copy;
+    }
 
     const handleSave = () => {
         const preparedCharacter = prepareCharacter(character);
@@ -450,7 +465,7 @@ export default function Character(props) {
                                         label="Compétences de base"
                                         name="base_skills_id"
                                         InputLabelProps={{ shrink: true }}
-                                        disabled={!baseSkillList || baseSkillList?.length === 0}
+                                        disabled={!isEdit || !baseSkillList || baseSkillList?.length === 0}
                                         select
                                         fullWidth
                                         value={selectedBaseSkillId}
@@ -471,16 +486,16 @@ export default function Character(props) {
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
                                     <TextField
-                                        id="character_base_skills"
+                                        id="visible_character_base_skills"
                                         margin="normal"
                                         label="Compétences de base acquises"
-                                        name="character_base_skills"
+                                        name="visible_character_base_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
                                         rows={numberOfCharacterBaseSkills}
                                         multiline
                                         fullWidth
-                                        value={characterBaseSkills.map(skill => skill.skill_name).join('\n')}
+                                        value={character.visible_base_character_skill_names.join('\n')}
                                     />
                                 </FormControl>
                             </Grid>
@@ -504,7 +519,7 @@ export default function Character(props) {
                                         label="Compétences de carrière"
                                         name="career_skills"
                                         InputLabelProps={{ shrink: true }}
-                                        disabled={!careerSkillList || careerSkillList?.length === 0}
+                                        disabled={!isEdit || !careerSkillList || careerSkillList?.length === 0}
                                         select
                                         fullWidth
                                         value={selectedCareerSkillId}
@@ -525,16 +540,16 @@ export default function Character(props) {
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
                                     <TextField
-                                        id="characters_skills"
+                                        id="visible_career_character_skills"
                                         margin="normal"
                                         label="Compétences de carrière acquises"
-                                        name="characters_skills"
+                                        name="visible_career_character_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
                                         rows={numberOfCharacterCareerSkills}
                                         multiline
                                         fullWidth
-                                        value={characterCareerSkills.map(skill => skill.skill_name).join('\n')}
+                                        value={character.visible_career_character_skill_names.join('\n')}
                                     />
                                 </FormControl>
                             </Grid>

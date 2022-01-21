@@ -69,14 +69,14 @@ element_get = (request, response) => {
                                     characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current) : 0;
                                     characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current) : [];
                                     // character_skills
-                                    const character_skills = results[1];
-                                    characterDTO.character_skills = (character_skills?.length > 0) ? character_skills.filter(skill => !skill.is_base) : [];
+                                    characterDTO.character_skills = (results[1]?.length > 0) ? results[1].map(skill => skill.id) : [];
                                     // character_personal_quests
                                     characterDTO.character_personal_quests = (results[2]?.length > 0) ? results[2] : [];
                                     // character_chapters
                                     characterDTO.character_chapters = (results[3]?.length > 0) ? results[3] : [];
                                     // character_annexes
                                     characterDTO.character_annexes = (results[4]?.length > 0) ? results[4] : [];
+                                    console.log(characterDTO);
                                     data = { data: characterDTO, isSuccessful: true, message: '' };
                                     response.send(data);
                                 });
@@ -215,15 +215,14 @@ element_update = (request, response) => {
             .then(results => {
                 let data = {};
                 if (results.length === rowsToUpdate.length) {
-                    console.log('characters updated');
                     results.forEach(result => {
                         const characterId = result[0];
-                        console.log(characterId);
-                        afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
-                        afterDelete.push(db('characters_skills').where("id", "=", characterId).del());
-                        afterDelete.push(db('characters_personal_quests').where("id", "=", characterId).del());
-                        afterDelete.push(db('characters_chapters').where("id", "=", characterId).del());
-                        afterDelete.push(db('characters_annexes').where("id", "=", characterId).del());
+                        afterDelete.push(db('characters_careers').where('character_id', '=', characterId).del());
+                        afterDelete.push(db('characters_skills').where('character_id', '=', characterId).del());
+                        afterDelete.push(db('characters_personal_quests').where('character_id', '=', characterId).del());
+                        afterDelete.push(db('characters_chapters').where('character_id', '=', characterId).del());
+                        afterDelete.push(db('characters_annexes').where('character_id', '=', characterId).del());
+                        afterDelete.forEach(q => console.log(q.toSQL().toNative()));
                         characterList.forEach(character => {
                             character.character_careers.forEach(career => {
                                 afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
@@ -243,8 +242,11 @@ element_update = (request, response) => {
                         });
                     });
                     Promise.all(afterDelete).then(deleteResults => {
+                        console.log(deleteResults);
                         Promise.all(afterInsert).then(insertResults => {
+                            //console.log(insertResults);
                             data = { isSuccessful: true, message: '' };
+                            console.log('characters updated');
                             response.send(data);
                         })
                     });

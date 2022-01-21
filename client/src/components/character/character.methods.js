@@ -18,29 +18,29 @@ const getBaseSkills = (skills, character_skills) => {
     return baseSkills;
 }
 
-const getCharacterBaseSkills = (skills, character_skills) => {
-    const characterBaseSkills = skills.filter(skill => skill.is_base === true && character_skills.includes(skill.id));
-    return characterBaseSkills;
-}
-
 const getCareerSkills = (globalData, current_career_id, character_skills) => {
     const nonBaseSkillList = globalData.skills.filter(skill => skill.is_base === false && !character_skills.includes(skill.id));
     const currentCareerSkillList = nonBaseSkillList.filter(skill => globalData.careers_skills.filter(cs => cs.career_id === current_career_id).map(cs => cs.skill_id).includes(skill.id));
     return currentCareerSkillList;
 }
 
-const getCharacterCareerSkills = (globalData, character_skills) => {
-    const characterCareerSkills = globalData.skills.filter(skill => skill.is_base === false && character_skills.includes(skill.id));
-    return characterCareerSkills;
+const getSelectedCareerOnVocationId = (globalData, vocation_id, current_career_id) => {
+    const careers = getVocationCareers(globalData, vocation_id);
+    if ((current_career_id === 0 || !careers.map(career => career.id).includes(current_career_id)) && careers?.length > 0) {
+        return careers[0].id;
+    } else {
+        return 0;
+    }
 }
 
-const getSelectedValue = (arrayOfId, selectedValue, character) => {
-    const value = arrayOfId.length > 0 && character
-        ? character.country_id && arrayOfId.includes(selectedValue)
-            ? character.country_id
-            : arrayOfId[0]
-        : 0;
-    return value;
+const getCharacterBaseSkills = (skills, character_skills) => {
+    const characterBaseSkills = skills.filter(skill => skill.is_base === true && character_skills.includes(skill.id));
+    return characterBaseSkills;
+}
+
+const getCharacterCareerSkills = (skills, character_skills) => {
+    const characterCareerSkills = skills.filter(skill => skill.is_base === false && character_skills.includes(skill.id));
+    return characterCareerSkills;
 }
 
 const getCharacterCurrentCareerId = (globalData, character_careers, vocation_id) => {
@@ -54,13 +54,13 @@ const getCharacterCurrentCareerId = (globalData, character_careers, vocation_id)
     return currentCareerId;
 }
 
-const getSelectedCareerOnVocationId = (globalData, vocation_id, current_career_id) => {
-    const careers = getVocationCareers(globalData, vocation_id);
-    if ((current_career_id === 0 || !careers.map(career => career.id).includes(current_career_id)) && careers?.length > 0) {
-        return careers[0].id;
-    } else {
-        return 0;
-    }
+const getSelectedValue = (arrayOfId, selectedValue, character) => {
+    const value = arrayOfId.length > 0 && character
+        ? character.country_id && arrayOfId.includes(selectedValue)
+            ? character.country_id
+            : arrayOfId[0]
+        : 0;
+    return value;
 }
 
 export { getRaceSkills, getVocationCareers, getAvailableReligions, getBaseSkills, getCharacterBaseSkills, getCareerSkills, getCharacterCareerSkills, getSelectedValue, getCharacterCurrentCareerId, getSelectedCareerOnVocationId };
