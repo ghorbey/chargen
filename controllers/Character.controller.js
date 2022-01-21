@@ -66,8 +66,8 @@ element_get = (request, response) => {
                                     // character_careers
                                     const character_careers = results[0];
                                     // Get default career id based on vocation.
-                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current) : 0;
-                                    characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current) : [];
+                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current).id : 0;
+                                    characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current).map(career => career.id) : [];
                                     // character_skills
                                     characterDTO.character_skills = (results[1]?.length > 0) ? results[1].map(skill => skill.id) : [];
                                     // character_personal_quests
@@ -76,7 +76,6 @@ element_get = (request, response) => {
                                     characterDTO.character_chapters = (results[3]?.length > 0) ? results[3] : [];
                                     // character_annexes
                                     characterDTO.character_annexes = (results[4]?.length > 0) ? results[4] : [];
-                                    console.log(characterDTO);
                                     data = { data: characterDTO, isSuccessful: true, message: '' };
                                     response.send(data);
                                 });
@@ -128,12 +127,10 @@ element_add = (request, response) => {
             .returning('id')
             .insert(rowsToInsert)
             .then(results => {
-                console.log(results);
                 let data = {};
                 const afterDelete = [];
                 const afterInsert = [];
                 if (results.rowCount === rowsToInsert.length) {
-                    console.log('characters added');
                     results.forEach(result => {
                         const characterId = result[0];
                         afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
@@ -162,6 +159,7 @@ element_add = (request, response) => {
                     Promise.all(afterDelete).then(deleteResults => {
                         Promise.all(afterInsert).then(insertResults => {
                             data = { isSuccessful: true, message: '' };
+                            console.log('characters added');
                             response.send(data);
                         })
                     });
@@ -222,7 +220,6 @@ element_update = (request, response) => {
                         afterDelete.push(db('characters_personal_quests').where('character_id', '=', characterId).del());
                         afterDelete.push(db('characters_chapters').where('character_id', '=', characterId).del());
                         afterDelete.push(db('characters_annexes').where('character_id', '=', characterId).del());
-                        afterDelete.forEach(q => console.log(q.toSQL().toNative()));
                         characterList.forEach(character => {
                             character.character_careers.forEach(career => {
                                 afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
@@ -242,9 +239,7 @@ element_update = (request, response) => {
                         });
                     });
                     Promise.all(afterDelete).then(deleteResults => {
-                        console.log(deleteResults);
                         Promise.all(afterInsert).then(insertResults => {
-                            //console.log(insertResults);
                             data = { isSuccessful: true, message: '' };
                             console.log('characters updated');
                             response.send(data);

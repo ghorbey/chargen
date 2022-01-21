@@ -24,8 +24,8 @@ const getCareerSkills = (globalData, current_career_id, character_skills) => {
     return currentCareerSkillList;
 }
 
-const getSelectedCareerOnVocationId = (globalData, vocation_id, current_career_id) => {
-    const careers = getVocationCareers(globalData, vocation_id);
+const getSelectedCareerOnVocationId = (globalData, vocation_id, current_career_id, character_careers) => {
+    const careers = getVocationCareers(globalData, vocation_id).filter(career => !character_careers.includes(career.id));
     if ((current_career_id === 0 || !careers.map(career => career.id).includes(current_career_id)) && careers?.length > 0) {
         return careers[0].id;
     } else {

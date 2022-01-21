@@ -20,6 +20,7 @@ export default function Character(props) {
     const { isAdmin } = getCurrentUser();
     const navigate = useNavigate();
     const character_types = ['pj', 'pnj'];
+    const listSeparator = ', ';
 
     let careerSkillInput = undefined;
     let baseSkillInput = undefined;
@@ -27,12 +28,12 @@ export default function Character(props) {
     let baseSkillList = [];
     let selectedBaseSkillId = 0;
     let characterBaseSkills = [];
-    let numberOfCharacterBaseSkills = 0;
 
     let careerSkillList = [];
     let selectedCareerSkillId = 0;
     let characterCareerSkills = [];
-    let numberOfCharacterCareerSkills = 0;
+
+    let characterCareers = [];
 
     //#region Update methods
     const updateCharacterField = (field, value) => {
@@ -50,7 +51,7 @@ export default function Character(props) {
     };
 
     const updateVocationField = (field, vocation_id) => {
-        const cci = methods.getSelectedCareerOnVocationId(globalData, vocation_id, character.current_career_id);
+        const cci = methods.getSelectedCareerOnVocationId(globalData, vocation_id, character.current_career_id, character.character_careers);
         updateCharacterFields(['vocation_id', 'current_career_id'], [vocation_id, cci]);
     };
 
@@ -83,9 +84,13 @@ export default function Character(props) {
         character.visible_base_character_skill_names = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === true).map(skill => skill.skill_name);
         character.visible_career_character_skill_names = globalData.skills.filter(skill => character.character_skills.includes(skill.id) && skill.is_base === false).map(skill => skill.skill_name);
         if (character.current_career_id === 0) {
-            const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id);
+            const cci = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id, character.character_careers);
             character.current_career_id = cci;
             updateCharacterField('current_career_id', cci);
+        }
+
+        if (globalData && character.vocation_id && character.character_careers) {
+            characterCareers = methods.getVocationCareers(globalData, character.vocation_id).filter(career => character.character_careers.includes(career.id));
         }
 
         if (globalData && character.current_career_id && character.character_skills && character.character_careers) {
@@ -94,14 +99,11 @@ export default function Character(props) {
                 ? baseSkillList[0].id
                 : 0;
             characterBaseSkills = methods.getCharacterBaseSkills(globalData.skills, character.character_skills);
-            numberOfCharacterBaseSkills = characterBaseSkills?.length;
-
             careerSkillList = methods.getCareerSkills(globalData, character.current_career_id, character.character_skills);
             selectedCareerSkillId = careerSkillList?.length > 0
                 ? careerSkillList[0].id
                 : 0;
             characterCareerSkills = methods.getCharacterCareerSkills(globalData.skills, character.character_skills);
-            numberOfCharacterCareerSkills = characterCareerSkills?.length;
         }
     }
 
@@ -144,21 +146,26 @@ export default function Character(props) {
     //#endregion
 
     //#region Form actions methods
-    const handleChangeCareer = () => {
-        console.log('change career');
+    const handleChangeCareer = (current_career_id) => {
+        const copy = { ...character };
+        copy.character_careers.push(current_career_id);
+        copy.current_career_id = methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, 0, character.character_careers);
+        console.log(copy);
+        setCharacter(copy);
     };
+
+    const clearCareers = () => {
+        const copy = { ...character };
+        copy.character_careers = [];
+        setCharacter(copy);
+    }
 
     // TODO: Check if removable?
     const prepareCharacter = (character) => {
         const copy = { ...character };
-        // copy.character_skills = [];
-        // if (copy.visible_base_character_skills?.length > 0) {
-        //     copy.character_skills = copy.character_skills.concat(copy.visible_base_character_skills.map(skill => skill.id));
-        // }
-        // if (copy.visible_career_character_skills?.length > 0) {
-        //     copy.character_skills = copy.character_skills.concat(copy.visible_career_character_skills.map(skill => skill.id));
-        // }
-        // console.log(copy.character_skills);
+        copy.character_careers = copy.character_careers
+            .map(cc => { return { career_id: cc, is_current: false } })
+            .concat([{ career_id: character.current_career_id, is_current: true }]);
         return copy;
     }
 
@@ -403,10 +410,9 @@ export default function Character(props) {
                                 name="race_skills"
                                 InputLabelProps={{ shrink: true }}
                                 disabled
-                                rows={raceSkills.length}
                                 multiline
                                 fullWidth
-                                value={raceSkills.map(skill => skill.skill_name).join('\n')}
+                                value={raceSkills.map(skill => skill.skill_name).join(listSeparator)}
                                 onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
@@ -423,7 +429,7 @@ export default function Character(props) {
                                 fullWidth
                                 required
                                 select
-                                defaultValue={methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id)}
+                                defaultValue={methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id, character.character_careers)}
                                 value={character.current_career_id}
                                 onChange={(e) => updateCareerField(e.target.name, e.target.value)}
                             >
@@ -433,26 +439,36 @@ export default function Character(props) {
                     </Grid>
                     <Grid item lg={1}>
                         <Stack direction="row" justifyContent="flex-end">
-                            <Button color="primary" variant="outlined" onClick={handleChangeCareer} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>
+                            <Button color="primary" variant="outlined" onClick={() => handleChangeCareer(character.current_career_id)} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>
                                 <FontAwesomeIcon icon={faArrowCircleRight} size="lg" />
                             </Button>
                         </Stack>
                     </Grid>
                     <Grid item lg={6}>
-                        <FormControl fullWidth>
-                            <TextField
-                                id="character_careers"
-                                margin="normal"
-                                label="Historique des carrières"
-                                name="character_careers"
-                                InputLabelProps={{ shrink: true }}
-                                disabled
-                                rows={character.character_careers.length}
-                                multiline
-                                fullWidth
-                                value={character.character_careers.map(career => career.career_name).join('\n')}
-                            />
-                        </FormControl>
+                        <Grid container spacing={2}>
+                            <Grid item lg={10}>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        id="character_careers"
+                                        margin="normal"
+                                        label="Historique des carrières"
+                                        name="character_careers"
+                                        InputLabelProps={{ shrink: true }}
+                                        disabled
+                                        multiline
+                                        fullWidth
+                                        value={characterCareers.map(career => career.career_name).join(listSeparator)}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item lg={2}>
+                                <Stack direction="row" justifyContent="flex-end">
+                                    <Button color="primary" variant="outlined" onClick={(e) => clearCareers()} disabled={!isEdit || !characterCareers || characterCareers?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                        <FontAwesomeIcon icon={faMinus} size="lg" />
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item lg={6}>
                         <Grid container spacing={2}>
@@ -492,10 +508,9 @@ export default function Character(props) {
                                         name="visible_character_base_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={numberOfCharacterBaseSkills}
                                         multiline
                                         fullWidth
-                                        value={character.visible_base_character_skill_names.join('\n')}
+                                        value={character.visible_base_character_skill_names.join(listSeparator)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -546,10 +561,9 @@ export default function Character(props) {
                                         name="visible_career_character_skills"
                                         InputLabelProps={{ shrink: true }}
                                         disabled
-                                        rows={numberOfCharacterCareerSkills}
                                         multiline
                                         fullWidth
-                                        value={character.visible_career_character_skill_names.join('\n')}
+                                        value={character.visible_career_character_skill_names.join(listSeparator)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -647,7 +661,7 @@ export default function Character(props) {
                                 InputLabelProps={{ shrink: true }}
                                 disabled={!isEdit}
                                 fullWidth
-                                value={character.character_chapters.map(chapter => chapter).join('\n')}
+                                value={character.character_chapters.map(chapter => chapter).join(listSeparator)}
                             />
                         </FormControl>
                     </Grid>
@@ -661,7 +675,7 @@ export default function Character(props) {
                                 InputLabelProps={{ shrink: true }}
                                 disabled={!isEdit}
                                 fullWidth
-                                value={character.character_annexes.map(annex => annex).join('\n')}
+                                value={character.character_annexes.map(annex => annex).join(listSeparator)}
                             />
                         </FormControl>
                     </Grid>
