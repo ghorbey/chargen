@@ -12,7 +12,7 @@ export default function CharacterActions(props) {
     const { isAdmin } = getCurrentUser();
 
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ displayPrint: 'none' }}>
             <Grid item xl={12}>
                 {!isEdit && isAdmin
                     ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2, height: 56 }}>

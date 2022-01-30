@@ -4,7 +4,7 @@ import { Button, Alert, Grid, TextField, MenuItem, FormControlLabel, Checkbox, F
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus, faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 
-import { CharacterActions } from '../../components';
+import { CharacterActions, MultipleTextArea } from '../../components';
 import { getCurrentUser } from '../../common';
 import CharacterService from '../../services/Character.service';
 import * as methods from './character.methods'
@@ -34,6 +34,10 @@ export default function Character(props) {
     let characterCareerSkills = [];
 
     let characterCareers = [];
+
+    const blankPersonalQuest = { character_id: character?.id, content: '', is_completed: false };
+    const blankChapter = { character_id: character?.id, content: '', sort_order: 0 };
+    const blankAnnexe = { character_id: character?.id, content: '' };
 
     //#region Update methods
     const updateCharacterField = (field, value) => {
@@ -107,6 +111,17 @@ export default function Character(props) {
         }
     }
 
+    const isDisabledBase = () => {
+        return !isEdit;
+    };
+
+    const isDisabledForPlayer = () => {
+        return !isAdmin || !isEdit;
+    };
+
+    const isDisabledForPlayerEdition = () => {
+        return (!isAdmin || !isEdit) && character.id > 0;
+    };
     //#endregion
 
     //#region Skills methods
@@ -214,6 +229,8 @@ export default function Character(props) {
 
     const handlePrint = () => {
         console.log('print');
+        // const content = document.getElementById('character-sheet');
+        // content.print();
     };
     //#endregion
 
@@ -231,7 +248,7 @@ export default function Character(props) {
         (character && isComputed) ?
             <>
                 <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handlePrint={() => handlePrint()} handleCancel={() => handleCancel()} />
-                <Grid container spacing={2}>
+                <Grid container spacing={2} id="character-sheet">
                     <Grid item lg={6}>
                         <FormControl fullWidth>
                             <TextField
@@ -241,7 +258,7 @@ export default function Character(props) {
                                 name="character_name"
                                 InputLabelProps={{ shrink: true }}
                                 autoFocus
-                                disabled={!isEdit}
+                                disabled={isDisabledBase()}
                                 fullWidth
                                 required
                                 value={character.character_name}
@@ -257,7 +274,7 @@ export default function Character(props) {
                                 label="Type"
                                 name="character_type"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
                                 select
@@ -278,7 +295,7 @@ export default function Character(props) {
                                 name="character_number"
                                 InputLabelProps={{ shrink: true }}
                                 type="string"
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
                                 value={character.character_number}
@@ -294,7 +311,7 @@ export default function Character(props) {
                                 label="Joueur"
                                 name="user_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit || !isAdmin}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
                                 select
@@ -313,7 +330,7 @@ export default function Character(props) {
                                 label="Points de destin"
                                 name="fate_points"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
                                 value={character.fate_points}
@@ -329,7 +346,7 @@ export default function Character(props) {
                                 label="Pays d'origine"
                                 name="country_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayerEdition()}
                                 fullWidth
                                 required
                                 select
@@ -349,7 +366,7 @@ export default function Character(props) {
                                 label="Race"
                                 name="race_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayerEdition()}
                                 fullWidth
                                 required
                                 select
@@ -369,7 +386,7 @@ export default function Character(props) {
                                 label="Religion"
                                 name="religion_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayerEdition()}
                                 fullWidth
                                 required
                                 select
@@ -389,7 +406,7 @@ export default function Character(props) {
                                 label="Vocation"
                                 name="vocation_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayerEdition()}
                                 fullWidth
                                 required
                                 select
@@ -425,7 +442,7 @@ export default function Character(props) {
                                 label="Carrière actuelle"
                                 name="current_career_id"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledBase()}
                                 fullWidth
                                 required
                                 select
@@ -437,9 +454,9 @@ export default function Character(props) {
                             </TextField>
                         </FormControl>
                     </Grid>
-                    <Grid item lg={1}>
+                    <Grid item lg={1} sx={{ displayPrint: 'none' }}>
                         <Stack direction="row" justifyContent="flex-end">
-                            <Button color="primary" variant="outlined" onClick={() => handleChangeCareer(character.current_career_id)} disabled={!isEdit} size="Large" sx={{ mt: 2, height: 56 }}>
+                            <Button color="primary" variant="outlined" onClick={() => handleChangeCareer(character.current_career_id)} disabled={isDisabledBase()} size="Large" sx={{ mt: 2, height: 56 }}>
                                 <FontAwesomeIcon icon={faArrowCircleRight} size="lg" />
                             </Button>
                         </Stack>
@@ -461,9 +478,9 @@ export default function Character(props) {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item lg={2}>
+                            <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => clearCareers()} disabled={!isEdit || !characterCareers || characterCareers?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => clearCareers()} disabled={isDisabledBase() || !characterCareers || characterCareers?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -481,7 +498,7 @@ export default function Character(props) {
                                         label="Compétences de base"
                                         name="base_skills_id"
                                         InputLabelProps={{ shrink: true }}
-                                        disabled={!isEdit || !baseSkillList || baseSkillList?.length === 0}
+                                        disabled={isDisabledBase() || !baseSkillList || baseSkillList?.length === 0}
                                         select
                                         fullWidth
                                         value={selectedBaseSkillId}
@@ -492,9 +509,9 @@ export default function Character(props) {
                                     </TextField>
                                 </FormControl>
                             </Grid>
-                            <Grid item lg={2}>
+                            <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={!isEdit || !baseSkillList || baseSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={isDisabledBase() || !baseSkillList || baseSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -514,9 +531,9 @@ export default function Character(props) {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item lg={2}>
+                            <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={!isEdit || !characterBaseSkills || characterBaseSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={isDisabledBase() || !characterBaseSkills || characterBaseSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -534,7 +551,7 @@ export default function Character(props) {
                                         label="Compétences de carrière"
                                         name="career_skills"
                                         InputLabelProps={{ shrink: true }}
-                                        disabled={!isEdit || !careerSkillList || careerSkillList?.length === 0}
+                                        disabled={isDisabledBase() || !careerSkillList || careerSkillList?.length === 0}
                                         select
                                         fullWidth
                                         value={selectedCareerSkillId}
@@ -545,9 +562,9 @@ export default function Character(props) {
                                     </TextField>
                                 </FormControl>
                             </Grid>
-                            <Grid item lg={2}>
+                            <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={!isEdit || !careerSkillList || careerSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={isDisabledBase() || !careerSkillList || careerSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -567,21 +584,16 @@ export default function Character(props) {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item lg={2}>
+                            <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={!isEdit || !characterCareerSkills || characterCareerSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={isDisabledBase() || !characterCareerSkills || characterCareerSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item lg={4}>
-                        <FormControl fullWidth>
-                            Quête personnelle
-                        </FormControl>
-                    </Grid>
-                    <Grid item lg={4}>
+                    <Grid item lg={6}>
                         <FormControl fullWidth>
                             <TextField
                                 id="current_xp"
@@ -589,7 +601,7 @@ export default function Character(props) {
                                 label="XP actuels"
                                 name="current_xp"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
                                 value={character.current_xp}
@@ -597,7 +609,7 @@ export default function Character(props) {
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item lg={4}>
+                    <Grid item lg={6}>
                         <FormControl fullWidth>
                             <TextField
                                 id="total_xp"
@@ -605,19 +617,22 @@ export default function Character(props) {
                                 label="XP acquis"
                                 name="total_xp"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayer()}
                                 fullWidth
                                 required
-                                value={character.current_xp}
+                                value={character.total_xp}
                                 onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item lg={4}>
+                    <Grid item lg={6}>
                         <FormControlLabel control={<Checkbox disabled />} label="XP Scénario" />
                     </Grid>
-                    <Grid item lg={4}>
+                    <Grid item lg={6}>
                         <FormControlLabel control={<Checkbox disabled />} label="XP roleplay" />
+                    </Grid>
+                    <Grid item lg={12}>
+                        <MultipleTextArea data={character.character_personal_quests} title={'Quête personnelle'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankPersonalQuest} label={'Quête'} name={'personal_quest'} />
                     </Grid>
                     <Grid item lg={12}>
                         <FormControl fullWidth>
@@ -627,7 +642,7 @@ export default function Character(props) {
                                 label="Légende publique"
                                 name="public_legend"
                                 InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
+                                disabled={isDisabledForPlayerEdition()}
                                 fullWidth
                                 multiline
                                 value={character.public_legend}
@@ -637,47 +652,15 @@ export default function Character(props) {
                     </Grid>
                     <Grid item lg={12}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="background"
-                                margin="normal"
-                                label="Background"
-                                name="background"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
-                                fullWidth
-                                multiline
-                                value={character.background}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                            />
+                            <TextField id="background" margin="normal" label="Background" name="background" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayerEdition()} fullWidth multiline value={character.background}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} />
                         </FormControl>
                     </Grid>
                     <Grid item lg={12}>
-                        <FormControl fullWidth>
-                            <TextField
-                                id="chapters"
-                                margin="normal"
-                                label="Chapitres"
-                                name="chapters"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
-                                fullWidth
-                                value={character.character_chapters.map(chapter => chapter).join(listSeparator)}
-                            />
-                        </FormControl>
+                        <MultipleTextArea data={character.character_chapters} title={'Chapitres'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankChapter} label={'Chapitre'} name={'chapter'} />
                     </Grid>
                     <Grid item lg={12}>
-                        <FormControl fullWidth>
-                            <TextField
-                                id="annexes"
-                                margin="normal"
-                                label="Annexes"
-                                name="annexes"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={!isEdit}
-                                fullWidth
-                                value={character.character_annexes.map(annex => annex).join(listSeparator)}
-                            />
-                        </FormControl>
+                        <MultipleTextArea data={character.character_annexes} title={'Annexes'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankAnnexe} label={'Annexe'} name={'annexe'} />
                     </Grid>
                 </Grid >
             </>

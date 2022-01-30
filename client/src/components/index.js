@@ -7,6 +7,7 @@ import CharacterListPage from './characterList/CharacterListPage';
 import HomePage from './home/HomePage';
 import LocalRoutes from './LocalRoutes'
 import LoginPage from './login/LoginPage';
+import MultipleTextArea from './MultipleTextArea';
 import News from './news/News';
 import NewsList from './newsList/NewsList';
 import PageNotFound from './pageNotFound/PageNotFound'
@@ -34,6 +35,7 @@ export {
     HomePage,
     LocalRoutes,
     LoginPage,
+    MultipleTextArea,
     News,
     NewsList,
     PageNotFound,

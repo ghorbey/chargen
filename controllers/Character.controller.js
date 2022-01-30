@@ -57,31 +57,27 @@ element_get = (request, response) => {
                 .resolve(query)
                 .then(result => {
                     let data = {};
-                    if (result) {
+                    if (result && result.length > 0) {
                         console.log('character retrieved');
                         let characterDTO = result[0];
-                        if (characterDTO) {
-                            Promise.all(queries)
-                                .then(results => {
-                                    // character_careers
-                                    const character_careers = results[0];
-                                    // Get default career id based on vocation.
-                                    characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current).id : 0;
-                                    characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current).map(career => career.id) : [];
-                                    // character_skills
-                                    characterDTO.character_skills = (results[1]?.length > 0) ? results[1].map(skill => skill.id) : [];
-                                    // character_personal_quests
-                                    characterDTO.character_personal_quests = (results[2]?.length > 0) ? results[2] : [];
-                                    // character_chapters
-                                    characterDTO.character_chapters = (results[3]?.length > 0) ? results[3] : [];
-                                    // character_annexes
-                                    characterDTO.character_annexes = (results[4]?.length > 0) ? results[4] : [];
-                                    data = { data: characterDTO, isSuccessful: true, message: '' };
-                                    response.send(data);
-                                });
-                        } else {
-                            response.send({ isSuccessful: false, message: `Le personnage n'existe pas`, data: undefined });
-                        }
+                        Promise.all(queries)
+                            .then(results => {
+                                // character_careers
+                                const character_careers = results[0];
+                                // Get default career id based on vocation.
+                                characterDTO.current_career_id = (character_careers?.length > 0) ? character_careers.find(career => career.is_current).id : 0;
+                                characterDTO.character_careers = (character_careers?.length > 0) ? character_careers.filter(career => !career.is_current).map(career => career.id) : [];
+                                // character_skills
+                                characterDTO.character_skills = (results[1]?.length > 0) ? results[1].map(skill => skill.id) : [];
+                                // character_personal_quests
+                                characterDTO.character_personal_quests = (results[2]?.length > 0) ? results[2] : [];
+                                // character_chapters
+                                characterDTO.character_chapters = (results[3]?.length > 0) ? results[3] : [];
+                                // character_annexes
+                                characterDTO.character_annexes = (results[4]?.length > 0) ? results[4] : [];
+                                data = { data: characterDTO, isSuccessful: true, message: '' };
+                                response.send(data);
+                            });
                     } else {
                         data = { data: undefined, isSuccessful: true, message: 'Aucun personnage lié à cet utilisateur' };
                         response.send(data);

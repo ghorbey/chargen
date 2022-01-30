@@ -41,7 +41,7 @@ export default function RouterBreadcrumbs(props) {
   return (
     <>
       <br />
-      <Breadcrumbs aria-label="breadcrumb">
+      <Breadcrumbs aria-label="breadcrumb" sx={{ displayPrint: 'none' }}>
         <RouterLink color="text.primary" to="/">
           <Typography color="text.primary">Accueil</Typography>
         </RouterLink>

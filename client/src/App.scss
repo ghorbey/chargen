@@ -7,3 +7,15 @@ body {
   margin: 0;
   overflow-y: scroll;
 }
+
+@media print {
+  .no-printme {
+    display: none;
+  }
+  .printme {
+    display: block;
+  }
+  .bg {
+    background-color: rebeccapurple;
+  }
+}

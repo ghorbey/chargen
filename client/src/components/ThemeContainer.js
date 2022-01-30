@@ -5,7 +5,17 @@ import { RouterBreadcrumbs } from '../components';
 
 export default function ThemeContainer(props) {
     const { isLogin } = props;
-    const theme = createTheme();
+    const theme = createTheme({
+        typography: {
+            list_header: {
+                fontSize: 40,
+                padding: 0
+            },
+            colored: {
+                backgroundColor: 'red'
+            }
+        }
+    });
 
     return (
         <ThemeProvider theme={theme}>

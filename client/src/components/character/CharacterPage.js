@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, Grid, Typography } from '@mui/material';
+import { Alert, Grid } from '@mui/material';
 
 import { Error, Loading, Character, ThemeContainer } from '../../components';
 import { getCurrentUser } from '../../common';
@@ -16,7 +16,7 @@ export default function CharacterPage(props) {
     const [characterId, setCharacterId] = useState();
     const [character, setCharacter] = useState(undefined);
     const [isFound, setIsFound] = useState(undefined);
-    const [isEdit] = useState(action === 'edit');
+    const [isEdit, setIsEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
 
     const handlePrint = () => {
@@ -31,25 +31,36 @@ export default function CharacterPage(props) {
                 : CharacterService.get(id);
             promise
                 .then(response => {
-                    setErrorMessage(response?.message);
-                    if (response?.data?.user_id === userId || isAdmin) {
-                        if (response.data) {
+                    if (response?.isSuccessful) {
+                        if (response?.data?.user_id === userId || isAdmin) {
+                            if (response.data) {
+                                setIsFound(true);
+                                setCharacter(response.data);
+                                setCharacterId(response.data.id);
+                            }
+                        } else {
+                            if (response?.data && response?.data?.user_id !== userId && !isAdmin) {
+                                setErrorMessage('Accès interdit');
+                                console.error('Trying to access unauthorized resource!');
+                                setCharacter(undefined);
+                            } else {
+                                const newCharacter = createNewCharacter(0, userId);
+                                setCharacter(newCharacter);
+                                setCharacterId(0);
+                                setIsEdit(true);
+                            }
                             setIsFound(true);
-                            setCharacter(response.data);
-                            setCharacterId(response.data.id);
                         }
                     } else {
-                        if (response?.data?.user_id !== userId && !isAdmin) {
-                            setErrorMessage('Accès interdit');
-                        }
-                        console.error('Trying to access unauthorized resource!');
+                        setErrorMessage(response?.message);
                         setIsFound(false);
                         setCharacter(undefined);
                     }
+
                 })
                 .finally(() => setIsLoading(false));
         };
-        if (!isLoading && characterId === undefined) {
+        if (!isLoading && characterId === undefined && !isFound) {
             if (+id === 0) {
                 setIsLoading(false);
                 setIsFound(true);
@@ -59,23 +70,22 @@ export default function CharacterPage(props) {
                 loadData(id);
             }
         }
-    }, [isLoading, userId, id, character, isAdmin, characterId]);
+    }, [isLoading, isFound, userId, id, character, isAdmin, characterId]);
 
     return (
-        (globalData && characterId)
+        (globalData && character && characterId >= 0)
             ? <ThemeContainer>
                 {isLoading
                     ? <Loading />
                     : (isFound === false)
-                        ? <Alert severity="error">Aucun personnage avec l'id {id} existant.</Alert>
-                        : <Grid container spacing={2}>
+                        ? <Alert severity="error" sx={{ displayPrint: 'none' }}>Aucun personnage avec l'id {id} existant.</Alert>
+                        : <Grid container spacing={2} className="bg">
                             <Grid item>
                                 <Character character={character} globalData={globalData} isEdit={isEdit} handlePrint={handlePrint} />
                             </Grid>
                         </Grid>
                 }
-                <Error errorMessage={errorMessage} />
             </ThemeContainer>
-            : <Typography>{characterId}</Typography>
+            : <Error errorMessage={errorMessage} />
     );
 }

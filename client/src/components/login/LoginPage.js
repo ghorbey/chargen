@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { createTheme, ThemeProvider, Container, Button, Typography, Avatar, CssBaseline, TextField, Box } from '@mui/material';
+import { Button, Typography, Avatar, TextField, Box } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import sha256 from 'crypto-js/sha256';
 
@@ -10,7 +10,6 @@ import UserService from '../../services/User.service';
 export default function LoginPage(props) {
     const { setToken } = props;
     const [errorMessage, setErrorMessage] = useState('');
-    const theme = createTheme();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -56,10 +55,6 @@ export default function LoginPage(props) {
                         id="password"
                         autoComplete="current-password"
                     />
-                    {/* <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              /> */}
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Connexion
                     </Button>
