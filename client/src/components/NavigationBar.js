@@ -8,11 +8,11 @@ import { getCurrentUser } from '../common';
 
 export default function NavigationBar(props) {
     const { token } = props;
-    const { isAdmin, userId } = getCurrentUser();
+    const { isAdmin, isPnj, userId } = getCurrentUser();
 
     let menu = [
         { key: '1', name: faHome, path: '/', access: ['everyone'], isIcon: true, position: 'left' },
-        { key: '2', name: faAddressCard, path: '/character-list', access: ['admin'], isIcon: true, position: 'left' },
+        { key: '2', name: faAddressCard, path: '/character-list', access: ['pnj'], isIcon: true, position: 'left' },
         { key: '3', name: faAddressCard, path: `/character/user/view`, access: ['pj'], isIcon: true, position: 'left' },
         { key: '4', name: faUsers, path: '/user-list', access: ['admin'], isIcon: true, position: 'right' },
         { key: '5', name: faUser, path: `/user/${userId}/view`, access: ['everyone'], isIcon: true, position: 'right' },
@@ -25,7 +25,9 @@ export default function NavigationBar(props) {
             return true;
         } else if (page.access.includes('admin') && isAdmin) {
             return true;
-        } else if (page.access.includes('pj') && !isAdmin) {
+        } else if (page.access.includes('pnj') && (isPnj || isAdmin)) {
+            return true;
+        } else if (page.access.includes('pj') && !isAdmin && !isPnj) {
             return true;
         }
         return false;

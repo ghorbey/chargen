@@ -6,6 +6,7 @@ import { useToken } from '../common';
 
 export default function Navigation(props) {
     const { token, setToken } = useToken();
+
     return (
         <Router>
             <NavigationBar token={token}></NavigationBar>

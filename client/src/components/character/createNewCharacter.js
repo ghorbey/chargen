@@ -20,7 +20,8 @@ export default function createNewCharacter(id, userId) {
             character_personal_quests: [],
             character_chapters: [],
             character_careers: [],
-            character_annexes: []
+            character_annexes: [],
+            career_plan: ''
         };
     } else {
         return undefined;

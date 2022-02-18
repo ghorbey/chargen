@@ -8,7 +8,7 @@ import UserService from '../../services/User.service';
 
 function createNewUser(id) {
     if (+id === 0) {
-        return { id: 0, user_firstname: '', user_lastname: '', phone_number: '', email: '', user_password: '', is_admin: false };
+        return { id: 0, user_firstname: '', user_lastname: '', phone_number: '', email: '', user_password: '', is_admin: false, is_pnj: false };
     } else {
         return undefined;
     }

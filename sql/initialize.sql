@@ -28,6 +28,7 @@ CREATE TABLE users (
     email varchar NOT NULL,
     user_password varchar NOT NULL,
     is_admin boolean DEFAULT false,
+    is_pnj boolean DEFAULT false,
     PRIMARY KEY(id)
 );
 
@@ -153,9 +154,10 @@ CREATE TABLE characters_annexes (
     CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES characters(id)
 );
 
-INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('Stéphane', 'Paquay', '0495/77.90.18', 's.paquay@gmail.com', '5b1239604f38b2f55640c18c31690e517e16272a384f662b236722040a01d448', true);
-INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('Frédéric', 'Pire', '0484/24.41.20', 'wodin666@hotmail.com', '21a5cb47367e9cbfaea510818bff43d08da70befd3e54638be290d831b2bc5db', true); /*gnfred*/
-INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin) VALUES ('test', 'test', '000', 'test@test.com', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false); /*test*/
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin, is_pnj) VALUES ('Stéphane', 'Paquay', '0495/77.90.18', 's.paquay@gmail.com', '5b1239604f38b2f55640c18c31690e517e16272a384f662b236722040a01d448', true, true);
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin, is_pnj) VALUES ('Frédéric', 'Pire', '0484/24.41.20', 'wodin666@hotmail.com', '21a5cb47367e9cbfaea510818bff43d08da70befd3e54638be290d831b2bc5db', true, true); /*gnfred*/
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin, is_pnj) VALUES ('Charlotte', 'Pirnay', '000', 'lullabysrain@hotmail.com', '21a5cb47367e9cbfaea510818bff43d08da70befd3e54638be290d831b2bc5db', false, true); /*gnfred*/
+INSERT INTO users (user_firstname, user_lastname, phone_number, email, user_password, is_admin, is_pnj) VALUES ('test', 'test', '000', 'test@test.com', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', false, false); /*test*/
 
 INSERT INTO vocations (vocation_name) VALUES ('Guerrier');
 INSERT INTO vocations (vocation_name) VALUES ('Rôdeur');

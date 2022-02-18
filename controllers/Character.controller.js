@@ -126,41 +126,42 @@ element_add = (request, response) => {
                 let data = {};
                 const afterDelete = [];
                 const afterInsert = [];
-                if (results.rowCount === rowsToInsert.length) {
+                if (results?.length > 0) {
                     results.forEach(result => {
-                        const characterId = result[0];
-                        afterDelete.push(db('characters_careers').where("id", "=", characterId).del());
-                        afterDelete.push(db('characters_skills').where("id", "=", characterId).del());
-                        afterDelete.push(db('character_personal_quests').where("id", "=", characterId).del());
-                        afterDelete.push(db('character_chapters').where("id", "=", characterId).del());
-                        afterDelete.push(db('character_annexes').where("id", "=", characterId).del());
-                        characterList.forEach(character => {
-                            character.character_careers.forEach(career => {
-                                afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
+                        const characterId = result;
+                        console.log(characterId);
+                        if (characterId) {
+                            afterDelete.push(db('characters_careers').where("character_id", "=", characterId).del());
+                            afterDelete.push(db('characters_skills').where("character_id", "=", characterId).del());
+                            afterDelete.push(db('characters_personal_quests').where("character_id", "=", characterId).del());
+                            afterDelete.push(db('characters_chapters').where("character_id", "=", characterId).del());
+                            afterDelete.push(db('characters_annexes').where("character_id", "=", characterId).del());
+                            characterList.forEach(character => {
+                                character.character_careers.forEach(career => {
+                                    afterInsert.push(db('characters_careers').insert({ character_id: characterId, career_id: career.career_id, is_current: career.is_current }));
+                                });
+                                character.character_skills.forEach(skill => {
+                                    afterInsert.push(db('characters_skills').insert({ character_id: characterId, skill_id: skill }));
+                                });
+                                character.character_personal_quests.forEach(quest => {
+                                    afterInsert.push(db('characters_personal_quests').insert({ character_id: characterId, content: quest.content, is_completed: quest.is_completed }));
+                                });
+                                character.character_chapters.forEach(chapter => {
+                                    afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, sort_order: chapter.sort_order }));
+                                });
+                                character.character_annexes.forEach(annexe => {
+                                    afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
+                                });
                             });
-                            character.character_skills.forEach(skill => {
-                                afterInsert.push(db('characters_skills').insert({ character_id: characterId, skill_id: skill }));
+                            Promise.all(afterDelete).then(deleteResults => {
+                                Promise.all(afterInsert).then(insertResults => {
+                                    data = { isSuccessful: true, message: '' };
+                                    console.log('characters added');
+                                    response.send(data);
+                                })
                             });
-                            character.character_personal_quests.forEach(quest => {
-                                afterInsert.push(db('characters_personal_quests').insert({ character_id: characterId, content: quest.content, is_completed: quest.is_completed }));
-                            });
-                            character.character_chapters.forEach(chapter => {
-                                afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, is_completed: chapter.sort_order }));
-                            });
-                            character.character_annexes.forEach(annexe => {
-                                afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
-                            });
-                        });
+                        }
                     });
-                    Promise.all(afterDelete).then(deleteResults => {
-                        Promise.all(afterInsert).then(insertResults => {
-                            data = { isSuccessful: true, message: '' };
-                            console.log('characters added');
-                            response.send(data);
-                        })
-                    });
-                    data = { isSuccessful: true, message: '' };
-                    response.send(data);
                 } else {
                     data = { isSuccessful: false, message: 'Erreur' };
                     response.send(data);
@@ -227,7 +228,7 @@ element_update = (request, response) => {
                                 afterInsert.push(db('characters_personal_quests').insert({ character_id: characterId, content: quest.content, is_completed: quest.is_completed }));
                             });
                             character.character_chapters.forEach(chapter => {
-                                afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, is_completed: chapter.sort_order }));
+                                afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, sort_order: chapter.sort_order }));
                             });
                             character.character_annexes.forEach(annexe => {
                                 afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
@@ -263,11 +264,11 @@ element_delete = (request, response) => {
         const beforeDelete = [];
         idList.forEach(id => {
             console.log(`Delete character ${id}`);
-            beforeDelete.push(db('characters_careers').where("id", "=", id).del());
-            beforeDelete.push(db('characters_skills').where("id", "=", id).del());
-            beforeDelete.push(db('characters_personal_quests').where("id", "=", id).del());
-            beforeDelete.push(db('characters_chapters').where("id", "=", id).del());
-            beforeDelete.push(db('characters_annexes').where("id", "=", id).del());
+            beforeDelete.push(db('characters_careers').where("character_id", "=", id).del());
+            beforeDelete.push(db('characters_skills').where("character_id", "=", id).del());
+            beforeDelete.push(db('characters_personal_quests').where("character_id", "=", id).del());
+            beforeDelete.push(db('characters_chapters').where("character_id", "=", id).del());
+            beforeDelete.push(db('characters_annexes').where("character_id", "=", id).del());
             const rowToDelete = db('characters')
                 .where('id', '=', id)
                 .del();

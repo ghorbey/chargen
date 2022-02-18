@@ -9,18 +9,18 @@ import { getCurrentUser } from '../../common';
 
 export default function CharacterActions(props) {
     const { errorMessage, isEdit, handlePrint, handleSave, handleEdit, handleCancel } = props;
-    const { isAdmin } = getCurrentUser();
+    const { isAdmin, isPnj } = getCurrentUser();
 
     return (
         <Grid container spacing={2} sx={{ displayPrint: 'none' }}>
             <Grid item xl={12}>
-                {!isEdit && isAdmin
-                    ? <Button color="primary" variant="outlined" component={Link} to={isAdmin ? '/character-list' : '/character/user/view'} sx={{ mr: 2, height: 56 }}>
+                {!isEdit && (isAdmin || isPnj)
+                    ? <Button color="primary" variant="outlined" component={Link} to={(isAdmin || isPnj) ? '/character-list' : '/character/user/view'} sx={{ mr: 2, height: 56 }}>
                         <FontAwesomeIcon icon={faArrowLeft} size="lg" />
                     </Button>
                     : null
                 }
-                {isEdit
+                {isEdit && (isAdmin || isPnj)
                     ? <Button color="primary" variant="outlined" onClick={() => handleCancel()} sx={{ mr: 2, height: 56 }}>
                         <FontAwesomeIcon icon={faBan} size="lg" />
                     </Button>

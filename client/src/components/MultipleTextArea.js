@@ -32,7 +32,6 @@ export default function MultipleTextArea(props) {
                 if (found) {
                     found.content = value;
                     setEditedData(copy);
-                    console.log(editedData);
                     //call update methodé
                 }
             }
@@ -74,9 +73,10 @@ export default function MultipleTextArea(props) {
                                             name={`${name}_${entry.id}`}
                                             InputLabelProps={{ shrink: true }}
                                             disabled={isDisabled}
-                                            fullWidth
+                                            autoComplete="off"
                                             value={entry.content}
                                             onChange={(e) => updateContent(e.target.name, e.target.value)}
+                                            fullWidth
                                         />
                                     </FormControl>
                                 </Grid>

@@ -23,7 +23,6 @@ export default function User(props) {
             const toSave = { ...user };
             if (isPasswordUpdated) {
                 toSave.user_password = sha256(user.user_password).toString();
-                setUser(toSave);
             }
             if (user.id) {
                 UserService
@@ -33,6 +32,9 @@ export default function User(props) {
                         if (isSuccessful) {
                             setIsEdit(false);
                             setIsPasswordUpdated(false);
+                            const copy = { ...user };
+                            copy.user_password = '';
+                            setUser(copy);
                         }
                         setErrorMessage(message);
                     });
@@ -45,6 +47,9 @@ export default function User(props) {
                             if (isSuccessful) {
                                 setIsEdit(false);
                                 setIsPasswordUpdated(false);
+                                const copy = { ...user };
+                                copy.user_password = '';
+                                setUser(copy);
                             }
                             setErrorMessage(message);
                         });
@@ -73,9 +78,7 @@ export default function User(props) {
     };
 
     const handleEdit = () => {
-        if (isAdmin) {
-            setIsEdit(true);
-        }
+        setIsEdit(true);
     };
 
     return (
@@ -83,24 +86,21 @@ export default function User(props) {
             <>
                 <Grid container spacing={2}>
                     <Grid item xl={12}>
-                        {!isEdit && isAdmin
+                        {!isEdit
                             ? <Button color="primary" variant="outlined" component={Link} to={'/user-list'} sx={{ mr: 2, height: 56 }}>
                                 <FontAwesomeIcon icon={faArrowLeft} size="lg" />
                             </Button>
                             : null
                         }
-                        {isEdit && isAdmin
+                        {isEdit
                             ? <Button color="primary" variant="outlined" onClick={handleCancel} sx={{ mr: 2, height: 56 }}>
                                 <FontAwesomeIcon icon={faBan} size="lg" />
                             </Button>
                             : null
                         }
-                        {isAdmin
-                            ? <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit} sx={{ mr: 2, height: 56 }}>
-                                {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
-                            </Button>
-                            : null
-                        }
+                        <Button color="primary" variant="outlined" onClick={isEdit ? () => handleSave(isPasswordUpdated) : handleEdit} sx={{ mr: 2, height: 56 }}>
+                            {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
+                        </Button>
                     </Grid>
                     <Grid item xl={12}>
                         <Error errorMessage={errorMessage} />
@@ -117,12 +117,12 @@ export default function User(props) {
                                 InputLabelProps={{ shrink: true }}
                                 type="string"
                                 autoComplete="off"
-                                autoFocus
-                                disabled={!isEdit}
-                                fullWidth
-                                required
+                                disabled={!isEdit || !isAdmin}
                                 value={user.user_firstname}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
+                                autoFocus
+                                fullWidth
+                                required
                             />
                         </FormControl>
                     </Grid>
@@ -136,11 +136,11 @@ export default function User(props) {
                                 InputLabelProps={{ shrink: true }}
                                 type="string"
                                 autoComplete="off"
-                                disabled={!isEdit}
-                                fullWidth
-                                required
+                                disabled={!isEdit || !isAdmin}
                                 value={user.user_lastname}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
+                                fullWidth
+                                required
                             />
                         </FormControl>
                     </Grid>
@@ -155,10 +155,10 @@ export default function User(props) {
                                 type="string"
                                 autoComplete="off"
                                 disabled={!isEdit}
-                                fullWidth
-                                required
                                 value={user.email}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
+                                fullWidth
+                                required
                             />
                         </FormControl>
                     </Grid>
@@ -173,10 +173,10 @@ export default function User(props) {
                                 type="string"
                                 autoComplete="off"
                                 disabled={!isEdit}
-                                fullWidth
-                                required
                                 value={user.phone_number}
                                 onChange={(e) => updateField(e.target.name, e.target.value)}
+                                fullWidth
+                                required
                             />
                         </FormControl>
                     </Grid>
@@ -191,15 +191,18 @@ export default function User(props) {
                                 type="password"
                                 autoComplete="off"
                                 disabled={!isEdit}
-                                fullWidth
-                                required
                                 value={user.user_password}
                                 onChange={(e) => updatePassword(e.target.name, e.target.value)}
+                                fullWidth
+                                required
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item lg={6}>
-                        <FormControlLabel control={<Checkbox id="is_admin" name="is_admin" checked={user.is_admin} disabled={!isEdit} onChange={(e) => updateField(e.target.name, e.target.checked)} />} label="Admin?" sx={{ mt: 3 }} />
+                    <Grid item lg={3}>
+                        <FormControlLabel control={<Checkbox id="is_admin" name="is_admin" checked={user.is_admin} disabled={!isEdit || !isAdmin} onChange={(e) => updateField(e.target.name, e.target.checked)} />} label="Admin?" sx={{ mt: 3 }} />
+                    </Grid>
+                    <Grid item lg={3}>
+                        <FormControlLabel control={<Checkbox id="is_pnj" name="is_pnj" checked={user.is_pnj} disabled={!isEdit || !isAdmin} onChange={(e) => updateField(e.target.name, e.target.checked)} />} label="PNJ?" sx={{ mt: 3 }} />
                     </Grid>
                 </Grid>
             </>

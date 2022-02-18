@@ -6,13 +6,14 @@ const auth = require('./auth.controller');
 const router = express.Router();
 const url = '/api/user';
 
-generateToken = (id, email, is_admin, user_firstname, user_lastname) => {
+generateToken = (id, email, is_admin, user_firstname, user_lastname, is_pnj) => {
     const token = jwt.sign(
         {
             userId: id,
             userEmail: email,
             userName: `${user_firstname} ${user_lastname}`,
-            isAdmin: is_admin
+            isAdmin: is_admin,
+            isPnj: is_pnj
         },
         'RANDOM-TOKEN',
         { expiresIn: '24h' }
@@ -27,18 +28,18 @@ login = (request, response) => {
         response.send({ token: null, message: `Veuillez fournir un nom d'utilisateur et un mot de passe` });
         return;
     }
-    db.select('id', 'user_password', 'is_admin', 'user_firstname', 'user_lastname')
+    db.select('id', 'user_password', 'is_admin', 'user_firstname', 'user_lastname', 'is_pnj')
         .from('users')
         .where('email', '=', email)
         .then(result => {
             let data = {};
             if (result && result.length === 1) {
                 console.log('user retrieved');
-                const { user_password, id, is_admin, user_firstname, user_lastname } = result[0];
+                const { user_password, id, is_admin, user_firstname, user_lastname, is_pnj } = result[0];
                 if (user_password !== password) {
                     data = { token: null, message: 'Mot de passe invalide!' };
                 } else {
-                    const token = generateToken(id, email, is_admin, user_firstname, user_lastname);
+                    const token = generateToken(id, email, is_admin, user_firstname, user_lastname, is_pnj);
                     data = { token, message: '' };
                 }
             } else {
@@ -55,6 +56,7 @@ element_get_all = (request, response) => {
             let data = {};
             if (results.length >= 1) {
                 console.log('users retrieved');
+                results.forEach(result => result.user_password = '');
                 data = { data: results, isSuccessful: true, message: '' };
             } else {
                 data = { data: [], isSuccessful: true, message: 'Aucun utilisateur existant' };
@@ -76,6 +78,7 @@ element_get = (request, response) => {
                     let data = {};
                     if (result.length > 0) {
                         console.log('user retrieved');
+                        result[0].user_password = '';
                         data = { data: result[0], isSuccessful: true, message: '' };
                         response.send(data);
                     } else {
@@ -104,7 +107,8 @@ element_add = (request, response) => {
                 phone_number: user.phone_number,
                 email: user.email,
                 user_password: user.user_password,
-                is_admin: user.is_admin
+                is_admin: user.is_admin,
+                is_pnj: user.is_pnj
             }
             rowsToInsert.push(rowToInsert);
         });
@@ -136,16 +140,20 @@ element_update = (request, response) => {
         let rowsToUpdate = [];
         userList.forEach(user => {
             console.log(`Update user ${user.id}`);
+            const data = {
+                user_firstname: user.user_firstname,
+                user_lastname: user.user_lastname,
+                phone_number: user.phone_number,
+                email: user.email,
+                is_admin: user.is_admin,
+                is_pnj: user.is_pnj
+            };
+            if (user.user_password) {
+                data.user_password = user.user_password;
+            }
             const rowToUpdate = db('users')
                 .where('id', '=', user.id)
-                .update({
-                    user_firstname: user.user_firstname,
-                    user_lastname: user.user_lastname,
-                    phone_number: user.phone_number,
-                    email: user.email,
-                    user_password: user.user_password,
-                    is_admin: user.is_admin
-                });
+                .update(data);
             rowsToUpdate.push(rowToUpdate);
         });
         Promise.all(rowsToUpdate)

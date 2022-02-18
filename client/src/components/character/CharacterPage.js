@@ -9,7 +9,7 @@ import createNewCharacter from './createNewCharacter';
 
 export default function CharacterPage(props) {
     const globalData = props.globalData;
-    const { userId, isAdmin } = getCurrentUser();
+    const { userId, isAdmin, IsPnj } = getCurrentUser();
     const { id, action } = useParams();
 
     const [errorMessage, setErrorMessage] = useState();
@@ -18,10 +18,6 @@ export default function CharacterPage(props) {
     const [isFound, setIsFound] = useState(undefined);
     const [isEdit, setIsEdit] = useState(action === 'edit');
     const [isLoading, setIsLoading] = useState(false);
-
-    const handlePrint = () => {
-        console.log('print');
-    };
 
     useEffect(() => {
         const loadData = (id) => {
@@ -32,14 +28,14 @@ export default function CharacterPage(props) {
             promise
                 .then(response => {
                     if (response?.isSuccessful) {
-                        if (response?.data?.user_id === userId || isAdmin) {
+                        if (response?.data?.user_id === userId || isAdmin || IsPnj) {
                             if (response.data) {
                                 setIsFound(true);
                                 setCharacter(response.data);
                                 setCharacterId(response.data.id);
                             }
                         } else {
-                            if (response?.data && response?.data?.user_id !== userId && !isAdmin) {
+                            if (response?.data && response?.data?.user_id !== userId && !isAdmin && !IsPnj) {
                                 setErrorMessage('Accès interdit');
                                 console.error('Trying to access unauthorized resource!');
                                 setCharacter(undefined);
@@ -70,7 +66,7 @@ export default function CharacterPage(props) {
                 loadData(id);
             }
         }
-    }, [isLoading, isFound, userId, id, character, isAdmin, characterId]);
+    }, [isLoading, isFound, userId, id, character, isAdmin, IsPnj, characterId]);
 
     return (
         (globalData && character && characterId >= 0)
@@ -81,7 +77,7 @@ export default function CharacterPage(props) {
                         ? <Alert severity="error" sx={{ displayPrint: 'none' }}>Aucun personnage avec l'id {id} existant.</Alert>
                         : <Grid container spacing={2} className="bg">
                             <Grid item>
-                                <Character character={character} globalData={globalData} isEdit={isEdit} handlePrint={handlePrint} />
+                                <Character character={character} globalData={globalData} isEdit={isEdit} />
                             </Grid>
                         </Grid>
                 }
