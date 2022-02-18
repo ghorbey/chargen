@@ -227,6 +227,8 @@ export default function Character(props) {
     const handlePrintPreview = () => {
         navigate(`/character/${character.id}/print-preview`);
     };
+
+
     //#endregion
 
     //#region Hooks
@@ -242,7 +244,8 @@ export default function Character(props) {
     return (
         (character && isComputed) ?
             <>
-                <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handlePrint={() => handlePrintPreview()} handleCancel={() => handleCancel()} />
+                <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handleCancel={() => handleCancel()} handlePrint={() => handlePrintPreview()} globalData={globalData} character={character} />
+
                 <Grid container spacing={2} id="character-sheet">
                     <Grid item lg={6}>
                         <FormControl fullWidth>

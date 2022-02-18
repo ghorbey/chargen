@@ -1,10 +1,10 @@
 import ActivityList from './activity/ActivityList';
 import Character from './character/Character';
-import CharacterActions from './character/CharacterActions';
+import { CharacterActions } from './character/CharacterActions';
 import CharacterPage from './character/CharacterPage';
 import CharacterList from './characterList/CharacterList';
 import CharacterListPage from './characterList/CharacterListPage';
-import PrintCharacter from './character/PrintCharacter';
+import { PrintCharacter } from './character/PrintCharacter';
 import HomePage from './home/HomePage';
 import LocalRoutes from './LocalRoutes'
 import LoginPage from './login/LoginPage';

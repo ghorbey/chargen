@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import ReactToPrint from 'react-to-print';
 import { Link } from 'react-router-dom';
 import { Button, Grid } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,10 +7,12 @@ import { faEdit, faArrowLeft, faSave, faBan, faFilePdf } from '@fortawesome/free
 
 import { Error } from '..';
 import { getCurrentUser } from '../../common';
+import { PrintCharacter } from '../../components';
 
-export default function CharacterActions(props) {
-    const { errorMessage, isEdit, handlePrint, handleSave, handleEdit, handleCancel } = props;
+export const CharacterActions = (props) => {
+    const { errorMessage, isEdit, handleSave, handleEdit, handlePrint, handleCancel, character, globalData } = props;
     const { isAdmin, isPnj } = getCurrentUser();
+    const componentRef = useRef();
 
     return (
         <Grid container spacing={2} sx={{ displayPrint: 'none' }}>
@@ -30,9 +33,16 @@ export default function CharacterActions(props) {
                     {!isEdit ? <FontAwesomeIcon icon={faEdit} size="lg" /> : <FontAwesomeIcon icon={faSave} size="lg" />}
                 </Button>
                 {!isEdit
-                    ? <Button color="primary" variant="outlined" onClick={() => handlePrint()} sx={{ mr: 2, height: 56 }}>
-                        <FontAwesomeIcon icon={faFilePdf} size="lg" />
-                    </Button>
+                    ? <>
+                        <ReactToPrint trigger={
+                            () =>
+                                <Button color="primary" variant="outlined" onClick={() => handlePrint()} sx={{ mr: 2, height: 56 }}>
+                                    <FontAwesomeIcon icon={faFilePdf} size="lg" />
+                                </Button>}
+                            content={() => componentRef.current}
+                        />
+                        <PrintCharacter ref={componentRef} globalData={globalData} character={character} />
+                    </>
                     : null
                 }
             </Grid>

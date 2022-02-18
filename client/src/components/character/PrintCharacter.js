@@ -7,8 +7,8 @@ import { getCurrentUser } from '../../common';
 import { ThemeContainer } from '../../components';
 import CharacterService from '../../services/Character.service';
 
-export default function PrintCharacter(props) {
-    const globalData = props.globalData;
+export const PrintCharacter = React.forwardRef((props, ref) => {
+    const { globalData } = props;
     const { id } = useParams();
     const { userId, isAdmin, IsPnj } = getCurrentUser();
     const [character, setCharacter] = useState(undefined);
@@ -84,74 +84,72 @@ export default function PrintCharacter(props) {
 
     return (
         (character && globalData) ?
-            <ThemeContainer>
-                <Root sx={{ maxWidth: '100%' }}>
-                    <table aria-label="character for print">
-                        <tbody>
-                            <tr>
-                                <th>Nom :</th>
-                                <td>{character.name}</td>
-                                <th>Numéro :</th>
-                                <td>{character.character_number}</td>
-                                <th>Points de destin :</th>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <th>Origine :</th>
-                                <td>{character.origin}</td>
-                                <th>Race :</th>
-                                <td>{character.race}</td>
-                                <th>Religion :</th>
-                                <td>{character.religion}</td>
-                            </tr>
-                            <tr>
-                                <th>Vocation :</th>
-                                <td></td>
-                                <th>Carrière :</th>
-                                <td></td>
-                                <th>Historique :</th>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>Compétences :</th>
-                                <td colSpan="5"></td>
-                            </tr>
-                            <tr>
-                                <th>XP actuels :</th>
-                                <td colSpan="2">{character.current_xp}</td>
-                                <th>XP totaux :</th>
-                                <td colSpan="2">{character.total_xp}</td>
-                            </tr>
-                            <tr>
-                                <th>XP scénario :</th>
-                                <td colSpan="2"><Checkbox disabled /></td>
-                                <th>XP roleplay :</th>
-                                <td colSpan="2"><Checkbox disabled /></td>
-                            </tr>
-                            <tr>
-                                <th>Quête:</th>
-                                <td colSpan="5">blabla</td>
-                            </tr>
-                            <tr>
-                                <th>Légende publique:</th>
-                                <td colSpan="5">blabla</td>
-                            </tr>
-                            <tr>
-                                <th>Background:</th>
-                                <td colSpan="5">blabla</td>
-                            </tr>
-                            <tr>
-                                <th>Chapitres</th>
-                                <td colSpan="5">blabla</td>
-                            </tr>
-                            <tr>
-                                <th>Annexes:</th>
-                                <td colSpan="5">blabla</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </Root>
-            </ThemeContainer>
+            <Root ref={ref} sx={{ maxWidth: '100%', display: 'none', displayPrint: 'block' }}>
+                <table aria-label="character for print">
+                    <tbody>
+                        <tr>
+                            <th>Nom :</th>
+                            <td>{character.name}</td>
+                            <th>Numéro :</th>
+                            <td>{character.character_number}</td>
+                            <th>Points de destin :</th>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <th>Origine :</th>
+                            <td>{character.origin}</td>
+                            <th>Race :</th>
+                            <td>{character.race}</td>
+                            <th>Religion :</th>
+                            <td>{character.religion}</td>
+                        </tr>
+                        <tr>
+                            <th>Vocation :</th>
+                            <td></td>
+                            <th>Carrière :</th>
+                            <td></td>
+                            <th>Historique :</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Compétences :</th>
+                            <td colSpan="5"></td>
+                        </tr>
+                        <tr>
+                            <th>XP actuels :</th>
+                            <td colSpan="2">{character.current_xp}</td>
+                            <th>XP totaux :</th>
+                            <td colSpan="2">{character.total_xp}</td>
+                        </tr>
+                        <tr>
+                            <th>XP scénario :</th>
+                            <td colSpan="2"><Checkbox disabled /></td>
+                            <th>XP roleplay :</th>
+                            <td colSpan="2"><Checkbox disabled /></td>
+                        </tr>
+                        <tr>
+                            <th>Quête:</th>
+                            <td colSpan="5">blabla</td>
+                        </tr>
+                        <tr>
+                            <th>Légende publique:</th>
+                            <td colSpan="5">blabla</td>
+                        </tr>
+                        <tr>
+                            <th>Background:</th>
+                            <td colSpan="5">blabla</td>
+                        </tr>
+                        <tr>
+                            <th>Chapitres</th>
+                            <td colSpan="5">blabla</td>
+                        </tr>
+                        <tr>
+                            <th>Annexes:</th>
+                            <td colSpan="5">blabla</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </Root>
             : <></>
     );
-}
+});
