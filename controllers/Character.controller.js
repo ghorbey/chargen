@@ -150,12 +150,12 @@ element_add = (request, response) => {
                                     afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, sort_order: chapter.sort_order }));
                                 });
                                 character.character_annexes.forEach(annexe => {
-                                    afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
+                                    afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe.content }));
                                 });
                             });
                             Promise.all(afterDelete).then(deleteResults => {
                                 Promise.all(afterInsert).then(insertResults => {
-                                    data = { isSuccessful: true, message: '' };
+                                    data = { isSuccessful: true, message: '', id: characterId };
                                     console.log('characters added');
                                     response.send(data);
                                 })
@@ -231,7 +231,7 @@ element_update = (request, response) => {
                                 afterInsert.push(db('characters_chapters').insert({ character_id: characterId, content: chapter.content, sort_order: chapter.sort_order }));
                             });
                             character.character_annexes.forEach(annexe => {
-                                afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe }));
+                                afterInsert.push(db('characters_annexes').insert({ character_id: characterId, content: annexe.content }));
                             });
                         });
                     });

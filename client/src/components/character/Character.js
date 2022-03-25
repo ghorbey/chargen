@@ -77,6 +77,108 @@ export default function Character(props) {
         copy[field] = value;
         setSelectedData(copy);
     }
+
+    const removePQ = (id) => {
+        if (id >= 0) {
+            const copy = { ...character };
+            const index = character.character_personal_quests.findIndex(entry => entry.id === id);
+            if (index >= 0) {
+                copy['character_personal_quests'].splice(index, 1);
+                setCharacter(copy);
+            }
+        }
+    };
+
+    const addPQ = () => {
+        const copy = { ...character };
+        let newItem = Object.assign({}, blankPersonalQuest);
+        newItem.id = copy['character_personal_quests'].length;
+        newItem.character_id = character.id;
+        copy['character_personal_quests'].push(newItem);
+        setCharacter(copy);
+    };
+
+    const updatePQ = (field, value) => {
+        if (field) {
+            const copy = { ...character };
+            const splitKey = field.split('_');
+            if (splitKey?.length > 1) {
+                const index = copy['character_personal_quests'].findIndex(entry => entry.id.toString() === splitKey[splitKey.length - 1].toString());
+                if (index >= 0) {
+                    copy['character_personal_quests'][index].content = value;
+                    setCharacter(copy);
+                }
+            }
+        }
+    };
+
+    const removeChapter = (id) => {
+        if (id >= 0) {
+            const copy = { ...character };
+            const index = character['character_chapters'].findIndex(entry => entry.id === id);
+            if (index >= 0) {
+                copy['character_chapters'].splice(index, 1);
+                setCharacter(copy);
+            }
+        }
+    };
+
+    const addChapter = () => {
+        const copy = { ...character };
+        let newItem = Object.assign({}, blankChapter);
+        newItem.id = copy['character_chapters'].length;
+        newItem.character_id = character.id;
+        copy['character_chapters'].push(newItem);
+        setCharacter(copy);
+    };
+
+    const updateChapter = (field, value) => {
+        if (field) {
+            const copy = { ...character };
+            const splitKey = field.split('_');
+            if (splitKey?.length > 1) {
+                const index = copy['character_chapters'].findIndex(entry => entry.id.toString() === splitKey[splitKey.length - 1].toString());
+                if (index >= 0) {
+                    copy['character_chapters'][index].content = value;
+                    setCharacter(copy);
+                }
+            }
+        }
+    };
+
+    const removeAnnexe = (id) => {
+        if (id >= 0) {
+            const copy = { ...character };
+            const index = character['character_annexes'].findIndex(entry => entry.id === id);
+            if (index >= 0) {
+                copy['character_annexes'].splice(index, 1);
+                setCharacter(copy);
+            }
+        }
+    };
+
+    const addAnnexe = () => {
+        const copy = { ...character };
+        let newItem = Object.assign({}, blankAnnexe);
+        newItem.id = copy['character_annexes'].length;
+        newItem.character_id = character.id;
+        copy['character_annexes'].push(newItem);
+        setCharacter(copy);
+    };
+
+    const updateAnnexe = (field, value) => {
+        if (field) {
+            const copy = { ...character };
+            const splitKey = field.split('_');
+            if (splitKey?.length > 1) {
+                const index = copy['character_annexes'].findIndex(entry => entry.id.toString() === splitKey[splitKey.length - 1].toString());
+                if (index >= 0) {
+                    copy['character_annexes'][index].content = value;
+                    setCharacter(copy);
+                }
+            }
+        }
+    };
     //#endregion
 
     //#region Initialization
@@ -106,6 +208,27 @@ export default function Character(props) {
                 ? careerSkillList[0].id
                 : 0;
             characterCareerSkills = methods.getCharacterCareerSkills(globalData.skills, character.character_skills);
+        }
+        if (character['character_personal_quests']?.length === 0) {
+            let newItem = Object.assign({}, blankPersonalQuest);
+            newItem.id = 0;
+            newItem.character_id = character.id;
+            character['character_personal_quests'].push(newItem);
+            setCharacter(character);
+        }
+        if (character['character_chapters']?.length === 0) {
+            let newItem = Object.assign({}, blankChapter);
+            newItem.id = 0;
+            newItem.character_id = character.id;
+            character['character_chapters'].push(newItem);
+            setCharacter(character);
+        }
+        if (character['character_annexes']?.length === 0) {
+            let newItem = Object.assign({}, blankAnnexe);
+            newItem.id = 0;
+            newItem.character_id = character.id;
+            character['character_annexes'].push(newItem);
+            setCharacter(character);
         }
     }
 
@@ -198,10 +321,12 @@ export default function Character(props) {
             CharacterService
                 .add([preparedCharacter])
                 .then(response => {
-                    const { isSuccessful, message } = response;
+                    const { isSuccessful, message, id } = response;
                     if (isSuccessful) {
                         setIsEdit(false);
-                        navigate(`/character/${character.id}/view`);
+                        character.id = id;
+                        setCharacter(character);
+                        navigate(`/character/${id}/view`);
                     }
                     setErrorMessage(message);
                 });
@@ -245,220 +370,83 @@ export default function Character(props) {
         (character && isComputed) ?
             <>
                 <CharacterActions isEdit={isEdit} errorMessage={errorMessage} handleSave={() => handleSave()} handleEdit={() => handleEdit()} handleCancel={() => handleCancel()} handlePrint={() => handlePrintPreview()} globalData={globalData} character={character} />
-
                 <Grid container spacing={2} id="character-sheet">
                     <Grid item lg={6}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="character_name"
-                                margin="normal"
-                                label="Nom du personnage"
-                                name="character_name"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledBase()}
-                                autoComplete="off"
-                                value={character.character_name}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                autoFocus
-                                fullWidth
-                                required
-                            />
+                            <TextField id="character_name" margin="normal" label="Nom du personnage" name="character_name" InputLabelProps={{ shrink: true }} disabled={isDisabledBase()} autoComplete="off" value={character.character_name}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} autoFocus fullWidth required />
                         </FormControl>
                     </Grid>
                     <Grid item lg={2}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="character_type"
-                                margin="normal"
-                                label="Type"
-                                name="character_type"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                defaultValue={character_types[0]}
-                                value={character.character_type}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="character_type" margin="normal" label="Type" name="character_type" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={character_types[0]} value={character.character_type}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required select>
                                 {character_types.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={4}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="character_number"
-                                margin="normal"
-                                label="Numéro"
-                                name="character_number"
-                                InputLabelProps={{ shrink: true }}
-                                type="string"
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                value={character.character_number}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                            />
+                            <TextField id="character_number" margin="normal" label="Numéro" name="character_number" InputLabelProps={{ shrink: true }} type="string" disabled={isDisabledForPlayer()} autoComplete="off" value={character.character_number}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required />
                         </FormControl>
                     </Grid>
                     <Grid item lg={10}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="user_id"
-                                margin="normal"
-                                label="Joueur"
-                                name="user_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                value={character.user_id}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="user_id" margin="normal" label="Joueur" name="user_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" value={character.user_id}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required select>
                                 {globalData.users.map(user => <MenuItem key={user.id} value={user.id}>{user.user_firstname} {user.user_lastname}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={2}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="fate_points"
-                                margin="normal"
-                                label="Points de destin"
-                                name="fate_points"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                value={character.fate_points}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                            />
+                            <TextField id="fate_points" margin="normal" label="Points de destin" name="fate_points" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" value={character.fate_points}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required />
                         </FormControl>
                     </Grid>
                     <Grid item lg={4}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="country_id"
-                                margin="normal"
-                                label="Pays d'origine"
-                                name="country_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                defaultValue={methods.getSelectedValue(globalData.countries.map(item => item.id), character.country_id, character)}
-                                value={character.country_id}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="country_id" margin="normal" label="Pays d'origine" name="country_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={methods.getSelectedValue(globalData.countries.map(item => item.id), character.country_id, character)} value={character.country_id}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required select>
                                 {globalData.countries.map(country => <MenuItem key={country.id} value={country.id}>{country.country_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={4}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="race_id"
-                                margin="normal"
-                                label="Race"
-                                name="race_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                defaultValue={methods.getSelectedValue(globalData.races.map(item => item.id), character.race_id, character)}
-                                value={character.race_id}
-                                onChange={(e) => updateRaceField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="race_id" margin="normal" label="Race" name="race_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={methods.getSelectedValue(globalData.races.map(item => item.id), character.race_id, character)} value={character.race_id}
+                                onChange={(e) => updateRaceField(e.target.name, e.target.value)} fullWidth required select>
                                 {globalData.races.map(race => <MenuItem key={race.id} value={race.id}>{race.race_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={4}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="religion_id"
-                                margin="normal"
-                                label="Religion"
-                                name="religion_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                defaultValue={methods.getSelectedValue(globalData.religions.map(item => item.id), character.religion_id, character)}
-                                value={character.religion_id}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="religion_id" margin="normal" label="Religion" name="religion_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={methods.getSelectedValue(globalData.religions.map(item => item.id), character.religion_id, character)} value={character.religion_id}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required select>
                                 {methods.getAvailableReligions(globalData, character.race_id).map(religion => <MenuItem key={religion.id} value={religion.id}>{religion.religion_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={6}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="vocation_id"
-                                margin="normal"
-                                label="Vocation"
-                                name="vocation_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                defaultValue={methods.getSelectedValue(globalData.vocations.map(item => item.id), character.vocation_id, character)}
-                                value={character.vocation_id}
-                                onChange={(e) => updateVocationField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="vocation_id" margin="normal" label="Vocation" name="vocation_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={methods.getSelectedValue(globalData.vocations.map(item => item.id), character.vocation_id, character)} value={character.vocation_id}
+                                onChange={(e) => updateVocationField(e.target.name, e.target.value)} fullWidth required select>
                                 {globalData.vocations.map(vocation => <MenuItem key={vocation.id} value={vocation.id}>{vocation.vocation_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
                     </Grid>
                     <Grid item lg={6}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="race_skills"
-                                margin="normal"
-                                label="Compétences de race"
-                                name="race_skills"
-                                InputLabelProps={{ shrink: true }}
-                                autoComplete="off"
-                                value={raceSkills.map(skill => skill.skill_name).join(listSeparator)}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                disabled
-                                multiline
-                                fullWidth
-                            />
+                            <TextField id="race_skills" margin="normal" label="Compétences de race" name="race_skills" InputLabelProps={{ shrink: true }} autoComplete="off" value={raceSkills.map(skill => skill.skill_name).join(listSeparator)}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} disabled multiline fullWidth />
                         </FormControl>
                     </Grid>
                     <Grid item lg={5}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="current_career_id"
-                                margin="normal"
-                                label="Carrière actuelle"
-                                name="current_career_id"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledBase()}
-                                autoComplete="off"
-                                defaultValue={methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id, character.character_careers)}
-                                value={character.current_career_id}
-                                onChange={(e) => updateCareerField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                                select
-                            >
+                            <TextField id="current_career_id" margin="normal" label="Carrière actuelle" name="current_career_id" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" defaultValue={methods.getSelectedCareerOnVocationId(globalData, character.vocation_id, character.current_career_id, character.character_careers)} value={character.current_career_id}
+                                onChange={(e) => updateCareerField(e.target.name, e.target.value)} fullWidth required select >
                                 {methods.getVocationCareers(globalData, character.vocation_id).map(career => <MenuItem key={career.id} value={career.id}>{career.career_name}</MenuItem>)}
                             </TextField>
                         </FormControl>
@@ -474,18 +462,8 @@ export default function Character(props) {
                         <Grid container spacing={2}>
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        id="character_careers"
-                                        margin="normal"
-                                        label="Historique des carrières"
-                                        name="character_careers"
-                                        InputLabelProps={{ shrink: true }}
-                                        autoComplete="off"
-                                        value={characterCareers.map(career => career.career_name).join(listSeparator)}
-                                        disabled
-                                        multiline
-                                        fullWidth
-                                    />
+                                    <TextField id="character_careers" margin="normal" label="Historique des carrières" name="character_careers" InputLabelProps={{ shrink: true }} autoComplete="off"
+                                        value={characterCareers.map(career => career.career_name).join(listSeparator)} disabled multiline fullWidth />
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2} sx={{ displayPrint: 'none' }}>
@@ -501,20 +479,8 @@ export default function Character(props) {
                         <Grid container spacing={2}>
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        id="base_skills_id"
-                                        inputProps={{ ref: input => baseSkillInput = input }}
-                                        margin="normal"
-                                        label="Compétences de base"
-                                        name="base_skills_id"
-                                        InputLabelProps={{ shrink: true }}
-                                        disabled={isDisabledBase() || !baseSkillList || baseSkillList?.length === 0}
-                                        autoComplete="off"
-                                        value={selectedBaseSkillId}
-                                        onChange={(e) => updateDataField(e.target.name, e.target.value)}
-                                        select
-                                        fullWidth
-                                    >
+                                    <TextField id="base_skills_id" inputProps={{ ref: input => baseSkillInput = input }} margin="normal" label="Compétences de base" name="base_skills_id" InputLabelProps={{ shrink: true }}
+                                        disabled={isDisabledForPlayer() || !baseSkillList || baseSkillList?.length === 0} autoComplete="off" value={selectedBaseSkillId} onChange={(e) => updateDataField(e.target.name, e.target.value)} select fullWidth>
                                         <MenuItem key={0} value={0}></MenuItem>
                                         {baseSkillList.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
@@ -522,30 +488,20 @@ export default function Character(props) {
                             </Grid>
                             <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={isDisabledForPlayerEdition() || !baseSkillList || baseSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addBaseSkill()} disabled={isDisabledForPlayer() || !baseSkillList || baseSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
                             </Grid>
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        id="visible_character_base_skills"
-                                        margin="normal"
-                                        label="Compétences de base acquises"
-                                        name="visible_character_base_skills"
-                                        InputLabelProps={{ shrink: true }}
-                                        autoComplete="off"
-                                        value={character.visible_base_character_skill_names.join(listSeparator)}
-                                        disabled
-                                        multiline
-                                        fullWidth
-                                    />
+                                    <TextField id="visible_character_base_skills" margin="normal" label="Compétences de base acquises" name="visible_character_base_skills" InputLabelProps={{ shrink: true }} autoComplete="off"
+                                        value={character.visible_base_character_skill_names.join(listSeparator)} disabled multiline fullWidth />
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={isDisabledForPlayerEdition() || !characterBaseSkills || characterBaseSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearBaseSkills} disabled={isDisabledForPlayer() || !characterBaseSkills || characterBaseSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -556,20 +512,9 @@ export default function Character(props) {
                         <Grid container spacing={2}>
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        id="career_skills"
-                                        inputProps={{ ref: input => careerSkillInput = input }}
-                                        margin="normal"
-                                        label="Compétences de carrière"
-                                        name="career_skills"
-                                        InputLabelProps={{ shrink: true }}
-                                        disabled={isDisabledBase() || !careerSkillList || careerSkillList?.length === 0}
-                                        autoComplete="off"
-                                        value={selectedCareerSkillId}
-                                        onChange={(e) => updateUnrelatedField(e.target.name, e.target.value)}
-                                        select
-                                        fullWidth
-                                    >
+                                    <TextField id="career_skills" inputProps={{ ref: input => careerSkillInput = input }} margin="normal" label="Compétences de carrière" name="career_skills" InputLabelProps={{ shrink: true }}
+                                        disabled={isDisabledForPlayer() || !careerSkillList || careerSkillList?.length === 0} autoComplete="off" value={selectedCareerSkillId} onChange={(e) => updateUnrelatedField(e.target.name, e.target.value)}
+                                        select fullWidth >
                                         <MenuItem key={0} value={0}></MenuItem>
                                         {careerSkillList.map(skill => <MenuItem key={skill.id} value={skill.id}>{skill.skill_name}</MenuItem>)}
                                     </TextField>
@@ -577,30 +522,20 @@ export default function Character(props) {
                             </Grid>
                             <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={isDisabledForPlayerEdition() || !careerSkillList || careerSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={(e) => addCareerSkill()} disabled={isDisabledForPlayer() || !careerSkillList || careerSkillList?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faPlus} size="lg" />
                                     </Button>
                                 </Stack>
                             </Grid>
                             <Grid item lg={10}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        id="visible_career_character_skills"
-                                        margin="normal"
-                                        label="Compétences de carrière acquises"
-                                        name="visible_career_character_skills"
-                                        InputLabelProps={{ shrink: true }}
-                                        autoComplete="off"
-                                        value={character.visible_career_character_skill_names.join(listSeparator)}
-                                        disabled
-                                        multiline
-                                        fullWidth
-                                    />
+                                    <TextField id="visible_career_character_skills" margin="normal" label="Compétences de carrière acquises" name="visible_career_character_skills" InputLabelProps={{ shrink: true }} autoComplete="off"
+                                        value={character.visible_career_character_skill_names.join(listSeparator)} disabled multiline fullWidth />
                                 </FormControl>
                             </Grid>
                             <Grid item lg={2} sx={{ displayPrint: 'none' }}>
                                 <Stack direction="row" justifyContent="flex-end">
-                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={isDisabledForPlayerEdition() || !characterCareerSkills || characterCareerSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
+                                    <Button color="primary" variant="outlined" onClick={clearCareerSkills} disabled={isDisabledForPlayer() || !characterCareerSkills || characterCareerSkills?.length === 0} sx={{ mt: 2, height: 56 }}>
                                         <FontAwesomeIcon icon={faMinus} size="lg" />
                                     </Button>
                                 </Stack>
@@ -609,36 +544,14 @@ export default function Character(props) {
                     </Grid>
                     <Grid item lg={6}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="current_xp"
-                                margin="normal"
-                                label="XP actuels"
-                                name="current_xp"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                value={character.current_xp}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                            />
+                            <TextField id="current_xp" margin="normal" label="XP actuels" name="current_xp" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" value={character.current_xp}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required />
                         </FormControl>
                     </Grid>
                     <Grid item lg={6}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="total_xp"
-                                margin="normal"
-                                label="XP acquis"
-                                name="total_xp"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayer()}
-                                autoComplete="off"
-                                value={character.total_xp}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                required
-                            />
+                            <TextField id="total_xp" margin="normal" label="XP acquis" name="total_xp" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayer()} autoComplete="off" value={character.total_xp}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth required />
                         </FormControl>
                     </Grid>
                     <Grid item lg={6}>
@@ -648,23 +561,13 @@ export default function Character(props) {
                         <FormControlLabel control={<Checkbox disabled />} label="XP roleplay" />
                     </Grid>
                     <Grid item lg={12}>
-                        <MultipleTextArea data={character.character_personal_quests} title={'Quête personnelle'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankPersonalQuest} label={'Quête'} name={'personal_quest'} />
+                        <MultipleTextArea data={character.character_personal_quests} title={'Quête personnelle'} id={character.id} isDisabled={isDisabledBase()} label={'Quête'} name={'personal_quest'}
+                            updateContent={updatePQ} addEntry={addPQ} removeEntry={removePQ} />
                     </Grid>
                     <Grid item lg={12}>
                         <FormControl fullWidth>
-                            <TextField
-                                id="public_legend"
-                                margin="normal"
-                                label="Légende publique"
-                                name="public_legend"
-                                InputLabelProps={{ shrink: true }}
-                                disabled={isDisabledForPlayerEdition()}
-                                autoComplete="off"
-                                value={character.public_legend}
-                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)}
-                                fullWidth
-                                multiline
-                            />
+                            <TextField id="public_legend" margin="normal" label="Légende publique" name="public_legend" InputLabelProps={{ shrink: true }} disabled={isDisabledForPlayerEdition()} autoComplete="off" value={character.public_legend}
+                                onChange={(e) => updateCharacterField(e.target.name, e.target.value)} fullWidth multiline />
                         </FormControl>
                     </Grid>
                     <Grid item lg={12}>
@@ -674,10 +577,12 @@ export default function Character(props) {
                         </FormControl>
                     </Grid>
                     <Grid item lg={12}>
-                        <MultipleTextArea data={character.character_chapters} title={'Chapitres'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankChapter} label={'Chapitre'} name={'chapter'} />
+                        <MultipleTextArea data={character.character_chapters} title={'Chapitres'} id={character.id} isDisabled={isDisabledBase()} label={'Chapitre'} name={'chapter'}
+                            updateContent={updateChapter} addEntry={addChapter} removeEntry={removeChapter} />
                     </Grid>
                     <Grid item lg={12}>
-                        <MultipleTextArea data={character.character_annexes} title={'Annexes'} id={character.id} isDisabled={isDisabledBase()} blankItem={blankAnnexe} label={'Annexe'} name={'annexe'} />
+                        <MultipleTextArea data={character.character_annexes} title={'Annexes'} id={character.id} isDisabled={isDisabledBase()} label={'Annexe'} name={'annexe'}
+                            updateContent={updateAnnexe} addEntry={addAnnexe} removeEntry={removeAnnexe} />
                     </Grid>
                 </Grid >
             </>

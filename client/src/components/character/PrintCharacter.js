@@ -4,7 +4,6 @@ import { styled } from '@mui/system';
 import { Checkbox } from '@mui/material';
 
 import { getCurrentUser } from '../../common';
-import { ThemeContainer } from '../../components';
 import CharacterService from '../../services/Character.service';
 
 export const PrintCharacter = React.forwardRef((props, ref) => {

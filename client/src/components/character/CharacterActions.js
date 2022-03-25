@@ -34,12 +34,11 @@ export const CharacterActions = (props) => {
                 </Button>
                 {!isEdit
                     ? <>
-                        <ReactToPrint trigger={
+                        <ReactToPrint content={() => componentRef.current} trigger={
                             () =>
                                 <Button color="primary" variant="outlined" onClick={() => handlePrint()} sx={{ mr: 2, height: 56 }}>
                                     <FontAwesomeIcon icon={faFilePdf} size="lg" />
                                 </Button>}
-                            content={() => componentRef.current}
                         />
                         <PrintCharacter ref={componentRef} globalData={globalData} character={character} />
                     </>
